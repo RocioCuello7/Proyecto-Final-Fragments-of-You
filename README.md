@@ -1,33 +1,26 @@
-# Fragments of You
+Proyecto Final POO "Fragments of You"
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+Integrantes: Cuello Rocío, Dacal Valentino
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+Descripcion Corta del Juego: El proyecto, “Fragments of You”, surge como una propuesta para la materia de LPOO. El juego se centra en Glenn,
+personaje protagonista que atraviesa el duelo por la pérdida y el asesinato de su abuela. A través de una narrativa metafórica y sentimental, el 
+jugador deberá superar enemigos que representan los sentimientos durante el duelo, buscando que la jugabilidad no sea solamente un desafío 
+técnico, sino también una experiencia psicológica.
 
-## Platforms
+Tecnologias Utilizadas:
+Framework: LibGDX (v1.14.2.0)
+Lenguaje: Java
+Motor de Físicas: Box2D
+Iluminación: Box2DLights
+Persistencia: SQLite (v3.53.2.0) gestionada con JDBC
+Plataforma objetivo: Escritorio (Desktop/LWJGL3)
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+Como Compilar y Ejecutar: 
+1. Clonar este repositorio en tu máquina local.
+2. Abrir la carpeta raíz del proyecto en IntelliJ IDEA.
+3. Importar el proyecto como proyecto Gradle.
+4. Una vez sincronizadas las dependencias, ejecutar el juego desde la terminal del IDE usando la tarea de Gradle:
+En Windows: gradlew lwjgl3:run
+En Linux/macOS: ./gradlew lwjgl3:run
 
-## Gradle
-
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
-
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
-
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+Estado Actual del Proyecto: Pre-entrega N°1: Configuración inicial del entorno, definición de arquitectura y estructura base del proyecto.
