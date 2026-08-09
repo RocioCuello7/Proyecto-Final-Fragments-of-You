@@ -1,7 +1,24 @@
 # Changelog
 
 Todos los cambios significativos del proyecto serán documentados en este archivo.
+### [0.2.0] - 2026-08-08
 
+#### Agregado
+
+* Implementación de la clase abstracta `GameState` como molde base para las pantallas.
+* Creación del gestor de estados de juego (`GameStateManager`) basado en una estructura de pila (`Stack`).
+* Configuración del ciclo de vida principal y cámaras (`cam` y `hudCam`) en la clase `Main`.
+* Implementación de la pantalla `Play` con movimiento omnidireccional mediante teclas WASD.
+* Generación por código de un sprite temporal de 32x32 píxeles utilizando `Pixmap`.
+* Cálculo de velocidad del jugador independiente de la tasa de refresco mediante Delta Time.
+
+#### Modificado
+
+* Reorganización de la estructura de paquetes del proyecto a `com.fragmentsofyou` (`states`, `handlers`).
+* Remoción de las mecánicas de física de plataformas en favor de una vista 2D Top-Down directa.
+* Ajuste de la versión de Gradle JVM para compatibilidad con la compilación del proyecto.
+* Configuración de la tarea de ejecución en el launcher de escritorio (`Lwjgl3Launcher`).
+* 
 ## [0.1.0] - 2026-07-14
 
 ### Agregado
