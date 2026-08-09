@@ -1,7 +1,7 @@
 # Changelog
 
 Todos los cambios significativos del proyecto serán documentados en este archivo.
-### [0.2.0] - 2026-08-08
+## [0.2.0] - 2026-08-08
 
 #### Agregado
 
@@ -15,10 +15,9 @@ Todos los cambios significativos del proyecto serán documentados en este archiv
 #### Modificado
 
 * Reorganización de la estructura de paquetes del proyecto a `com.fragmentsofyou` (`states`, `handlers`).
-* Remoción de las mecánicas de física de plataformas en favor de una vista 2D Top-Down directa.
 * Ajuste de la versión de Gradle JVM para compatibilidad con la compilación del proyecto.
 * Configuración de la tarea de ejecución en el launcher de escritorio (`Lwjgl3Launcher`).
-* 
+  
 ## [0.1.0] - 2026-07-14
 
 ### Agregado
