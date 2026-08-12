@@ -6,6 +6,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -17,39 +20,34 @@ public class Play extends GameState {
 
     private Viewport playView;
 
+
+    private TiledMap map;
+    private OrthogonalTiledMapRenderer mapRenderer;
     // Sprite y posición del personaje temporal
-    private Texture tempSprite;
+    private Texture mapaFondo;
     private Texture meiSprite;
     private float playerX;
     private float playerY;
-    private float miraX;
-    private float miraY;
     private float speed = 220f; // Velocidad de movimiento en píxeles/segundo
     private float rotacionJugador;
+
+    private Vector3 mousePos = new Vector3();
 
     public Play(GameStateManager gsm) {
         super(gsm);
 
+        cam.setToOrtho(false, 240, 192);
+        playView = new FitViewport(240, 192, cam);
 
 
-        // 1. Configurar la camara top-down
-        cam.setToOrtho(false, 1280, 720);
+        map = new TmxMapLoader().load("mapas/mapaPrueba.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
 
-        playView= new ExtendViewport(1280, 720, cam);
+        // CARGA DE TEXTURAS
+        meiSprite = new Texture("meiSprite.png");
 
-        // 2. Generar el cuadrado blanco temporal (32x32) en memoria
-        Pixmap pixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
-        pixmap.setColor(1,1, 1, 1);
-        pixmap.fill();
-        tempSprite = new Texture(pixmap);
-        pixmap.dispose();
-
-        meiSprite = new Texture("C:\\Users\\Rocío Cuello\\IdeaProjects\\Proyecto-Final-Fragments-of-You\\lwjgl3\\src\\main\\resources\\meiSprite.png");
-
-
-        // 3. Posicion inicial en el centro de la pantalla
-        playerX = 1280 / 2f;
-        playerY = 720 / 2f;
+        playerX = 240 / 2f;
+        playerY = 192 / 2f;
     }
 
     @Override
@@ -75,20 +73,17 @@ public class Play extends GameState {
     public void update(float dt) {
         handleInput();
 
-        Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        // 1. Obtenemos las coordenadas del mouse y las traducimos al mundo de juego
+        mousePos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
         playView.unproject(mousePos);
 
-        miraX = Gdx.input.getX();
-        miraY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        // 2. Calculamos la diferencia usando mousePos (¡NO miraX/miraY!)
+        float deltaX = mousePos.x - playerX;
+        float deltaY = mousePos.y - playerY;
 
-        float anguloRadianes = MathUtils.atan2(miraY - playerY, miraX - playerX);
+        // 3. Convertimos a grados
+        rotacionJugador = MathUtils.atan2(deltaY, deltaX) * MathUtils.radiansToDegrees;
 
-        float anguloGrados = MathUtils.radiansToDegrees * anguloRadianes;
-
-        rotacionJugador = anguloGrados;
-
-        // esto seria si quisiera que siga al jugador
-        //cam.position.set(playerX, playerY, 0);
         cam.update();
     }
 
@@ -98,12 +93,16 @@ public class Play extends GameState {
         playView.apply();
 
         //fondo gris
-        Gdx.gl.glClearColor(1f, 1f, 1f, 1);
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        playView.apply();
+
+        mapRenderer.setView(cam);
+        mapRenderer.render();
 
         sb.setProjectionMatrix(cam.combined);
-        sb.begin();
 
+        sb.begin();
         sb.draw(meiSprite,
             playerX - 16, playerY - 16,
             16, 16,
@@ -116,13 +115,12 @@ public class Play extends GameState {
     }
     @Override
     public void resize(int width, int height) {
-        playView.update(width, height, true);
-    }
+        playView.update(width, height, true);    }
 
     @Override
     public void dispose() {
-        if (meiSprite != null) {
-            meiSprite.dispose();
-        }
+        if (map != null) map.dispose();
+        if (mapRenderer != null) mapRenderer.dispose();
+        if (meiSprite != null) meiSprite.dispose();
     }
 }
