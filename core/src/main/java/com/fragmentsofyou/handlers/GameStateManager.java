@@ -31,6 +31,12 @@ public class GameStateManager {
         gameStates.peek().render();
     }
 
+    public void resize(int width, int height) {
+        if (!gameStates.isEmpty()) {
+            gameStates.peek().resize(width, height);
+        }
+    }
+
     private GameState getState(int state) {
         if (state == PLAY) return new Play(this);
         return null;

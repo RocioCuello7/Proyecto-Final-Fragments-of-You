@@ -35,6 +35,12 @@ public class Main extends ApplicationAdapter {
         gsm.render();
     }
 
+    public void resize(int width, int height) {
+        if (gsm != null) {
+            gsm.resize(width, height);
+        }
+    }
+
     @Override
     public void dispose() {
         sb.dispose();
@@ -44,3 +50,4 @@ public class Main extends ApplicationAdapter {
     public OrthographicCamera getCamera() { return cam; }
     public OrthographicCamera getHUDCamera() { return hudCam; }
 }
+
