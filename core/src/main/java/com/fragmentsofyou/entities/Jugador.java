@@ -74,6 +74,10 @@ public class Jugador{
     public float getX() { return x; }
     public float getY() { return y; }
 
+    public float getRotacion() {
+        return rotacion;
+    }
+
     public void dispose() {
         if (texture != null) texture.dispose();
     }
