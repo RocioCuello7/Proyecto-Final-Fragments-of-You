@@ -181,7 +181,7 @@
   <object id="58" x="388" y="130.667" width="8" height="74"/>
   <object id="59" x="530.333" y="131.333" width="11.3333" height="130.667"/>
   <object id="60" x="628" y="164.333" width="9.33333" height="311.667"/>
-  <object id="66" name="spawn" x="361.333" y="294">
+  <object id="66" name="spawn" x="473" y="301">
    <point/>
   </object>
   <object id="69" x="317.667" y="333.667" width="118" height="49"/>
