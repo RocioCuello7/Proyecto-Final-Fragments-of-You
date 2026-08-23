@@ -11,10 +11,11 @@ import com.fragmentsofyou.handlers.MapCollision;
 
 public class Jugador{
 
-    private Texture texture;
+    private CharacterAnimator animador;
+
     private float x, y;
     private float speed = 90f;
-    private float rotacion;
+    private float rotacionMouse;
 
     private float dirX, dirY;
     private float width = 10f;
@@ -25,7 +26,8 @@ public class Jugador{
     public Jugador(float startX, float startY) {
         this.x = startX;
         this.y = startY;
-        this.texture = new Texture("meiSprite.png");
+
+        this.animador= new CharacterAnimator("spriteGlenn.png",0.15f);
     }
 
     public void handleInput(Viewport viewport) {
@@ -34,7 +36,7 @@ public class Jugador{
 
         float deltaX = mousePos.x - x;
         float deltaY = mousePos.y - y;
-        rotacion = MathUtils.atan2(deltaY, deltaX) * MathUtils.radiansToDegrees;
+        rotacionMouse = MathUtils.atan2(deltaY, deltaX) * MathUtils.radiansToDegrees;
 
         dirX = 0;
         dirY = 0;
@@ -59,26 +61,22 @@ public class Jugador{
                 x = intentoX;
             }
         }
+
+        animador.update(dt,dirX,dirY);
     }
 
     public void render(SpriteBatch sb) {
-        sb.draw(texture,
-            x - 5, y - 5,
-            5, 5,
-            10, 10,
-            1, 1,
-            rotacion,
-            0, 0, 32, 32, false, false);
+        sb.draw(animador.getCurrentFrame(),x-8,y-8,16,16);
     }
 
     public float getX() { return x; }
     public float getY() { return y; }
 
     public float getRotacion() {
-        return rotacion;
+        return rotacionMouse;
     }
 
     public void dispose() {
-        if (texture != null) texture.dispose();
+        if (animador != null) animador.dispose();
     }
 }
