@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
 import com.fragmentsofyou.handlers.GameStateManager;
 import com.fragmentsofyou.handlers.MapCollision;
@@ -28,6 +29,7 @@ public class Play extends GameState {
     private OrthogonalTiledMapRenderer mapRenderer;
 
     private Jugador jugador;
+    private Enemigo enemigo;
 
     private World world;
     private RayHandler rayHandler;
@@ -54,6 +56,7 @@ public class Play extends GameState {
         }
 
         jugador = new Jugador(spawnX,spawnY);
+        enemigo= new Enemigo(spawnX +20, spawnY +20);
 
         world = new World(new Vector2(0, 0), true);
         rayHandler = new RayHandler(world);
@@ -81,6 +84,7 @@ public class Play extends GameState {
         handleInput();
 
         jugador.update(dt,mapCollision);
+        enemigo.update(dt, mapCollision, jugador.getX(), jugador.getY());
 
         linterna.setPosition(jugador.getX(),jugador.getY());
         linterna.setDirection(jugador.getRotacion());
@@ -103,6 +107,7 @@ public class Play extends GameState {
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
         jugador.render(sb);
+        enemigo.render(sb);
         sb.end();
 
         rayHandler.setCombinedMatrix(cam);
@@ -126,6 +131,7 @@ public class Play extends GameState {
         if (map != null) map.dispose();
         if (mapRenderer != null) mapRenderer.dispose();
         if (jugador != null) jugador.dispose();
+        if(enemigo !=null) enemigo.dispose();
 
         if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
