@@ -2,7 +2,9 @@ package com.fragmentsofyou.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -16,34 +18,45 @@ import com.fragmentsofyou.handlers.GameStateManager;
 public class Menu extends GameState {
     private Viewport menuView;
 
-    // Tiled
     private TiledMap menuMap;
     private OrthogonalTiledMapRenderer mapRenderer;
 
-    // Rectángulos de los botones leídos desde Tiled
-    private Rectangle playBounds;
-    private Rectangle settingsBounds;
-    private Rectangle exitBounds;
+    private Rectangle botonPlay;
+    private Rectangle botonSettings;
+    private Rectangle botonExit;
+
+    private Vector3 touchPos;
 
     public Menu(GameStateManager gsm) {
         super(gsm);
 
         cam.setToOrtho(false, 320, 180);
         menuView = new FitViewport(320, 180, cam);
+        touchPos = new Vector3();
 
-        menuMap = new TmxMapLoader().load("mapas/menu.tmx");
+        menuMap = new TmxMapLoader().load("mapas/menuFOY.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(menuMap);
 
-        if (menuMap.getLayers().get("botonesObjeto") != null) {
-            for (MapObject object : menuMap.getLayers().get("botonesObjeto").getObjects()) {
-                if (object instanceof RectangleMapObject) {
-                    Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                    String name = object.getName();
+        MapLayer capaBotones = menuMap.getLayers().get("botonesObjeto");
 
-                    if (name != null) {
-                        if (name.equalsIgnoreCase("play")) playBounds = rect;
-                        else if (name.equalsIgnoreCase("settings")) settingsBounds = rect;
-                        else if (name.equalsIgnoreCase("exit")) exitBounds = rect;
+        if (capaBotones != null) {
+            MapObjects objetos = capaBotones.getObjects();
+
+            for (int i = 0; i < objetos.getCount(); i++) {
+                MapObject objeto = objetos.get(i);
+
+                if (objeto instanceof RectangleMapObject) {
+                    Rectangle rect = ((RectangleMapObject) objeto).getRectangle();
+                    String nombre = objeto.getName();
+
+                    if (nombre != null) {
+                        if (nombre.equalsIgnoreCase("play")) {
+                            botonPlay = rect;
+                        } else if (nombre.equalsIgnoreCase("settings")) {
+                            botonSettings = rect;
+                        } else if (nombre.equalsIgnoreCase("exit")) {
+                            botonExit = rect;
+                        }
                     }
                 }
             }
@@ -52,16 +65,19 @@ public class Menu extends GameState {
 
     @Override
     public void handleInput() {
-        if (Gdx.input.isTouched()) {
-            Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        if (Gdx.input.justTouched()) {
+            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             menuView.unproject(touchPos);
 
-            if (playBounds != null && playBounds.contains(touchPos.x, touchPos.y)) {
+            if (botonPlay != null && botonPlay.contains(touchPos.x, touchPos.y)) {
                 gsm.setState(GameStateManager.PLAY);
             }
 
-            // Detectar clic en Exit
-            if (exitBounds != null && exitBounds.contains(touchPos.x, touchPos.y)) {
+            if (botonSettings != null && botonSettings.contains(touchPos.x, touchPos.y)) {
+                // gsm.setState(GameStateManager.SETTINGS);
+            }
+
+            if (botonExit != null && botonExit.contains(touchPos.x, touchPos.y)) {
                 Gdx.app.exit();
             }
         }

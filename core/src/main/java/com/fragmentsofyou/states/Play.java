@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -20,7 +21,6 @@ import com.fragmentsofyou.handlers.GameStateManager;
 import com.fragmentsofyou.handlers.MapCollision;
 
 public class Play extends GameState {
-
 
     private Viewport playView;
 
@@ -45,32 +45,50 @@ public class Play extends GameState {
         mapCollision = new MapCollision(map, "paredes y muebles");
         mapRenderer = new OrthogonalTiledMapRenderer(map);
 
-        float spawnX = 320 / 2f;
-        float spawnY = 180 / 2f;
+        Vector2 spawn = obtenerSpawn();
+        jugador = new Jugador(spawn.x, spawn.y);
+        enemigo = new Enemigo(spawn.x + 22, spawn.y + 27);
 
-        MapLayer capa = map.getLayers().get("paredes y muebles");
-        if (capa != null && capa.getObjects().get("spawn") != null) {
+        setupIluminacion();
+
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
+    private Vector2 obtenerSpawn() {
+        for (int i = 0; i < map.getLayers().getCount(); i++) {
+            MapLayer capa = map.getLayers().get(i);
             MapObject spawnPoint = capa.getObjects().get("spawn");
-            spawnX = (float) spawnPoint.getProperties().get("x");
-            spawnY = (float) spawnPoint.getProperties().get("y");
+
+            if (spawnPoint != null) {
+                if (spawnPoint instanceof RectangleMapObject) {
+                    RectangleMapObject rect = (RectangleMapObject) spawnPoint;
+                    return new Vector2(rect.getRectangle().x, rect.getRectangle().y);
+                } else if (spawnPoint.getProperties().containsKey("x")) {
+                    return new Vector2(
+                        spawnPoint.getProperties().get("x", Float.class),
+                        spawnPoint.getProperties().get("y", Float.class)
+                    );
+                }
+            }
         }
+        return new Vector2(160f, 90f); // Valor por defecto si no existe en Tiled
+    }
 
-        jugador = new Jugador(spawnX,spawnY);
-        enemigo= new Enemigo(spawnX +20, spawnY +20);
-
+    private void setupIluminacion() {
         world = new World(new Vector2(0, 0), true);
         rayHandler = new RayHandler(world);
-
         rayHandler.setAmbientLight(0.06f);
+
+        float rotInicial = Float.isNaN(jugador.getRotacion()) ? 0f : jugador.getRotacion();
 
         linterna = new ConeLight(
             rayHandler,
-            64,                                   // cant de rayos
-            new Color(1f, 0.95f, 0.8f, 0.95f),    // Color de linterna
-            115f,                                 // alcance de la luz
-            jugador.getX(), jugador.getY(),         // Posicion inicial
-            jugador.getRotacion(),                 // Dirección inicial
-            38f                                   // angulo de apertura del cono (38 grados)
+            64,
+            new Color(1f, 0.95f, 0.8f, 0.95f),
+            115f,
+            jugador.getX(), jugador.getY(),
+            rotInicial,
+            38f
         );
     }
 
@@ -83,11 +101,16 @@ public class Play extends GameState {
     public void update(float dt) {
         handleInput();
 
-        jugador.update(dt,mapCollision);
+        jugador.update(dt, mapCollision);
         enemigo.update(dt, mapCollision, jugador.getX(), jugador.getY());
 
-        linterna.setPosition(jugador.getX(),jugador.getY());
-        linterna.setDirection(jugador.getRotacion());
+        if (!Float.isNaN(jugador.getX()) && !Float.isNaN(jugador.getY())) {
+            linterna.setPosition(jugador.getX(), jugador.getY());
+        }
+        if (!Float.isNaN(jugador.getRotacion())) {
+            linterna.setDirection(jugador.getRotacion());
+        }
+
         rayHandler.update();
 
         cam.position.set(jugador.getX(), jugador.getY(), 0);
@@ -131,10 +154,8 @@ public class Play extends GameState {
         if (map != null) map.dispose();
         if (mapRenderer != null) mapRenderer.dispose();
         if (jugador != null) jugador.dispose();
-        if(enemigo !=null) enemigo.dispose();
-
+        if (enemigo != null) enemigo.dispose();
         if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
-        jugador.dispose();
     }
 }

@@ -12,8 +12,9 @@ public class GameStateManager {
     private Main game;
     private Stack<GameState> gameStates;
 
-    public static final int MENU = 0; // Identificador para el menú
-    public static final int PLAY = 482;
+    public static final int MENU = 0;
+    public static final int PLAY = 1;
+    public static final int SETTINGS = 2;
 
     public GameStateManager(Main game) {
         this.game = game;
@@ -26,11 +27,15 @@ public class GameStateManager {
     }
 
     public void update(float dt) {
-        gameStates.peek().update(dt);
+        if (!gameStates.isEmpty()) {
+            gameStates.peek().update(dt);
+        }
     }
 
     public void render() {
-        gameStates.peek().render();
+        if (!gameStates.isEmpty()) {
+            gameStates.peek().render();
+        }
     }
 
     public void resize(int width, int height) {
@@ -40,8 +45,8 @@ public class GameStateManager {
     }
 
     private GameState getState(int state) {
-        if (state == PLAY) return new Play(this);
         if (state == MENU) return new Menu(this);
+        if (state == PLAY) return new Play(this);
         return null;
     }
 
@@ -51,18 +56,22 @@ public class GameStateManager {
     }
 
     public void pushState(int state) {
-        gameStates.push(getState(state));
+        GameState nextState = getState(state);
+        if (nextState != null) {
+            gameStates.push(nextState);
+        }
     }
 
     public void popState() {
-        GameState g = gameStates.pop();
-        g.dispose();
+        if (!gameStates.isEmpty()) {
+            GameState g = gameStates.pop();
+            g.dispose();
+        }
     }
 
-    public void set(GameState state) {
-        if (!gameStates.isEmpty()) {
+    public void dispose() {
+        while (!gameStates.isEmpty()) {
             gameStates.pop().dispose();
         }
-        gameStates.push(state);
     }
 }

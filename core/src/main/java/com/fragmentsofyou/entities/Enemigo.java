@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class Enemigo {
 
     private float x, y;
-    private float speed = 40f;
+    private float speed = 20f;
 
     private float width = 12f;
     private float height = 12f;
