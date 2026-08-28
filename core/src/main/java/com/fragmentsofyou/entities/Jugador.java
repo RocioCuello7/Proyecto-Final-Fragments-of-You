@@ -1,17 +1,19 @@
 package com.fragmentsofyou.entities;
 
+import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fragmentsofyou.armas.Linterna;
 import com.fragmentsofyou.handlers.MapCollision;
 
-public class Jugador{
+public class Jugador {
 
     private CharacterAnimator animador;
+    private Linterna linterna;
 
     private float x, y;
     private float speed = 90f;
@@ -23,11 +25,12 @@ public class Jugador{
 
     private Vector3 mousePos = new Vector3();
 
-    public Jugador(float startX, float startY) {
+    public Jugador(float startX, float startY, RayHandler rayHandler) {
         this.x = startX;
         this.y = startY;
 
-        this.animador= new CharacterAnimator("spriteGlenn.png",0.15f);
+        this.animador = new CharacterAnimator("spriteGlenn.png", 0.15f);
+        this.linterna = new Linterna(rayHandler, startX, startY, 0f);
     }
 
     public void handleInput(Viewport viewport) {
@@ -45,6 +48,18 @@ public class Jugador{
         if (Gdx.input.isKeyPressed(Input.Keys.S)) dirY -= 1;
         if (Gdx.input.isKeyPressed(Input.Keys.D)) dirX += 1;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) dirX -= 1;
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            linterna.alternarEncendido();
+        }
+
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            linterna.dispararSobrecarga();
+        }
+
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+            linterna.dispararDestello();
+        }
     }
 
     public void update(float dt, MapCollision mapCollision) {
@@ -62,21 +77,21 @@ public class Jugador{
             }
         }
 
-        animador.update(dt,dirX,dirY);
+        animador.update(dt, dirX, dirY);
+        linterna.update(dt, x, y, rotacionMouse);
     }
 
     public void render(SpriteBatch sb) {
-        sb.draw(animador.getCurrentFrame(),x-8,y-8,16,16);
+        sb.draw(animador.getCurrentFrame(), x - 8, y - 8, 16, 16);
     }
 
     public float getX() { return x; }
     public float getY() { return y; }
-
-    public float getRotacion() {
-        return rotacionMouse;
-    }
+    public float getRotacion() { return rotacionMouse; }
+    public Linterna getLinterna() { return linterna; }
 
     public void dispose() {
         if (animador != null) animador.dispose();
+        if (linterna != null) linterna.dispose();
     }
 }

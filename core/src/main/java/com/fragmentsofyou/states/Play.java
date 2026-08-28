@@ -1,10 +1,9 @@
 package com.fragmentsofyou.states;
 
-import box2dLight.ConeLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -33,7 +32,8 @@ public class Play extends GameState {
 
     private World world;
     private RayHandler rayHandler;
-    private ConeLight linterna;
+
+    private ShapeRenderer shapeRenderer;
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -45,11 +45,13 @@ public class Play extends GameState {
         mapCollision = new MapCollision(map, "paredes y muebles");
         mapRenderer = new OrthogonalTiledMapRenderer(map);
 
+        setupIluminacion();
+
         Vector2 spawn = obtenerSpawn();
-        jugador = new Jugador(spawn.x, spawn.y);
+        jugador = new Jugador(spawn.x, spawn.y, rayHandler);
         enemigo = new Enemigo(spawn.x + 22, spawn.y + 27);
 
-        setupIluminacion();
+        shapeRenderer = new ShapeRenderer();
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
@@ -71,25 +73,13 @@ public class Play extends GameState {
                 }
             }
         }
-        return new Vector2(160f, 90f); // Valor por defecto si no existe en Tiled
+        return new Vector2(160f, 90f);
     }
 
     private void setupIluminacion() {
         world = new World(new Vector2(0, 0), true);
         rayHandler = new RayHandler(world);
-        rayHandler.setAmbientLight(0.06f);
-
-        float rotInicial = Float.isNaN(jugador.getRotacion()) ? 0f : jugador.getRotacion();
-
-        linterna = new ConeLight(
-            rayHandler,
-            64,
-            new Color(1f, 0.95f, 0.8f, 0.95f),
-            115f,
-            jugador.getX(), jugador.getY(),
-            rotInicial,
-            38f
-        );
+        rayHandler.setAmbientLight(0.20f);
     }
 
     @Override
@@ -103,13 +93,6 @@ public class Play extends GameState {
 
         jugador.update(dt, mapCollision);
         enemigo.update(dt, mapCollision, jugador.getX(), jugador.getY());
-
-        if (!Float.isNaN(jugador.getX()) && !Float.isNaN(jugador.getY())) {
-            linterna.setPosition(jugador.getX(), jugador.getY());
-        }
-        if (!Float.isNaN(jugador.getRotacion())) {
-            linterna.setDirection(jugador.getRotacion());
-        }
 
         rayHandler.update();
 
@@ -135,6 +118,28 @@ public class Play extends GameState {
 
         rayHandler.setCombinedMatrix(cam);
         rayHandler.render();
+
+        float alpha = jugador.getLinterna().getAlphaFlash();
+
+        if (alpha > 0f) {
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+            shapeRenderer.setProjectionMatrix(cam.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+            shapeRenderer.setColor(1f, 1f, 1f, alpha);
+
+            shapeRenderer.rect(
+                cam.position.x - cam.viewportWidth / 2f,
+                cam.position.y - cam.viewportHeight / 2f,
+                cam.viewportWidth,
+                cam.viewportHeight
+            );
+
+            shapeRenderer.end();
+            Gdx.gl.glDisable(GL20.GL_BLEND);
+        }
     }
 
     @Override
@@ -157,5 +162,6 @@ public class Play extends GameState {
         if (enemigo != null) enemigo.dispose();
         if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
     }
 }
