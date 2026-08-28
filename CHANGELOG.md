@@ -1,6 +1,32 @@
 # Changelog
 
 Todos los cambios significativos del proyecto serán documentados en este archivo.
+## [0.3.0] - 2026-08-27
+
+#### Agregado
+
+* Implementación de la clase Linterna y adición de las dos primeras mecánicas de ataque (sin daño incluido).
+
+* Creación de la clase Menu y adición de los assets correspondientes a la interfaz de inicio.
+
+* Implementación de la clase Enemigo junto con sus sprites asociados.
+
+* Creación de CharacterAnimator, adición de animaciones de movimiento para el protagonista y definición del enum Direction.
+
+* Integración de iluminación dinámica mediante Box2DLights y ajuste de resolución general a formato 16:9.
+
+* Implementación de la clase Jugador, desacoplamiento de la entrada de teclado/mouse y optimización del sistema de colisiones.
+
+* Creación y carga del mapa, implementación de la clase de colisiones, gestión de colisiones y definición del punto de spawn.
+
+* Configuración inicial del mapa en Tiled provisorio con FitViewport.
+
+* Implementación de la rotación del personaje/objeto hacia la posición del mouse y adición de imagen PNG provisoria.
+
+#### Modificado
+
+Corrección de errores en el menú principal y en la carga de archivos exportados desde Tiled.
+
 ## [0.2.0] - 2026-08-08
 
 #### Agregado
