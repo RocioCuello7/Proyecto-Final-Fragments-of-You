@@ -12,7 +12,7 @@ public class Linterna {
     private final Color COLOR_NORMAL = new Color(1f, 0.95f, 0.8f, 0.95f);
 
     private final float DISTANCIA_SOBRECARGA = 180f;
-    private final float CONO_SOBRECARGA = 60f;
+    private final float CONO_SOBRECARGA = 20f;
 
     private ConeLight linterna;
 
@@ -20,7 +20,7 @@ public class Linterna {
     private boolean sobrecargada;
 
     private float tiempoCooldown;
-    private float tiempoCastigo = 4.0f;
+    private float tiempoCastigo = 1.0f;
 
     private float duracionFlash=0.6f;
     private float tiempoFlash = 0f;
@@ -28,7 +28,6 @@ public class Linterna {
     private float duracionEfectoSobrecarga = 0.25f;
     private float tiempoEfectoSobrecarga = 0f;
     private float cooldownDestello = 0f;
-    private float tiempoEsperaDestello = 5.0f;
 
     public Linterna(RayHandler rayHandler, float x, float y, float rotacion){
         this.encendida = true;
@@ -64,8 +63,7 @@ public class Linterna {
                 linterna.setColor(COLOR_NORMAL);
                 linterna.setDistance(DISTANCIA_NORMAL);
                 linterna.setConeDegree(CONO_NORMAL);
-                encendida = false;
-                linterna.setActive(false);
+                linterna.setSoft(true);
             }
         }
 
@@ -85,13 +83,10 @@ public class Linterna {
     }
 
     public void dispararSobrecarga() {
-        if (sobrecargada) return;
+        if (!encendida || sobrecargada) return;
 
-        sobrecargada = true;
-        tiempoCooldown = tiempoCastigo;
         tiempoEfectoSobrecarga = duracionEfectoSobrecarga;
 
-        linterna.setActive(true);
         linterna.setColor(Color.WHITE);
         linterna.setDistance(DISTANCIA_SOBRECARGA);
         linterna.setConeDegree(CONO_SOBRECARGA);
@@ -112,11 +107,17 @@ public class Linterna {
         linterna.setActive(encendida);
     }
 
-    public void dispararDestello() {
-        if (cooldownDestello > 0f) return;
+    public boolean dispararDestello() {
+        if (sobrecargada) return false;
 
-        cooldownDestello = tiempoEsperaDestello;
+        sobrecargada=true;
+        tiempoCooldown=tiempoCastigo;
+
+        encendida=false;
+        linterna.setActive(false);
+
         tiempoFlash = duracionFlash;
+        return true;
     }
 
     public boolean estaEnRangoSobrecarga(float px, float py, float rotacion, float ex, float ey) {
@@ -133,8 +134,8 @@ public class Linterna {
         return diff <= (CONO_SOBRECARGA / 2f);
     }
 
-    public boolean isSobrecargada() {
-        return sobrecargada;
+    public boolean isSobrecargaActiva(){
+        return tiempoEfectoSobrecarga > 0f;
     }
 
     public void dispose(){

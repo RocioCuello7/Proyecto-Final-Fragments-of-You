@@ -19,6 +19,8 @@ public class Jugador {
     private float speed = 90f;
     private float rotacionMouse;
 
+    private boolean destelloDisparado = false;
+
     private float dirX, dirY;
     private float width = 10f;
     private float height = 10f;
@@ -58,7 +60,9 @@ public class Jugador {
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-            linterna.dispararDestello();
+            if(linterna.dispararDestello()) {
+                destelloDisparado=true;
+            }
         }
     }
 
@@ -83,6 +87,14 @@ public class Jugador {
 
     public void render(SpriteBatch sb) {
         sb.draw(animador.getCurrentFrame(), x - 8, y - 8, 16, 16);
+    }
+
+    public boolean consumioDestello() {
+        if (destelloDisparado) {
+            destelloDisparado = false;
+            return true;
+        }
+        return false;
     }
 
     public float getX() { return x; }

@@ -94,6 +94,20 @@ public class Play extends GameState {
         jugador.update(dt, mapCollision);
         enemigo.update(dt, mapCollision, jugador.getX(), jugador.getY());
 
+
+        if(jugador.getLinterna().isSobrecargaActiva()){
+            boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
+                jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(),enemigo.getY()
+            );
+
+            if(alcanzada) {
+                enemigo.relentizar(3.0f);
+            }
+        }
+        if(jugador.consumioDestello()){
+            enemigo.aturdir(2.0f);
+        }
+
         rayHandler.update();
 
         cam.position.set(jugador.getX(), jugador.getY(), 0);

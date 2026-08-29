@@ -1,5 +1,6 @@
 package com.fragmentsofyou.entities;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -20,6 +21,13 @@ public class Enemigo {
     private Direction direccionActual = Direction.DOWN;
     private float stateTime = 0f;
     private boolean enMovimiento = true;
+
+    private float tiempoAturdido=0f;
+
+
+    private float tiempoRelentizado;
+    private float factorVelocidad=0.35f;
+
 
     public Enemigo(float startX, float startY) {
         this.x = startX;
@@ -61,6 +69,24 @@ public class Enemigo {
     }
 
     public void update(float dt, MapCollision mapCollision, float targetX, float targetY) {
+        if(tiempoAturdido>0f){
+            tiempoAturdido-=dt;
+            if(tiempoAturdido<0f) {
+                tiempoAturdido = 0f;
+            }
+            return;
+        }
+
+        float velocidadActual = speed;
+
+        if(tiempoRelentizado>0f){
+            tiempoRelentizado-=dt;
+            if(tiempoRelentizado<0f){
+                tiempoRelentizado=0f;
+            }
+            velocidadActual= speed*factorVelocidad;
+        }
+
         stateTime += dt;
         //que siga al jugador
         float dirX = 0;
@@ -73,19 +99,19 @@ public class Enemigo {
         if (Math.abs(diffY) > 1f) dirY = Math.signum(diffY);
 
         if (dirY != 0) {
-            float intentoY = y + (dirY * speed * dt);
+            float intentoY = y + (dirY * velocidadActual * dt);
             if (!mapCollision.isColliding(x, intentoY, width, height)) {
                 y = intentoY;
             }
         }
 
-        // Movimiento en X con colisiones
         if (dirX != 0) {
-            float intentoX = x + (dirX * speed * dt);
+            float intentoX = x + (dirX * velocidadActual * dt);
             if (!mapCollision.isColliding(intentoX, y, width, height)) {
                 x = intentoX;
             }
         }
+
 
         if (dirY > 0 && dirX == 0) direccionActual = Direction.UP;
         else if (dirY < 0 && dirX == 0) direccionActual = Direction.DOWN;
@@ -120,8 +146,27 @@ public class Enemigo {
 
         TextureRegion currentFrame=animActual.getKeyFrame(stateTime, true);
 
+
+
+        if(tiempoAturdido>0f){
+            sb.setColor(0.3f, 0.7f, 1f, 1f);
+        }else if (tiempoRelentizado > 0f) {
+            sb.setColor(1f, 0.85f, 0.3f, 1f);
+        }
+
         sb.draw(currentFrame, x-12, y-12, 24, 24);
+
+        sb.setColor(Color.WHITE);
     }
+
+    public void relentizar(float duracion){
+        this.tiempoRelentizado=duracion;
+    }
+
+    public void aturdir(float duracion){
+        this.tiempoAturdido=duracion;
+    }
+
     public float getX(){return x;}
     public float getY(){return y;}
 
