@@ -10,26 +10,22 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.armas.Linterna;
 import com.fragmentsofyou.handlers.MapCollision;
 
-public class Jugador {
+public class Jugador extends Entidad{
 
     private CharacterAnimator animador;
     private Linterna linterna;
 
-    private float x, y;
-    private float speed = 90f;
     private float rotacionMouse;
 
     private boolean destelloDisparado = false;
 
     private float dirX, dirY;
-    private float width = 10f;
-    private float height = 10f;
 
     private Vector3 mousePos = new Vector3();
 
     public Jugador(float startX, float startY, RayHandler rayHandler) {
-        this.x = startX;
-        this.y = startY;
+        super(startX,startY,10f,10f,90f,100);
+
 
         this.animador = new CharacterAnimator("spriteGlenn.png", 0.15f);
         this.linterna = new Linterna(rayHandler, startX, startY, 0f);
@@ -84,7 +80,7 @@ public class Jugador {
         animador.update(dt, dirX, dirY);
         linterna.update(dt, x, y, rotacionMouse);
     }
-
+    @Override
     public void render(SpriteBatch sb) {
         sb.draw(animador.getCurrentFrame(), x - 8, y - 8, 16, 16);
     }
@@ -97,8 +93,6 @@ public class Jugador {
         return false;
     }
 
-    public float getX() { return x; }
-    public float getY() { return y; }
     public float getRotacion() { return rotacionMouse; }
     public Linterna getLinterna() { return linterna; }
 

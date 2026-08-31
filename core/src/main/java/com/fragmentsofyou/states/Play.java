@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
+import com.fragmentsofyou.entities.Mecento;
 import com.fragmentsofyou.handlers.GameStateManager;
 import com.fragmentsofyou.handlers.MapCollision;
 
@@ -41,15 +42,15 @@ public class Play extends GameState {
         cam.setToOrtho(false, 320, 180);
         playView = new FitViewport(320, 180, cam);
 
-        map = new TmxMapLoader().load("mapas/CasaFOY.tmx");
-        mapCollision = new MapCollision(map, "paredes y muebles");
-        mapRenderer = new OrthogonalTiledMapRenderer(map);
-
         setupIluminacion();
+
+        map = new TmxMapLoader().load("mapas/CasaFOY.tmx");
+        mapCollision = new MapCollision(map, "paredes y muebles",world);
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
 
         Vector2 spawn = obtenerSpawn();
         jugador = new Jugador(spawn.x, spawn.y, rayHandler);
-        enemigo = new Enemigo(spawn.x + 22, spawn.y + 27);
+        enemigo = new Mecento(spawn.x+22,spawn.y+25,jugador);
 
         shapeRenderer = new ShapeRenderer();
 
@@ -92,20 +93,33 @@ public class Play extends GameState {
         handleInput();
 
         jugador.update(dt, mapCollision);
-        enemigo.update(dt, mapCollision, jugador.getX(), jugador.getY());
+
+        if(enemigo!=null) {
+            enemigo.update(dt, mapCollision);
 
 
-        if(jugador.getLinterna().isSobrecargaActiva()){
-            boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
-                jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(),enemigo.getY()
-            );
+            boolean lineaLibre = mapCollision.hayLineaDeVision(jugador.getX(), jugador.getY(),
+                enemigo.getX(),enemigo.getY());
 
-            if(alcanzada) {
-                enemigo.relentizar(3.0f);
+            if (jugador.getLinterna().isSobrecargaActiva()) {
+                boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
+                    jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(), enemigo.getY()
+                );
+
+                if (alcanzada && lineaLibre) {
+                    enemigo.relentizar(3.0f);
+                    enemigo.recibirDanio(40f * dt);
+                }
             }
-        }
-        if(jugador.consumioDestello()){
-            enemigo.aturdir(2.0f);
+            if (jugador.consumioDestello()) {
+                enemigo.aturdir(2.0f);
+                enemigo.recibirDanio(25f);
+            }
+
+            if (enemigo.isMuerto()) {
+                enemigo.dispose();
+                enemigo = null;
+            }
         }
 
         rayHandler.update();
@@ -127,7 +141,9 @@ public class Play extends GameState {
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
         jugador.render(sb);
-        enemigo.render(sb);
+        if(enemigo!=null) {
+            enemigo.render(sb);
+        }
         sb.end();
 
         rayHandler.setCombinedMatrix(cam);

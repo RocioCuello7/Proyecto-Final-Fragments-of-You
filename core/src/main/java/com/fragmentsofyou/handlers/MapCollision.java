@@ -9,16 +9,51 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class MapCollision {
 
     private MapObjects collisionObjects;
 
-    public MapCollision(TiledMap map, String nombreCapa) {
+    private Rectangle entidadRect = new Rectangle();
+    private Vector2 pInicio = new Vector2();
+    private Vector2 pFin = new Vector2();
+
+    public MapCollision(TiledMap map, String nombreCapa, World world) {
         if (map != null) {
             MapLayer capa = map.getLayers().get(nombreCapa);
             if (capa != null) {
                 collisionObjects = capa.getObjects();
+
+                if(world != null){
+                    crearCuerposBox2D(world);
+                }
+            }
+        }
+    }
+
+    private void crearCuerposBox2D(World world) {
+        for(MapObject object : collisionObjects){
+            if(object instanceof RectangleMapObject){
+                Rectangle rect = ((RectangleMapObject)object).getRectangle();
+
+                BodyDef bdef = new BodyDef();
+                bdef.type = BodyDef.BodyType.StaticBody;
+
+                bdef.position.set(rect.x + rect.width / 2f, rect.y + rect.height / 2f);
+
+                Body body = world.createBody(bdef);
+
+                PolygonShape shape = new PolygonShape();
+
+                shape.setAsBox(rect.width / 2f, rect.height / 2f);
+
+                body.createFixture(shape,0f);
+                shape.dispose();
             }
         }
     }
@@ -28,17 +63,38 @@ public class MapCollision {
             return false;
         }
 
-        Rectangle playerRect = new Rectangle(x - width / 2f, y - height / 2f, width, height);
+        entidadRect.set(x - width / 2f, y - height / 2f, width, height);
 
         for (MapObject object : collisionObjects) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                if (rect.overlaps(playerRect)) {
+                if (rect.overlaps(entidadRect)) {
                     return true;
                 }
             }
         }
 
         return false;
+    }
+
+    public boolean hayLineaDeVision(float x1, float y1, float x2, float y2){
+
+        if(collisionObjects==null){
+            return true;
+        }
+
+        pInicio.set(x1,y1);
+        pFin.set(x2,y2);
+
+        for(MapObject object : collisionObjects){
+            if(object instanceof RectangleMapObject) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
+
+                if (Intersector.intersectSegmentRectangle(pInicio, pFin, rect)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

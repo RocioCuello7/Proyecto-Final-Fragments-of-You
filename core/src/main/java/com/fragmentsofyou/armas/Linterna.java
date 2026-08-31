@@ -9,7 +9,7 @@ public class Linterna {
 
     private final float DISTANCIA_NORMAL = 115f;
     private final float CONO_NORMAL = 38f;
-    private final Color COLOR_NORMAL = new Color(1f, 0.95f, 0.8f, 0.95f);
+    private final Color COLOR_NORMAL =  new Color(1f, 0.95f, 0.8f, 0.95f);
 
     private final float DISTANCIA_SOBRECARGA = 180f;
     private final float CONO_SOBRECARGA = 20f;

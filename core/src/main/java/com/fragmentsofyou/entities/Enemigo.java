@@ -1,117 +1,71 @@
 package com.fragmentsofyou.entities;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.fragmentsofyou.handlers.MapCollision;
-import com.badlogic.gdx.graphics.Texture;
 
-public class Enemigo {
+public abstract class Enemigo extends Entidad {
 
-    private float x, y;
-    private float speed = 20f;
+    protected Entidad objetivo;
 
-    private float width = 12f;
-    private float height = 12f;
+    protected Direction direccionActual = Direction.DOWN;
+    protected float stateTime = 0f;
 
-    private Texture texSouth, texNorth, texEast, texWest, texSouthEast, texSouthWest, texNorthEast, texNorthWest;
-    private Animation<TextureRegion> animSouth, animNorth, animEast, animWest, animSouthEast, animSouthWest, animNorthEast, animNorthWest;
+    protected float tiempoAturdido = 0f;
+    protected float tiempoRelentizado = 0f;
+    protected float factorVelocidad = 0.35f;
 
-    private Direction direccionActual = Direction.DOWN;
-    private float stateTime = 0f;
-    private boolean enMovimiento = true;
+    protected float tiempoDanio=0f;
 
-    private float tiempoAturdido=0f;
-
-
-    private float tiempoRelentizado;
-    private float factorVelocidad=0.35f;
-
-
-    public Enemigo(float startX, float startY) {
-        this.x = startX;
-        this.y = startY;
-
-        texSouth = new Texture("enemigos/south.png");
-        texNorth = new Texture("enemigos/north.png");
-        texEast = new Texture("enemigos/east.png");
-        texWest = new Texture("enemigos/west.png");
-        texSouthEast = new Texture("enemigos/south-east.png");
-        texSouthWest = new Texture("enemigos/south-west.png");
-        texNorthEast = new Texture("enemigos/north-east.png");
-        texNorthWest = new Texture("enemigos/north-west.png");
-
-        animSouth = crearAnimacion(texSouth, 0.12f);
-        animNorth = crearAnimacion(texNorth, 0.12f);
-        animEast = crearAnimacion(texEast, 0.12f);
-        animWest = crearAnimacion(texWest, 0.12f);
-        animSouthEast = crearAnimacion(texSouthEast, 0.12f);
-        animSouthWest = crearAnimacion(texSouthWest, 0.12f);
-        animNorthEast = crearAnimacion(texNorthEast, 0.12f);
-        animNorthWest = crearAnimacion(texNorthWest, 0.12f);
+    public Enemigo(float startX, float startY, float width, float height, float speed, int vidaMax, Entidad objetivo) {
+        super(startX, startY, width, height, speed, vidaMax);
+        this.objetivo=objetivo;
     }
 
-    //metodo para cortar las texturas de 2x4
-    private Animation<TextureRegion> crearAnimacion(Texture sheet, float frameDuration) {
-        int cols = 2;
-        int rows = 4;
-        TextureRegion[][] tmp = TextureRegion.split(sheet, sheet.getWidth() / cols, sheet.getHeight() / rows);
-
-        TextureRegion[] frames = new TextureRegion[cols * rows];
-        int index = 0;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                frames[index++] = tmp[i][j];
-            }
+    @Override
+    public void update(float dt, MapCollision mapCollision) {
+        if(isMuerto()){
+            return;
         }
-        return new Animation<>(frameDuration, frames);
-    }
 
-    public void update(float dt, MapCollision mapCollision, float targetX, float targetY) {
-        if(tiempoAturdido>0f){
-            tiempoAturdido-=dt;
-            if(tiempoAturdido<0f) {
+        if(tiempoDanio>0f){
+            tiempoDanio-=dt;
+            if(tiempoDanio<0f){
+                tiempoDanio=0f;
+            }
+
+        }
+
+        if (tiempoAturdido > 0f) {
+            tiempoAturdido -= dt;
+            if (tiempoAturdido < 0f) {
                 tiempoAturdido = 0f;
             }
             return;
         }
 
         float velocidadActual = speed;
-
-        if(tiempoRelentizado>0f){
-            tiempoRelentizado-=dt;
-            if(tiempoRelentizado<0f){
-                tiempoRelentizado=0f;
+        if (tiempoRelentizado > 0f) {
+            tiempoRelentizado -= dt;
+            if (tiempoRelentizado < 0f) {
+                tiempoRelentizado = 0f;
             }
-            velocidadActual= speed*factorVelocidad;
+            velocidadActual = speed * factorVelocidad;
         }
 
         stateTime += dt;
-        //que siga al jugador
+
         float dirX = 0;
         float dirY = 0;
 
-        float diffX = targetX - x;
-        float diffY = targetY - y;
+        if (objetivo != null) {
+            float diffX = objetivo.getX() - x;
+            float diffY = objetivo.getY() - y;
 
-        if (Math.abs(diffX) > 1f) dirX = Math.signum(diffX);
-        if (Math.abs(diffY) > 1f) dirY = Math.signum(diffY);
-
-        if (dirY != 0) {
-            float intentoY = y + (dirY * velocidadActual * dt);
-            if (!mapCollision.isColliding(x, intentoY, width, height)) {
-                y = intentoY;
-            }
+            if (Math.abs(diffX) > 1f) dirX = Math.signum(diffX);
+            if (Math.abs(diffY) > 1f) dirY = Math.signum(diffY);
         }
 
-        if (dirX != 0) {
-            float intentoX = x + (dirX * velocidadActual * dt);
-            if (!mapCollision.isColliding(intentoX, y, width, height)) {
-                x = intentoX;
-            }
-        }
-
+        mover(dirX, dirY, velocidadActual, dt, mapCollision);
 
         if (dirY > 0 && dirX == 0) direccionActual = Direction.UP;
         else if (dirY < 0 && dirX == 0) direccionActual = Direction.DOWN;
@@ -122,64 +76,23 @@ public class Enemigo {
         else if (dirY < 0 && dirX > 0) direccionActual = Direction.DOWN;
         else if (dirY < 0 && dirX < 0) direccionActual = Direction.DOWN;
     }
-
-    public void render(SpriteBatch sb) {
-
-        Animation<TextureRegion> animActual;
-
-
-        switch (direccionActual) {
-            case UP:
-                animActual = animNorth;
-                break;
-            case RIGHT:
-                animActual = animEast;
-                break;
-            case LEFT:
-                animActual = animWest;
-                break;
-            case DOWN:
-            default:
-                animActual = animSouth;
-                break;
-        }
-
-        TextureRegion currentFrame=animActual.getKeyFrame(stateTime, true);
-
-
-
-        if(tiempoAturdido>0f){
-            sb.setColor(0.3f, 0.7f, 1f, 1f);
-        }else if (tiempoRelentizado > 0f) {
-            sb.setColor(1f, 0.85f, 0.3f, 1f);
-        }
-
-        sb.draw(currentFrame, x-12, y-12, 24, 24);
-
-        sb.setColor(Color.WHITE);
+    @Override
+    public void recibirDanio(float danio){
+        super.recibirDanio(danio);
+        this.tiempoDanio=0.12f;
     }
 
-    public void relentizar(float duracion){
-        this.tiempoRelentizado=duracion;
+    public void relentizar(float duracion) {
+        this.tiempoRelentizado = duracion;
     }
 
-    public void aturdir(float duracion){
-        this.tiempoAturdido=duracion;
+    public void aturdir(float duracion) {
+        this.tiempoAturdido = duracion;
     }
 
-    public float getX(){return x;}
-    public float getY(){return y;}
+    @Override
+    public abstract void render(SpriteBatch sb);
 
-    public void dispose(){
-        if(texSouth != null) texSouth.dispose();
-        if(texNorth != null) texNorth.dispose();
-        if(texEast != null) texEast.dispose();
-        if(texWest != null) texWest.dispose();
-        if (texSouthEast != null) texSouthEast.dispose();
-        if (texSouthWest != null) texSouthWest.dispose();
-        if (texNorthEast != null) texNorthEast.dispose();
-        if (texNorthWest != null) texNorthWest.dispose();
-    }
+    @Override
+    public abstract void dispose();
 }
-
-
