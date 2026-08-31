@@ -1,6 +1,23 @@
 # Changelog
 
 Todos los cambios significativos del proyecto serán documentados en este archivo.
+
+## [0.4.0] -2026-08-27
+
+### Añadido
+- Jerarquía de clases: Entidad -> Enemigo -> Mecento.
+- Sistema de combate con daño continuo , instantáneo , feedback de impacto y muerte.
+- Cuerpos de Box2D en colisiones para sombras de iluminación dinámica (linterna con colisiones).
+
+### Modificado
+- Jugador y Enemigo refactorizado para heredar de Entidad.
+- Creacion de clase Mecento como clase hija de enemigo.
+- MapCollision optimizado para evitar instanciación constante de objetos en memoria.
+
+### Corregido
+- Daño continuo que no se aplicaba por problemas de enteros (cambiado a float).
+- Ataque de sobrecarga atravesando obstáculos sólidos.
+
 ## [0.3.0] - 2026-08-27
 
 #### Agregado
