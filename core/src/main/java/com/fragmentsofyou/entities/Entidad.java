@@ -56,4 +56,7 @@ public abstract class Entidad {
     public float getWidth() { return width; }
     public float getHeight() { return height; }
     public int getVidaActual() { return vidaActual; }
+    public float getVidaMax() {
+        return vidaMax;
+    }
 }

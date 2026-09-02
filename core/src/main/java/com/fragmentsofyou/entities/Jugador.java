@@ -24,6 +24,7 @@ public class Jugador extends Entidad{
 
     private Vector3 mousePos = new Vector3();
 
+
     public Jugador(float startX, float startY, RayHandler rayHandler) {
         super(startX,startY,10f,10f,90f,100);
 
@@ -53,7 +54,9 @@ public class Jugador extends Entidad{
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            linterna.dispararSobrecarga();
+            if(linterna.consumirEnergia(10f)) {
+                linterna.dispararSobrecarga();
+            }
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
@@ -61,12 +64,18 @@ public class Jugador extends Entidad{
                 destelloDisparado=true;
             }
         }
+
+
     }
 
     @Override
     public void update(float dt, MapCollision mapCollision) {
 
         mover(dirX,dirY,speed,dt,mapCollision);
+
+        if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+            linterna.recargar(dt);
+        }
 
         animador.update(dt, dirX, dirY);
         linterna.update(dt, x, y, rotacionMouse);
@@ -91,4 +100,6 @@ public class Jugador extends Entidad{
         if (animador != null) animador.dispose();
         if (linterna != null) linterna.dispose();
     }
+
+
 }

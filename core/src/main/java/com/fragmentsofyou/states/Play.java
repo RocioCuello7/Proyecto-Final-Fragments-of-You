@@ -37,11 +37,8 @@ public class Play extends GameState {
 
     private Viewport hudView;
     private BitmapFont font;
-    private float vida = 100f;
-    private float vidaMax = 100f;
-    private float energia = 100f;
-    private float energiaMax = 100f;
     private ShapeRenderer shapeRenderer;
+
 
     private com.badlogic.gdx.audio.Music musicaAmbiente;
     private com.badlogic.gdx.audio.Sound sonidoDestello;
@@ -80,6 +77,7 @@ public class Play extends GameState {
 
         sonidoDestello = Gdx.audio.newSound(Gdx.files.internal("sonidos/destello.mp3"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("sonidos/disparo.mp3"));
+
     }
 
     private Vector2 obtenerSpawn() {
@@ -119,6 +117,11 @@ public class Play extends GameState {
 
         jugador.update(dt, mapCollision);
 
+        if(jugador.isMuerto()){
+            gsm.setState(GameStateManager.GAMEOVER);
+            return;
+        }
+
         if(enemigo!=null) {
             enemigo.update(dt, mapCollision);
 
@@ -126,16 +129,18 @@ public class Play extends GameState {
             boolean lineaLibre = mapCollision.hayLineaDeVision(jugador.getX(), jugador.getY(),
                 enemigo.getX(),enemigo.getY());
 
-            if (jugador.getLinterna().isSobrecargaActiva()) {
-                boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
-                    jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(), enemigo.getY()
-                );
 
-                if (alcanzada && lineaLibre) {
-                    enemigo.relentizar(3.0f);
-                    enemigo.recibirDanio(40f * dt);
+                if (jugador.getLinterna().puedeHacerDanio()) {
+                    boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
+                        jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(), enemigo.getY());
+
+                    if (alcanzada && lineaLibre) {
+                        enemigo.relentizar(3.0f);
+                        enemigo.recibirDanio(30f);
+                        jugador.getLinterna().registrarImpacto();
+                    }
                 }
-            }
+
             if (jugador.consumioDestello()) {
                 sonidoDestello.play(1.0f);
                 enemigo.aturdir(2.0f);
@@ -166,7 +171,9 @@ public class Play extends GameState {
 
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
-        jugador.render(sb);
+        if (!jugador.isMuerto()) {
+            jugador.render(sb);
+        }
         if(enemigo != null){
             enemigo.render(sb);
         }
@@ -202,8 +209,8 @@ public class Play extends GameState {
         shapeRenderer.setProjectionMatrix(hudCam.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        float anchoVida = 50f * (vida / vidaMax);
-        float anchoEnergia = 50f * (energia / energiaMax);
+        float anchoVida = 50f * ((float) jugador.getVidaActual() / jugador.getVidaMax());
+        float anchoEnergia = 50f * (jugador.getLinterna().getEnergia() / jugador.getLinterna().getEnergiaMax());
 
         shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 0.8f);
         shapeRenderer.rect(35, 168, 50, 5);
@@ -248,7 +255,10 @@ public class Play extends GameState {
         if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
-        if (musicaAmbiente != null) musicaAmbiente.dispose();
+        if (musicaAmbiente != null) {
+            musicaAmbiente.stop();
+            musicaAmbiente.dispose();
+        }
         if (sonidoDestello != null) sonidoDestello.dispose();
         if (sonidoDisparo != null) sonidoDisparo.dispose();
     }

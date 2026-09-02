@@ -22,12 +22,18 @@ public class Linterna {
     private float tiempoCooldown;
     private float tiempoCastigo = 1.0f;
 
-    private float duracionFlash=0.6f;
+    private float duracionFlash=0.18f;
     private float tiempoFlash = 0f;
 
-    private float duracionEfectoSobrecarga = 0.25f;
+    private float duracionEfectoSobrecarga = 0.1f;
     private float tiempoEfectoSobrecarga = 0f;
     private float cooldownDestello = 0f;
+
+    private boolean danioAplicado =false;
+
+    private float energiaMax = 100f;
+    private float energia = 100f;
+    private float velocidadRecarga = 35f;
 
     public Linterna(RayHandler rayHandler, float x, float y, float rotacion){
         this.encendida = true;
@@ -82,15 +88,26 @@ public class Linterna {
         }
     }
 
-    public void dispararSobrecarga() {
-        if (!encendida || sobrecargada) return;
+    public boolean dispararSobrecarga() {
+        if (!encendida || sobrecargada) return false;
+        if (!consumirEnergia(10f)) return false;
 
         tiempoEfectoSobrecarga = duracionEfectoSobrecarga;
+        danioAplicado=false;
 
         linterna.setColor(Color.WHITE);
         linterna.setDistance(DISTANCIA_SOBRECARGA);
         linterna.setConeDegree(CONO_SOBRECARGA);
         linterna.setSoft(false);
+        return true;
+    }
+
+    public boolean puedeHacerDanio() {
+        return tiempoEfectoSobrecarga > 0f && !danioAplicado;
+    }
+
+    public void registrarImpacto() {
+        this.danioAplicado = true;
     }
 
     public float getAlphaFlash(){
@@ -143,4 +160,24 @@ public class Linterna {
             linterna.dispose();
         }
     }
+
+    public boolean consumirEnergia(float cantidad) {
+        if (energia >= cantidad) {
+            energia -= cantidad;
+            return true;
+        }
+        return false;
+    }
+
+    public void recargar(float dt) {
+        if (energia < energiaMax) {
+            energia += velocidadRecarga * dt;
+            if (energia > energiaMax) {
+                energia = energiaMax;
+            }
+        }
+    }
+
+    public float getEnergia() { return energia; }
+    public float getEnergiaMax() { return energiaMax; }
 }
