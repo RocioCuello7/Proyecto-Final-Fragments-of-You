@@ -2,6 +2,24 @@
 
 Todos los cambios significativos del proyecto serán documentados en este archivo.
 
+## [0.5.0] - 2026-09-02
+
+### Añadido
+- Lógica de combate cuerpo a cuerpo polimórfica en la clase base `Enemigo`, incluyendo cálculo de distancia euclídea (`rangoAtaque`) y temporizador de enfriamiento (`cooldownTotal`/`cooldownActual`).
+- Sistema de gestión de energía en la clase `Linterna`, integrando consumo por disparo de sobrecarga y recarga progresiva basada en tiempo (`dt`) al mantener presionada la tecla `R`.
+- Mecanismo de impacto único (`danioAplicado`, `registrarImpacto`) para aplicar daño plano instantáneo con la sobrecarga en vez de acumulación continua por frame (metodo viejo).
+- Transición de fin de partida delegada al `GameStateManager` (`GAMEOVER`) cuando la salud del jugador llega a 0.
+- Desacoplamiento del enumerador de orientaciones (`Direction8`) para el control de sprites en `EightDirectionalAnimator`.
+
+### Modificado
+- Reducción del tiempo de sobrecarga (`duracionFlash`) a 0.18 segundos para un efecto visual más seco e inmediato.
+- Interfaz (HUD) en `Play` actualizada para consumir valores dinámicos reales mediante getters de `Jugador` y `Linterna` en lugar de variables locales fijas.
+- Detención explícita del audio ambiental (`musicaAmbiente.stop()`) antes de su liberación en el método `dispose()` de `Play`.
+
+### Corregido
+- Vulnerabilidad de desincronización y persistencia de daño en bucle al impactar con el haz de sobrecarga.
+- Desacoplamiento de barras de vida y energía en el HUD que impedía reflejar el daño recibido y el gasto de batería.
+
 ## [0.4.0] -2026-08-27
 
 ### Añadido
