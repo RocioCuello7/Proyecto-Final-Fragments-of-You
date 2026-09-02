@@ -14,7 +14,7 @@ public class Mecento extends Enemigo {
 
 
     public Mecento(float startX, float startY, Entidad objetivo) {
-        super(startX, startY, 12f, 12f, 20f, 150, objetivo);
+        super(startX, startY, 12f, 12f, 20f, 150,20f,17f,1.0f, objetivo);
         this.animador = new Animacion8Direcciones("enemigos/", 0.12f);
     }
 
