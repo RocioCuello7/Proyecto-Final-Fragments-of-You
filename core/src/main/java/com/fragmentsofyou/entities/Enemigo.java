@@ -1,6 +1,7 @@
 package com.fragmentsofyou.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.fragmentsofyou.enumeradores.Direction;
 import com.fragmentsofyou.handlers.MapCollision;
 
 public abstract class Enemigo extends Entidad {
@@ -15,6 +16,8 @@ public abstract class Enemigo extends Entidad {
     protected float factorVelocidad = 0.35f;
 
     protected float tiempoDanio=0f;
+    protected float dirX = 0f;
+    protected float dirY = 0f;
 
     public Enemigo(float startX, float startY, float width, float height, float speed, int vidaMax, Entidad objetivo) {
         super(startX, startY, width, height, speed, vidaMax);

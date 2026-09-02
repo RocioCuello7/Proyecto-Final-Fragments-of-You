@@ -1,10 +1,9 @@
-package com.fragmentsofyou.entities;
+package com.fragmentsofyou.animadores;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
+import com.fragmentsofyou.enumeradores.Direction;
 
 public class CharacterAnimator {
 

@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fragmentsofyou.animadores.CharacterAnimator;
 import com.fragmentsofyou.armas.Linterna;
 import com.fragmentsofyou.handlers.MapCollision;
 
@@ -62,20 +63,10 @@ public class Jugador extends Entidad{
         }
     }
 
+    @Override
     public void update(float dt, MapCollision mapCollision) {
-        if (dirY != 0) {
-            float intentoY = y + (dirY * speed * dt);
-            if (!mapCollision.isColliding(x, intentoY, width, height)) {
-                y = intentoY;
-            }
-        }
 
-        if (dirX != 0) {
-            float intentoX = x + (dirX * speed * dt);
-            if (!mapCollision.isColliding(intentoX, y, width, height)) {
-                x = intentoX;
-            }
-        }
+        mover(dirX,dirY,speed,dt,mapCollision);
 
         animador.update(dt, dirX, dirY);
         linterna.update(dt, x, y, rotacionMouse);
