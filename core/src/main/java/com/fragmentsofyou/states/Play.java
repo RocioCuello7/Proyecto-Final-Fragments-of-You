@@ -3,6 +3,7 @@ package com.fragmentsofyou.states;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -34,13 +35,29 @@ public class Play extends GameState {
     private World world;
     private RayHandler rayHandler;
 
+    private Viewport hudView;
+    private BitmapFont font;
+    private float vida = 100f;
+    private float vidaMax = 100f;
+    private float energia = 100f;
+    private float energiaMax = 100f;
     private ShapeRenderer shapeRenderer;
+
+    private com.badlogic.gdx.audio.Music musicaAmbiente;
+    private com.badlogic.gdx.audio.Sound sonidoDestello;
+    private com.badlogic.gdx.audio.Sound sonidoDisparo;
+
 
     public Play(GameStateManager gsm) {
         super(gsm);
 
         cam.setToOrtho(false, 320, 180);
         playView = new FitViewport(320, 180, cam);
+
+        hudCam.setToOrtho(false, 320, 180);
+        hudView = new FitViewport(320, 180, hudCam);
+        font = new BitmapFont();
+        font.getData().setScale(0.5f);
 
         setupIluminacion();
 
@@ -55,6 +72,14 @@ public class Play extends GameState {
         shapeRenderer = new ShapeRenderer();
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        musicaAmbiente = Gdx.audio.newMusic(Gdx.files.internal("musica/ambiente.mp3"));
+        musicaAmbiente.setLooping(true);
+        musicaAmbiente.setVolume(0.5f);
+        musicaAmbiente.play();
+
+        sonidoDestello = Gdx.audio.newSound(Gdx.files.internal("sonidos/destello.mp3"));
+        sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("sonidos/disparo.mp3"));
     }
 
     private Vector2 obtenerSpawn() {
@@ -112,6 +137,7 @@ public class Play extends GameState {
                 }
             }
             if (jugador.consumioDestello()) {
+                sonidoDestello.play(1.0f);
                 enemigo.aturdir(2.0f);
                 enemigo.recibirDanio(25f);
             }
@@ -130,7 +156,7 @@ public class Play extends GameState {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+        Gdx.gl.glClearColor(0f,0f,0f,1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         playView.apply();
@@ -141,7 +167,7 @@ public class Play extends GameState {
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
         jugador.render(sb);
-        if(enemigo!=null) {
+        if(enemigo != null){
             enemigo.render(sb);
         }
         sb.end();
@@ -150,31 +176,60 @@ public class Play extends GameState {
         rayHandler.render();
 
         float alpha = jugador.getLinterna().getAlphaFlash();
-
-        if (alpha > 0f) {
+        if(alpha > 0f){
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             shapeRenderer.setProjectionMatrix(cam.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-            shapeRenderer.setColor(1f, 1f, 1f, alpha);
-
+            shapeRenderer.setColor(1f,1f,1f,alpha);
             shapeRenderer.rect(
                 cam.position.x - cam.viewportWidth / 2f,
                 cam.position.y - cam.viewportHeight / 2f,
                 cam.viewportWidth,
                 cam.viewportHeight
             );
-
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
+
+        hudView.apply();
+        hudCam.update();
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        shapeRenderer.setProjectionMatrix(hudCam.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        float anchoVida = 50f * (vida / vidaMax);
+        float anchoEnergia = 50f * (energia / energiaMax);
+
+        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 0.8f);
+        shapeRenderer.rect(35, 168, 50, 5);
+        shapeRenderer.setColor(0.9f, 0.2f, 0.2f, 1f);
+        shapeRenderer.rect(35, 168, anchoVida, 5);
+
+        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 0.8f);
+        shapeRenderer.rect(35, 161, 50, 4);
+        shapeRenderer.setColor(0.2f, 0.7f, 0.9f, 1f);
+        shapeRenderer.rect(35, 161, anchoEnergia, 4);
+
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        sb.setProjectionMatrix(hudCam.combined);
+        sb.begin();
+        font.draw(sb, "HP", 10, 173);
+        font.draw(sb, "EN", 10, 165);
+        sb.end();
+
     }
 
     @Override
     public void resize(int width, int height) {
         playView.update(width, height, true);
+        hudView.update(width, height, true);
 
         rayHandler.useCustomViewport(
             playView.getScreenX(),
@@ -193,5 +248,8 @@ public class Play extends GameState {
         if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
+        if (musicaAmbiente != null) musicaAmbiente.dispose();
+        if (sonidoDestello != null) sonidoDestello.dispose();
+        if (sonidoDisparo != null) sonidoDisparo.dispose();
     }
 }
