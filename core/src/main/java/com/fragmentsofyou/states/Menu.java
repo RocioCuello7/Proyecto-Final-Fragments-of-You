@@ -50,17 +50,19 @@ public class Menu extends GameState {
                     String nombre = objeto.getName();
 
                     if (nombre != null) {
-                        if (nombre.equalsIgnoreCase("play")) {
+                        if (nombre.trim().equalsIgnoreCase("play")) {
                             botonPlay = rect;
-                        } else if (nombre.equalsIgnoreCase("settings")) {
+                        } else if (nombre.trim().equalsIgnoreCase("settings")) {
                             botonSettings = rect;
-                        } else if (nombre.equalsIgnoreCase("exit")) {
+                        } else if (nombre.trim().equalsIgnoreCase("exit")) {
                             botonExit = rect;
                         }
                     }
                 }
             }
         }
+
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
