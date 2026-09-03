@@ -21,7 +21,7 @@ public class GameStateManager {
     public GameStateManager(Main game) {
         this.game = game;
         gameStates = new Stack<GameState>();
-        pushState(GAMEOVER);
+        pushState(MENU);
     }
 
     public Main getGame() {

@@ -252,9 +252,14 @@ public class Play extends GameState {
         if (mapRenderer != null) mapRenderer.dispose();
         if (jugador != null) jugador.dispose();
         if (enemigo != null) enemigo.dispose();
-        if (rayHandler != null) rayHandler.dispose();
+
+        if (rayHandler != null) {
+            rayHandler.dispose();
+        }
+
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
+
         if (musicaAmbiente != null) {
             musicaAmbiente.stop();
             musicaAmbiente.dispose();

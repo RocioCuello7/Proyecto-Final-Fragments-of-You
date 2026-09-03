@@ -158,9 +158,7 @@ public class Linterna {
     }
 
     public void dispose(){
-        if(linterna!=null){
-            linterna.dispose();
-        }
+
     }
 
     public boolean consumirEnergia(float cantidad) {

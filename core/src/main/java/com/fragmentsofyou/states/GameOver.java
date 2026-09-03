@@ -27,6 +27,8 @@ public class GameOver extends GameState{
 
         gameOverMap = new TmxMapLoader().load("mapas/GameOverFOY.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(gameOverMap);
+
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
