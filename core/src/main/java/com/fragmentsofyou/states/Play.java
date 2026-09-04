@@ -3,7 +3,7 @@ package com.fragmentsofyou.states;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -18,7 +18,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
 import com.fragmentsofyou.entities.Mecento;
+import com.fragmentsofyou.handlers.AudioManager;
 import com.fragmentsofyou.handlers.GameStateManager;
+import com.fragmentsofyou.handlers.HUD;
 import com.fragmentsofyou.handlers.MapCollision;
 
 public class Play extends GameState {
@@ -35,15 +37,13 @@ public class Play extends GameState {
     private World world;
     private RayHandler rayHandler;
 
-    private Viewport hudView;
-    private BitmapFont font;
     private ShapeRenderer shapeRenderer;
 
+    private HUD hud;
+    private AudioManager audio;
 
-    private com.badlogic.gdx.audio.Music musicaAmbiente;
-    private com.badlogic.gdx.audio.Sound sonidoDestello;
-    private com.badlogic.gdx.audio.Sound sonidoDisparo;
-
+    private ParticleEffect efectoSobrecarga;
+    private boolean particulaActiva = false;
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -51,33 +51,30 @@ public class Play extends GameState {
         cam.setToOrtho(false, 320, 180);
         playView = new FitViewport(320, 180, cam);
 
-        hudCam.setToOrtho(false, 320, 180);
-        hudView = new FitViewport(320, 180, hudCam);
-        font = new BitmapFont();
-        font.getData().setScale(0.5f);
+        hud = new HUD();
+        audio = new AudioManager();
+        audio.iniciarMusica();
 
         setupIluminacion();
 
         map = new TmxMapLoader().load("mapas/CasaFOY.tmx");
-        mapCollision = new MapCollision(map, "paredes y muebles",world);
+        mapCollision = new MapCollision(map, "paredes y muebles", world);
         mapRenderer = new OrthogonalTiledMapRenderer(map);
 
         Vector2 spawn = obtenerSpawn();
         jugador = new Jugador(spawn.x, spawn.y, rayHandler);
-        enemigo = new Mecento(spawn.x+22,spawn.y+25,jugador);
+        enemigo = new Mecento(spawn.x + 22, spawn.y + 25, jugador);
 
         shapeRenderer = new ShapeRenderer();
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        musicaAmbiente = Gdx.audio.newMusic(Gdx.files.internal("musica/ambiente.mp3"));
-        musicaAmbiente.setLooping(true);
-        musicaAmbiente.setVolume(0.5f);
-        musicaAmbiente.play();
-
-        sonidoDestello = Gdx.audio.newSound(Gdx.files.internal("sonidos/destello.mp3"));
-        sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("sonidos/disparo.mp3"));
-
+        efectoSobrecarga = new ParticleEffect();
+        efectoSobrecarga.load(
+            Gdx.files.internal("particulas/ParticulaAmarilla.p"),
+            Gdx.files.internal("particulas")
+        );
+        efectoSobrecarga.scaleEffect(0.18f);
     }
 
     private Vector2 obtenerSpawn() {
@@ -117,32 +114,37 @@ public class Play extends GameState {
 
         jugador.update(dt, mapCollision);
 
-        if(jugador.isMuerto()){
+        if (jugador.isMuerto()) {
             gsm.setState(GameStateManager.GAMEOVER);
             return;
         }
 
-        if(enemigo!=null) {
+        if (enemigo != null) {
             enemigo.update(dt, mapCollision);
 
+            boolean lineaLibre = mapCollision.hayLineaDeVision(
+                jugador.getX(), jugador.getY(), enemigo.getX(), enemigo.getY()
+            );
 
-            boolean lineaLibre = mapCollision.hayLineaDeVision(jugador.getX(), jugador.getY(),
-                enemigo.getX(),enemigo.getY());
+            if (jugador.getLinterna().puedeHacerDanio()) {
+                boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
+                    jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(), enemigo.getY()
+                );
 
+                if (alcanzada && lineaLibre) {
+                    enemigo.relentizar(3.0f);
+                    enemigo.recibirDanio(30f);
+                    jugador.getLinterna().registrarImpacto();
 
-                if (jugador.getLinterna().puedeHacerDanio()) {
-                    boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
-                        jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(), enemigo.getY());
-
-                    if (alcanzada && lineaLibre) {
-                        enemigo.relentizar(3.0f);
-                        enemigo.recibirDanio(30f);
-                        jugador.getLinterna().registrarImpacto();
-                    }
+                    efectoSobrecarga.reset();
+                    efectoSobrecarga.setPosition(enemigo.getX() + 3f, enemigo.getY() + 3f);
+                    efectoSobrecarga.start();
+                    particulaActiva = true;
                 }
+            }
 
             if (jugador.consumioDestello()) {
-                sonidoDestello.play(1.0f);
+                audio.playDestello();
                 enemigo.aturdir(2.0f);
                 enemigo.recibirDanio(25f);
             }
@@ -150,6 +152,13 @@ public class Play extends GameState {
             if (enemigo.isMuerto()) {
                 enemigo.dispose();
                 enemigo = null;
+            }
+        }
+
+        if (particulaActiva) {
+            efectoSobrecarga.update(dt);
+            if (efectoSobrecarga.isComplete()) {
+                particulaActiva = false;
             }
         }
 
@@ -161,7 +170,7 @@ public class Play extends GameState {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0f,0f,0f,1f);
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         playView.apply();
@@ -174,8 +183,11 @@ public class Play extends GameState {
         if (!jugador.isMuerto()) {
             jugador.render(sb);
         }
-        if(enemigo != null){
+        if (enemigo != null) {
             enemigo.render(sb);
+        }
+        if (particulaActiva) {
+            efectoSobrecarga.draw(sb);
         }
         sb.end();
 
@@ -183,13 +195,13 @@ public class Play extends GameState {
         rayHandler.render();
 
         float alpha = jugador.getLinterna().getAlphaFlash();
-        if(alpha > 0f){
+        if (alpha > 0f) {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             shapeRenderer.setProjectionMatrix(cam.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(1f,1f,1f,alpha);
+            shapeRenderer.setColor(1f, 1f, 1f, alpha);
             shapeRenderer.rect(
                 cam.position.x - cam.viewportWidth / 2f,
                 cam.position.y - cam.viewportHeight / 2f,
@@ -200,43 +212,13 @@ public class Play extends GameState {
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
 
-        hudView.apply();
-        hudCam.update();
-
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-        shapeRenderer.setProjectionMatrix(hudCam.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        float anchoVida = 50f * ((float) jugador.getVidaActual() / jugador.getVidaMax());
-        float anchoEnergia = 50f * (jugador.getLinterna().getEnergia() / jugador.getLinterna().getEnergiaMax());
-
-        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 0.8f);
-        shapeRenderer.rect(35, 168, 50, 5);
-        shapeRenderer.setColor(0.9f, 0.2f, 0.2f, 1f);
-        shapeRenderer.rect(35, 168, anchoVida, 5);
-
-        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 0.8f);
-        shapeRenderer.rect(35, 161, 50, 4);
-        shapeRenderer.setColor(0.2f, 0.7f, 0.9f, 1f);
-        shapeRenderer.rect(35, 161, anchoEnergia, 4);
-
-        shapeRenderer.end();
-        Gdx.gl.glDisable(GL20.GL_BLEND);
-
-        sb.setProjectionMatrix(hudCam.combined);
-        sb.begin();
-        font.draw(sb, "HP", 10, 173);
-        font.draw(sb, "EN", 10, 165);
-        sb.end();
-
+        hud.render(sb, jugador);
     }
 
     @Override
     public void resize(int width, int height) {
         playView.update(width, height, true);
-        hudView.update(width, height, true);
+        hud.resize(width, height);
 
         rayHandler.useCustomViewport(
             playView.getScreenX(),
@@ -253,18 +235,12 @@ public class Play extends GameState {
         if (jugador != null) jugador.dispose();
         if (enemigo != null) enemigo.dispose();
 
-        if (rayHandler != null) {
-            rayHandler.dispose();
-        }
-
+        if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
 
-        if (musicaAmbiente != null) {
-            musicaAmbiente.stop();
-            musicaAmbiente.dispose();
-        }
-        if (sonidoDestello != null) sonidoDestello.dispose();
-        if (sonidoDisparo != null) sonidoDisparo.dispose();
+        if (audio != null) audio.dispose();
+        if (hud != null) hud.dispose();
+        if (efectoSobrecarga != null) efectoSobrecarga.dispose();
     }
 }
