@@ -132,6 +132,7 @@ public class Play extends GameState {
                 );
 
                 if (alcanzada && lineaLibre) {
+                    audio.playDisparo();
                     enemigo.relentizar(3.0f);
                     enemigo.recibirDanio(30f);
                     jugador.getLinterna().registrarImpacto();
