@@ -29,7 +29,12 @@ Para compilar y ejecutar el proyecto, es necesario tener instalado **JDK 21** en
    * **Linux/macOS:** `./gradlew lwjgl3:run`
 
 ## Estado actual
-* **Pre-entrega N°1:** Inicialización del entorno de desarrollo y estructura base del proyecto mediante LibGDX Liftoff. Se encuentran configuradas las dependencias de Box2D y Box2DLights en el módulo `core`.
+* **Pre-entrega N°2 :** Prototipo funcional con ciclo de juego cerrado y arquitectura orientada a objetos:
+  * **Gestión de Estados (`states`):** Flujo de navegación completo administrado por una administrador estados (`GameStateManager`), integrando Menú principal, Estado jugable (`Play`) y Pantalla de Game Over (Proximamente se agregara Settings).
+  * **Jerarquía de Entidades y Animaciones (`entities` / `animadores`):** Modelo de herencia (`Entidad` base extendida a `Jugador` y `Enemigo`/`Mecento`). Sistema de animaciones con soporte de movimiento en 8 direcciones (`EightDirection`).
+  * **Mecánicas y Armamento (`armas`):** Lógica de combate centrada en la `Linterna` (gestión de energía, aturdimiento por destello, sobrecarga) y feedback visual reactivo mediante partículas (`ParticleEffect`).
+  * **Mundo, Colisiones e Iluminación:** Carga de mapas ortogonales de Tiled, comprobación de obstáculos y línea de visión, junto con un sistema de sombras y luz ambiental en tiempo real montado sobre `Box2DLights` y `RayHandler`.
+  * **Módulos de Soporte y UI (`handlers`):** Se creo interfaz gráfica (`HUD`) con barras de estado e indicadores numéricos en tiempo real, y control centralizado de música y efectos sonoros (`AudioManager`).
 
 ## Documentación
 El historial de cambios y la propuesta formal del proyecto se encuentran en la Wiki y en el archivo CHANGELOG.md.
