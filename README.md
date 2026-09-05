@@ -35,6 +35,9 @@ Para compilar y ejecutar el proyecto, es necesario tener instalado **JDK 21** en
   * **Mecánicas y Armamento (`armas`):** Lógica de combate centrada en la `Linterna` (gestión de energía, aturdimiento por destello, sobrecarga) y feedback visual reactivo mediante partículas (`ParticleEffect`).
   * **Mundo, Colisiones e Iluminación:** Carga de mapas ortogonales de Tiled, comprobación de obstáculos y línea de visión, junto con un sistema de sombras y luz ambiental en tiempo real montado sobre `Box2DLights` y `RayHandler`.
   * **Módulos de Soporte y UI (`handlers`):** Se creo interfaz gráfica (`HUD`) con barras de estado e indicadores numéricos en tiempo real, y control centralizado de música y efectos sonoros (`AudioManager`).
+    
+### Enlace al video de demostración:
+[Ver video del boceto jugable](https://drive.google.com/file/d/1Y5e2poWt0CtV-W30OcwiVuI6Nn_TUc6O/view?usp=sharing)
 
 ## Documentación
 El historial de cambios y la propuesta formal del proyecto se encuentran en la Wiki y en el archivo CHANGELOG.md.
