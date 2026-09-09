@@ -54,8 +54,8 @@ public class Jugador extends Entidad{
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            if(linterna.consumirEnergia(10f)) {
-                linterna.dispararSobrecarga();
+            if (linterna.puedeConsumirEnergia(20f)) {
+                    linterna.dispararSobrecarga();
             }
         }
 

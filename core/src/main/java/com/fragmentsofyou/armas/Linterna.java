@@ -91,7 +91,7 @@ public class Linterna {
 
     public boolean dispararSobrecarga() {
         if (!encendida || sobrecargada) return false;
-        if (!consumirEnergia(10f)) return false;
+        if (!consumirEnergia(20f)) return false;
 
         tiempoEfectoSobrecarga = duracionEfectoSobrecarga;
         danioAplicado=false;
@@ -161,7 +161,14 @@ public class Linterna {
 
     }
 
-    public boolean consumirEnergia(float cantidad) {
+    public boolean puedeConsumirEnergia(float cantidad) {
+        if (energia >= cantidad) {
+            return true;
+        }
+        return false;
+    }
+
+        public boolean consumirEnergia(float cantidad) {
         if (energia >= cantidad) {
             energia -= cantidad;
             return true;

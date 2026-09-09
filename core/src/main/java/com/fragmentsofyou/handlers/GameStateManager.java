@@ -18,6 +18,8 @@ public class GameStateManager {
     public static final int SETTINGS = 2;
     public static final int GAMEOVER = 3;
 
+    public int hola=3;
+
     public GameStateManager(Main game) {
         this.game = game;
         gameStates = new Stack<GameState>();
