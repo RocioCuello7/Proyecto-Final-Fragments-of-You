@@ -1,19 +1,21 @@
 package com.fragmentsofyou.entities;
 
+import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.fragmentsofyou.animadores.CharacterAnimator;
+import com.fragmentsofyou.animadores.Animacion4Direcciones;
 import com.fragmentsofyou.armas.Linterna;
 import com.fragmentsofyou.handlers.MapCollision;
 
 public class Jugador extends Entidad{
 
-    private CharacterAnimator animador;
+    private Animacion4Direcciones animador;
     private Linterna linterna;
 
     private float rotacionMouse;
@@ -24,12 +26,17 @@ public class Jugador extends Entidad{
 
     private Vector3 mousePos = new Vector3();
 
+    private float anchoLuzPersonal = 32f, altoLuzPersonal = 32f;
+    private PointLight luzPersonal;
+
 
     public Jugador(float startX, float startY, RayHandler rayHandler) {
         super(startX,startY,10f,10f,90f,100);
 
-
-        this.animador = new CharacterAnimator("spriteGlenn.png", 0.15f);
+        luzPersonal = new PointLight(rayHandler, 64, new Color(1f, 1f, 1f, 0.85f), 30f, x, y);
+        luzPersonal.setSoft(true);
+        luzPersonal.setXray(true);
+        this.animador = new Animacion4Direcciones("glenn/", 0.15f);
         this.linterna = new Linterna(rayHandler, startX, startY, 0f);
     }
 
@@ -77,6 +84,9 @@ public class Jugador extends Entidad{
             linterna.recargar(dt);
         }
 
+        if (luzPersonal != null) {
+            luzPersonal.setPosition(x + (anchoLuzPersonal / 2f)-16f, y + (altoLuzPersonal / 2f)-16f);
+        }
         animador.update(dt, dirX, dirY);
         linterna.update(dt, x, y, rotacionMouse);
     }
@@ -99,6 +109,7 @@ public class Jugador extends Entidad{
     public void dispose() {
         if (animador != null) animador.dispose();
         if (linterna != null) linterna.dispose();
+        if(luzPersonal!=null) luzPersonal.dispose();
     }
 
 

@@ -1,15 +1,14 @@
 package com.fragmentsofyou.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.fragmentsofyou.enumeradores.Direction;
+import com.fragmentsofyou.enumeradores.FourDirection;
 import com.fragmentsofyou.handlers.MapCollision;
 
 public abstract class Enemigo extends Entidad {
 
     protected Entidad objetivo;
 
-    protected Direction direccionActual = Direction.DOWN;
+    protected FourDirection direccionActual = FourDirection.SOUTH;
     protected float stateTime = 0f;
 
     protected float tiempoAturdido = 0f;
@@ -90,14 +89,14 @@ public abstract class Enemigo extends Entidad {
 
         mover(dirX, dirY, velocidadActual, dt, mapCollision);
 
-        if (dirY > 0 && dirX == 0) direccionActual = Direction.UP;
-        else if (dirY < 0 && dirX == 0) direccionActual = Direction.DOWN;
-        else if (dirX > 0 && dirY == 0) direccionActual = Direction.RIGHT;
-        else if (dirX < 0 && dirY == 0) direccionActual = Direction.LEFT;
-        else if (dirY > 0 && dirX > 0) direccionActual = Direction.UP;
-        else if (dirY > 0 && dirX < 0) direccionActual = Direction.UP;
-        else if (dirY < 0 && dirX > 0) direccionActual = Direction.DOWN;
-        else if (dirY < 0 && dirX < 0) direccionActual = Direction.DOWN;
+        if (dirY > 0 && dirX == 0) direccionActual = FourDirection.NORTH;
+        else if (dirY < 0 && dirX == 0) direccionActual = FourDirection.SOUTH;
+        else if (dirX > 0 && dirY == 0) direccionActual = FourDirection.EAST;
+        else if (dirX < 0 && dirY == 0) direccionActual = FourDirection.WEST;
+        else if (dirY > 0 && dirX > 0) direccionActual = FourDirection.NORTH;
+        else if (dirY > 0 && dirX < 0) direccionActual = FourDirection.NORTH;
+        else if (dirY < 0 && dirX > 0) direccionActual = FourDirection.SOUTH;
+        else if (dirY < 0 && dirX < 0) direccionActual = FourDirection.SOUTH;
     }
 
     private void atacar() {

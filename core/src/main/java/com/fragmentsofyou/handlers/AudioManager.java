@@ -15,6 +15,7 @@ public class AudioManager{
         musicaAmbiente.setLooping(true);
         musicaAmbiente.setVolume(0.06f);
 
+
         sonidoDestello = Gdx.audio.newSound(Gdx.files.internal("sonidos/destello.mp3"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("sonidos/disparo.mp3"));
     }
@@ -32,11 +33,11 @@ public class AudioManager{
     }
 
     public void playDestello() {
-        sonidoDestello.play(1.0f);
+        sonidoDestello.play(0.3f);
     }
 
     public void playDisparo() {
-        sonidoDisparo.play(1.0f);
+        sonidoDisparo.play(0.3f);
     }
 
     public void dispose() {

@@ -100,7 +100,7 @@ public class Play extends GameState {
     private void setupIluminacion() {
         world = new World(new Vector2(0, 0), true);
         rayHandler = new RayHandler(world);
-        rayHandler.setAmbientLight(0.20f);
+        rayHandler.setAmbientLight(0.07f);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class Play extends GameState {
                 );
 
                 if (alcanzada && lineaLibre) {
-                    audio.playDisparo();
+                    audio.playDestello();
                     enemigo.relentizar(3.0f);
                     enemigo.recibirDanio(30f);
                     jugador.getLinterna().registrarImpacto();

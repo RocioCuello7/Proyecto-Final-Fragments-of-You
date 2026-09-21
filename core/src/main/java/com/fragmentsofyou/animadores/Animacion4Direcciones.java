@@ -4,24 +4,24 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
-import com.fragmentsofyou.enumeradores.EightDirection;
+import com.fragmentsofyou.enumeradores.FourDirection;
 
-public class Animacion8Direcciones {
+public class Animacion4Direcciones {
 
-
-
-    private Array<Texture> texturas = new Array<>(8);
-    private Array<Animation<TextureRegion>> animaciones = new Array<>(8);
-    private EightDirection direccionActual = EightDirection.SOUTH;
+    private Array<Texture> texturas = new Array<>(4);
+    private Array<Animation<TextureRegion>> animaciones = new Array<>(4);
+    private FourDirection direccionActual = FourDirection.SOUTH;
     private float stateTime = 0f;
 
-    public Animacion8Direcciones(String rutaBase, float frameDuration) {
+    public Animacion4Direcciones(String rutaBase, float frameDuration) {
         String[] archivos = {
-            "north.png", "south.png", "east.png", "west.png",
-            "north-east.png", "north-west.png", "south-east.png", "south-west.png"
+            "animArriba.png",
+            "animAbajo.png",
+            "animDerecha.png",
+            "animIzquierda.png"
         };
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 4; i++) {
             Texture tex = new Texture(rutaBase + archivos[i]);
             texturas.add(tex);
             animaciones.add(crearAnimacion(tex, frameDuration));
@@ -29,8 +29,8 @@ public class Animacion8Direcciones {
     }
 
     private Animation<TextureRegion> crearAnimacion(Texture sheet, float frameDuration) {
-        int cols = 2;
-        int rows = 4;
+        int cols = 4;
+        int rows = 1;
         TextureRegion[][] tmp = TextureRegion.split(sheet, sheet.getWidth() / cols, sheet.getHeight() / rows);
 
         TextureRegion[] frames = new TextureRegion[cols * rows];
@@ -49,18 +49,13 @@ public class Animacion8Direcciones {
         if (enMovimiento) {
             stateTime += dt;
 
-            if (dirY > 0 && dirX > 0) direccionActual = EightDirection.NORTH_EAST;
-            else if (dirY > 0 && dirX < 0) direccionActual = EightDirection.NORTH_WEST;
-            else if (dirY < 0 && dirX > 0) direccionActual = EightDirection.SOUTH_EAST;
-            else if (dirY < 0 && dirX < 0) direccionActual = EightDirection.SOUTH_WEST;
-            else if (dirY > 0) direccionActual = EightDirection.NORTH;
-            else if (dirY < 0) direccionActual = EightDirection.SOUTH;
-            else if (dirX > 0) direccionActual = EightDirection.EAST;
-            else if (dirX < 0) direccionActual = EightDirection.WEST;
+            if (dirY > 0) direccionActual = FourDirection.NORTH;
+            else if (dirY < 0) direccionActual = FourDirection.SOUTH;
+            else if (dirX > 0) direccionActual = FourDirection.EAST;
+            else if (dirX < 0) direccionActual = FourDirection.WEST;
         } else {
             stateTime = 0f;
         }
-
     }
 
     public TextureRegion getCurrentFrame() {
