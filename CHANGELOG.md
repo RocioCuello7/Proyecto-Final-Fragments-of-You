@@ -2,6 +2,22 @@
 
 Todos los cambios significativos del proyecto serán documentados en este archivo.
 
+## [0.6.0] - 2026-09-03
+
+### Agregado
+- **Sistema de partículas de impacto:** Efecto visual (`ParticleEffect`) disparado al impactar la sobrecarga de la linterna sobre el enemigo.
+- **Indicadores numéricos en HUD:** Visualización de valores numéricos (`actual / máximo`) para la salud del jugador y la energía de la linterna.
+- **Módulo `AudioManager`:** Clase dedicada para la carga, reproducción y control de volumen de pistas ambientales y efectos sonoros.
+- **Módulo `HUD`:** Clase encapsulada encargada del renderizado de barras de estado y tipografía en su propio `Viewport`.
+
+### Modificado
+- **Refactorización de `Play.java`:** Desacoplamiento de la lógica de sonido e interfaz de usuario para mejorar la legibilidad y cumplir el principio de responsabilidad única (SRP).
+- **Calibración visual de partículas:** Reducción de escala, velocidad y tiempo de vida (`Life`/`Duration`) de las partículas para adaptarlas a la resolución nativa de 320x180.
+- **Ajuste de audio:** Atenuación del volumen base de la música ambiental para priorizar los efectos de sonido de combate.
+
+### Corregido
+- Normalización de rutas y nombres de archivos de assets para compatibilidad con el empaquetado de LibGDX.
+
 ## [0.5.0] - 2026-09-02
 
 ### Añadido
