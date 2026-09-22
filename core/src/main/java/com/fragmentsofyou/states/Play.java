@@ -3,7 +3,9 @@ package com.fragmentsofyou.states;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -45,6 +47,13 @@ public class Play extends GameState {
     private ParticleEffect efectoSobrecarga;
     private boolean particulaActiva = false;
 
+
+    private Sprite spriteAbuela;
+    private Texture texturaAbuela;
+    private float abuelaX = 220f;
+    private float abuelaY = 220f;
+    private boolean abuelaVisible = true;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -68,6 +77,11 @@ public class Play extends GameState {
         shapeRenderer = new ShapeRenderer();
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        texturaAbuela = new Texture("abuela/Abuela.png");
+        spriteAbuela = new Sprite(texturaAbuela);
+        spriteAbuela.setPosition(abuelaX, abuelaY);
+        spriteAbuela.setScale(0.5f);
 
         efectoSobrecarga = new ParticleEffect();
         efectoSobrecarga.load(
@@ -190,6 +204,9 @@ public class Play extends GameState {
         if (particulaActiva) {
             efectoSobrecarga.draw(sb);
         }
+        if (abuelaVisible) {
+            spriteAbuela.draw(sb);
+        }
         sb.end();
 
         rayHandler.setCombinedMatrix(cam);
@@ -235,7 +252,7 @@ public class Play extends GameState {
         if (mapRenderer != null) mapRenderer.dispose();
         if (jugador != null) jugador.dispose();
         if (enemigo != null) enemigo.dispose();
-
+        if (texturaAbuela != null) texturaAbuela.dispose();
         if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
