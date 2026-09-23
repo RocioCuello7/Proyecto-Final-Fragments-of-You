@@ -4,8 +4,11 @@ import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -54,6 +57,13 @@ public class Play extends GameState {
     private float abuelaY = 220f;
     private boolean abuelaVisible = true;
 
+    private BitmapFont fuentePixel;
+    private GlyphLayout layout = new GlyphLayout();
+    private String[] dialogosAbuela;
+    private int indiceDialogo = 0;
+    private boolean mostrandoDialogo = false;
+    private float distanciaInteraccion = 35f;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -89,6 +99,22 @@ public class Play extends GameState {
             Gdx.files.internal("particulas")
         );
         efectoSobrecarga.scaleEffect(0.18f);
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PixeloidSans.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        parameter.size = 8;
+        parameter.mono = true;
+        parameter.color = com.badlogic.gdx.graphics.Color.WHITE;
+
+        fuentePixel = generator.generateFont(parameter);
+        generator.dispose();
+
+        dialogosAbuela = new String[] {
+            "Glenn... escuchaste esos ruidos afuera?",
+            "La luz de la casa esta fallando...",
+            "Tene mucho cuidado si vas al fondo."
+        };
     }
 
     private Vector2 obtenerSpawn() {
@@ -127,6 +153,24 @@ public class Play extends GameState {
         handleInput();
 
         jugador.update(dt, mapCollision);
+
+        if (abuelaVisible) {
+            float distToAbuela = Vector2.dst(jugador.getX(), jugador.getY(), abuelaX, abuelaY);
+
+            if (com.badlogic.gdx.Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E) && distToAbuela <= distanciaInteraccion) {
+                if (!mostrandoDialogo) {
+                    mostrandoDialogo = true;
+                    indiceDialogo = 0;
+                } else {
+                    indiceDialogo++;
+                    if (indiceDialogo >= dialogosAbuela.length) {
+                        mostrandoDialogo = false;
+                        indiceDialogo = 0;
+
+                    }
+                }
+            }
+        }
 
         if (jugador.isMuerto()) {
             gsm.setState(GameStateManager.GAMEOVER);
@@ -207,6 +251,19 @@ public class Play extends GameState {
         if (abuelaVisible) {
             spriteAbuela.draw(sb);
         }
+        if (abuelaVisible) {
+            spriteAbuela.draw(sb);
+
+            if (mostrandoDialogo) {
+                String texto = dialogosAbuela[indiceDialogo];
+                layout.setText(fuentePixel, texto);
+
+                float textoX = abuelaX + (spriteAbuela.getWidth() / 2f) - (layout.width / 2f);
+                float textoY = abuelaY + spriteAbuela.getHeight() + 12f;
+
+                fuentePixel.draw(sb, texto, textoX, textoY);
+            }
+        }
         sb.end();
 
         rayHandler.setCombinedMatrix(cam);
@@ -260,5 +317,6 @@ public class Play extends GameState {
         if (audio != null) audio.dispose();
         if (hud != null) hud.dispose();
         if (efectoSobrecarga != null) efectoSobrecarga.dispose();
+        if (fuentePixel != null) fuentePixel.dispose();
     }
 }
