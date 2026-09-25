@@ -4,10 +4,7 @@ import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
@@ -64,6 +61,10 @@ public class Play extends GameState {
     private boolean mostrandoDialogo = false;
     private float distanciaInteraccion = 35f;
 
+    private NinePatch fondoGloboTexto;
+    private float paddingX = 15f;
+    private float paddingY = 25f;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -105,16 +106,24 @@ public class Play extends GameState {
 
         parameter.size = 8;
         parameter.mono = true;
-        parameter.color = com.badlogic.gdx.graphics.Color.WHITE;
 
+        parameter.size = 9;
         fuentePixel = generator.generateFont(parameter);
         generator.dispose();
+
+        fuentePixel.getData().setScale(0.58f, 0.5f);
 
         dialogosAbuela = new String[] {
             "Glenn... escuchaste esos ruidos afuera?",
             "La luz de la casa esta fallando...",
-            "Tene mucho cuidado si vas al fondo."
+            "creo que esta ",
+            " . . . "
         };
+
+
+
+        Texture texBocadillo = new Texture("image-Photoroom.png");
+        fondoGloboTexto = new NinePatch(texBocadillo, 4, 4, 4, 4);
     }
 
     private Vector2 obtenerSpawn() {
@@ -251,23 +260,42 @@ public class Play extends GameState {
         if (abuelaVisible) {
             spriteAbuela.draw(sb);
         }
-        if (abuelaVisible) {
-            spriteAbuela.draw(sb);
-
-            if (mostrandoDialogo) {
-                String texto = dialogosAbuela[indiceDialogo];
-                layout.setText(fuentePixel, texto);
-
-                float textoX = abuelaX + (spriteAbuela.getWidth() / 2f) - (layout.width / 2f);
-                float textoY = abuelaY + spriteAbuela.getHeight() + 12f;
-
-                fuentePixel.draw(sb, texto, textoX, textoY);
-            }
-        }
         sb.end();
 
         rayHandler.setCombinedMatrix(cam);
         rayHandler.render();
+
+
+        if (abuelaVisible && mostrandoDialogo) {
+            sb.setProjectionMatrix(cam.combined);
+            sb.begin();
+
+            String texto = dialogosAbuela[indiceDialogo];
+            float anchoMaximoTexto = 60f;
+
+            layout.setText(fuentePixel, texto, com.badlogic.gdx.graphics.Color.BLACK, anchoMaximoTexto, com.badlogic.gdx.utils.Align.left, true);
+
+            float anchoTexto = layout.width;
+            float altoTexto = layout.height;
+
+            float anchoGlobo = anchoTexto + (paddingX * 2f);
+            float altoGlobo = altoTexto + (paddingY * 2f) + 15f;
+
+            float globoX = abuelaX + (spriteAbuela.getWidth() / 2f) - (anchoGlobo / 2f)+12f;
+            float globoY = abuelaY + spriteAbuela.getHeight() - 40f;
+
+            sb.setColor(1f, 1f, 1f, 1f);
+            fondoGloboTexto.draw(sb, globoX, globoY, anchoGlobo, altoGlobo);
+
+            float textoX = globoX + paddingX+ 8f;
+            float textoY = globoY + altoGlobo - paddingY + 4f;
+
+            fuentePixel.setColor(com.badlogic.gdx.graphics.Color.BLACK);
+
+            fuentePixel.draw(sb, texto, textoX, textoY, anchoMaximoTexto, com.badlogic.gdx.utils.Align.left, true);
+
+            sb.end();
+        }
 
         float alpha = jugador.getLinterna().getAlphaFlash();
         if (alpha > 0f) {
