@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -17,6 +18,8 @@ public class HUD {
     private BitmapFont font;
     private ShapeRenderer shapeRenderer;
 
+    private BitmapFont fuentePixel;
+
     public HUD() {
         hudCam = new OrthographicCamera();
         hudCam.setToOrtho(false, 320, 180);
@@ -26,6 +29,16 @@ public class HUD {
         font.getData().setScale(0.5f);
 
         shapeRenderer = new ShapeRenderer();
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PixeloidSans.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 9;
+        parameter.mono = true;
+
+        fuentePixel = generator.generateFont(parameter);
+        generator.dispose();
+
+        fuentePixel.getData().setScale(0.58f, 0.5f);
     }
 
     public void resize(int width, int height) {
@@ -71,6 +84,11 @@ public class HUD {
         font.draw(sb, vidaAct + "/" + vidaMax, 90, 173);
         font.draw(sb, enAct + "/" + enMax, 90, 165);
         sb.end();
+    }
+
+    public void renderFuenteObjetivo(SpriteBatch sb, String textoObjetivo, float x, float y) {
+        fuentePixel.setColor(com.badlogic.gdx.graphics.Color.YELLOW);
+        fuentePixel.draw(sb, textoObjetivo, x, y);
     }
 
     public void dispose() {

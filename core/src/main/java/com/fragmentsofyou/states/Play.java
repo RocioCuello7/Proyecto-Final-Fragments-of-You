@@ -17,9 +17,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fragmentsofyou.entities.Abuela;
 import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
 import com.fragmentsofyou.entities.Mecento;
+import com.fragmentsofyou.enumeradores.EstadoMision;
 import com.fragmentsofyou.handlers.AudioManager;
 import com.fragmentsofyou.handlers.GameStateManager;
 import com.fragmentsofyou.handlers.HUD;
@@ -47,23 +49,9 @@ public class Play extends GameState {
     private ParticleEffect efectoSobrecarga;
     private boolean particulaActiva = false;
 
+    private Abuela abuela;
 
-    private Sprite spriteAbuela;
-    private Texture texturaAbuela;
-    private float abuelaX = 220f;
-    private float abuelaY = 220f;
-    private boolean abuelaVisible = true;
-
-    private BitmapFont fuentePixel;
-    private GlyphLayout layout = new GlyphLayout();
-    private String[] dialogosAbuela;
-    private int indiceDialogo = 0;
-    private boolean mostrandoDialogo = false;
-    private float distanciaInteraccion = 35f;
-
-    private NinePatch fondoGloboTexto;
-    private float paddingX = 15f;
-    private float paddingY = 25f;
+    private EstadoMision misionActual = EstadoMision.HABLAR_CON_ABUELA;
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -89,10 +77,9 @@ public class Play extends GameState {
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        texturaAbuela = new Texture("abuela/Abuela.png");
-        spriteAbuela = new Sprite(texturaAbuela);
-        spriteAbuela.setPosition(abuelaX, abuelaY);
-        spriteAbuela.setScale(0.5f);
+
+        abuela = new Abuela(220f, 220f);
+
 
         efectoSobrecarga = new ParticleEffect();
         efectoSobrecarga.load(
@@ -100,30 +87,6 @@ public class Play extends GameState {
             Gdx.files.internal("particulas")
         );
         efectoSobrecarga.scaleEffect(0.18f);
-
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PixeloidSans.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        parameter.size = 8;
-        parameter.mono = true;
-
-        parameter.size = 9;
-        fuentePixel = generator.generateFont(parameter);
-        generator.dispose();
-
-        fuentePixel.getData().setScale(0.58f, 0.5f);
-
-        dialogosAbuela = new String[] {
-            "Glenn... escuchaste esos ruidos afuera?",
-            "La luz de la casa esta fallando...",
-            "creo que esta ",
-            " . . . "
-        };
-
-
-
-        Texture texBocadillo = new Texture("image-Photoroom.png");
-        fondoGloboTexto = new NinePatch(texBocadillo, 4, 4, 4, 4);
     }
 
     private Vector2 obtenerSpawn() {
@@ -163,22 +126,10 @@ public class Play extends GameState {
 
         jugador.update(dt, mapCollision);
 
-        if (abuelaVisible) {
-            float distToAbuela = Vector2.dst(jugador.getX(), jugador.getY(), abuelaX, abuelaY);
+        abuela.update(dt, jugador.getX(), jugador.getY());
 
-            if (com.badlogic.gdx.Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E) && distToAbuela <= distanciaInteraccion) {
-                if (!mostrandoDialogo) {
-                    mostrandoDialogo = true;
-                    indiceDialogo = 0;
-                } else {
-                    indiceDialogo++;
-                    if (indiceDialogo >= dialogosAbuela.length) {
-                        mostrandoDialogo = false;
-                        indiceDialogo = 0;
-
-                    }
-                }
-            }
+        if (abuela.isDialogoTerminado() && misionActual == EstadoMision.HABLAR_CON_ABUELA) {
+            misionActual = EstadoMision.IR_A_DORMIR;
         }
 
         if (jugador.isMuerto()) {
@@ -257,45 +208,12 @@ public class Play extends GameState {
         if (particulaActiva) {
             efectoSobrecarga.draw(sb);
         }
-        if (abuelaVisible) {
-            spriteAbuela.draw(sb);
-        }
+        abuela.render(sb);
+
         sb.end();
 
         rayHandler.setCombinedMatrix(cam);
         rayHandler.render();
-
-
-        if (abuelaVisible && mostrandoDialogo) {
-            sb.setProjectionMatrix(cam.combined);
-            sb.begin();
-
-            String texto = dialogosAbuela[indiceDialogo];
-            float anchoMaximoTexto = 60f;
-
-            layout.setText(fuentePixel, texto, com.badlogic.gdx.graphics.Color.BLACK, anchoMaximoTexto, com.badlogic.gdx.utils.Align.left, true);
-
-            float anchoTexto = layout.width;
-            float altoTexto = layout.height;
-
-            float anchoGlobo = anchoTexto + (paddingX * 2f);
-            float altoGlobo = altoTexto + (paddingY * 2f) + 15f;
-
-            float globoX = abuelaX + (spriteAbuela.getWidth() / 2f) - (anchoGlobo / 2f)+12f;
-            float globoY = abuelaY + spriteAbuela.getHeight() - 40f;
-
-            sb.setColor(1f, 1f, 1f, 1f);
-            fondoGloboTexto.draw(sb, globoX, globoY, anchoGlobo, altoGlobo);
-
-            float textoX = globoX + paddingX+ 8f;
-            float textoY = globoY + altoGlobo - paddingY + 4f;
-
-            fuentePixel.setColor(com.badlogic.gdx.graphics.Color.BLACK);
-
-            fuentePixel.draw(sb, texto, textoX, textoY, anchoMaximoTexto, com.badlogic.gdx.utils.Align.left, true);
-
-            sb.end();
-        }
 
         float alpha = jugador.getLinterna().getAlphaFlash();
         if (alpha > 0f) {
@@ -312,9 +230,12 @@ public class Play extends GameState {
                 cam.viewportHeight
             );
             shapeRenderer.end();
-            Gdx.gl.glDisable(GL20.GL_BLEND);
         }
+        sb.setProjectionMatrix(cam.combined.cpy().setToOrtho2D(0, 0, cam.viewportWidth, cam.viewportHeight));
+        sb.begin();
 
+        hud.renderFuenteObjetivo(sb, misionActual.getTextoObjetivo(), cam.viewportWidth - 100f, cam.viewportHeight - 8f);
+        sb.end();
         hud.render(sb, jugador);
     }
 
@@ -337,7 +258,6 @@ public class Play extends GameState {
         if (mapRenderer != null) mapRenderer.dispose();
         if (jugador != null) jugador.dispose();
         if (enemigo != null) enemigo.dispose();
-        if (texturaAbuela != null) texturaAbuela.dispose();
         if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
@@ -345,6 +265,6 @@ public class Play extends GameState {
         if (audio != null) audio.dispose();
         if (hud != null) hud.dispose();
         if (efectoSobrecarga != null) efectoSobrecarga.dispose();
-        if (fuentePixel != null) fuentePixel.dispose();
+        if (abuela != null) abuela.dispose();
     }
 }
