@@ -75,6 +75,16 @@ public class MapCollision {
         return false;
     }
 
+    public Rectangle obtenerRectanguloPorNombre(String nombreObjeto){
+        if (collisionObjects == null) return null;
+
+        MapObject obj = collisionObjects.get(nombreObjeto);
+        if (obj instanceof RectangleMapObject) {
+            return ((RectangleMapObject) obj).getRectangle();
+        }
+        return null;
+    }
+
     public boolean hayLineaDeVision(float x1, float y1, float x2, float y2){
 
         if(collisionObjects==null){

@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -53,6 +54,9 @@ public class Play extends GameState {
 
     private EstadoMision misionActual = EstadoMision.HABLAR_CON_ABUELA;
 
+    private Rectangle rectCama;
+
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -79,6 +83,8 @@ public class Play extends GameState {
 
 
         abuela = new Abuela(220f, 220f);
+
+        rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
 
 
         efectoSobrecarga = new ParticleEffect();
@@ -159,6 +165,14 @@ public class Play extends GameState {
                     efectoSobrecarga.setPosition(enemigo.getX() + 3f, enemigo.getY() + 3f);
                     efectoSobrecarga.start();
                     particulaActiva = true;
+                }
+            }
+
+            if (misionActual == EstadoMision.IR_A_DORMIR && rectCama != null) {
+                Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
+
+                if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E) && rectJugador.overlaps(rectCama)) {
+                    misionActual = EstadoMision.COMPLETADO;
                 }
             }
 
