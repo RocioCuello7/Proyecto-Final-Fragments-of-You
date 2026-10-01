@@ -174,7 +174,7 @@ public class Play extends GameState {
                 if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E) && rectJugador.overlaps(rectCama)) {
                     misionActual = EstadoMision.COMPLETADO;
                 }
-            }
+            }//hola
 
             if (jugador.consumioDestello()) {
                 audio.playDestello();
