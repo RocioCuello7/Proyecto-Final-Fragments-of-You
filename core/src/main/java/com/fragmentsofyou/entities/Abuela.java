@@ -52,7 +52,7 @@ public class Abuela {
             "Glenn... escuchaste esos ruidos afuera?",
             "La luz de la casa esta fallando...",
             "creo que esta ",
-            " . . . "
+            " JANONEX  . . . "
         };
 
         Texture texBocadillo = new Texture("image-Photoroom.png");

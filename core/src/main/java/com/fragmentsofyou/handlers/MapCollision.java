@@ -16,12 +16,14 @@ import com.badlogic.gdx.physics.box2d.World;
 public class MapCollision {
 
     private MapObjects collisionObjects;
-
+    private TiledMap map;
     private Rectangle entidadRect = new Rectangle();
     private Vector2 pInicio = new Vector2();
     private Vector2 pFin = new Vector2();
 
     public MapCollision(TiledMap map, String nombreCapa, World world) {
+
+        this.map = map;
         if (map != null) {
             MapLayer capa = map.getLayers().get(nombreCapa);
             if (capa != null) {
@@ -75,12 +77,16 @@ public class MapCollision {
         return false;
     }
 
-    public Rectangle obtenerRectanguloPorNombre(String nombreObjeto){
-        if (collisionObjects == null) return null;
+    public Rectangle obtenerRectanguloPorNombre(String nombreObjeto) {
+        if (map == null) return null;
 
-        MapObject obj = collisionObjects.get(nombreObjeto);
-        if (obj instanceof RectangleMapObject) {
-            return ((RectangleMapObject) obj).getRectangle();
+        for (int i = 0; i < map.getLayers().getCount(); i++) {
+            MapLayer capa = map.getLayers().get(i);
+            MapObject obj = capa.getObjects().get(nombreObjeto);
+
+            if (obj instanceof RectangleMapObject) {
+                return ((RectangleMapObject) obj).getRectangle();
+            }
         }
         return null;
     }

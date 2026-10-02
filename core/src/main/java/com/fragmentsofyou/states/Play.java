@@ -2,6 +2,7 @@ package com.fragmentsofyou.states;
 
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -23,10 +24,7 @@ import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
 import com.fragmentsofyou.entities.Mecento;
 import com.fragmentsofyou.enumeradores.EstadoMision;
-import com.fragmentsofyou.handlers.AudioManager;
-import com.fragmentsofyou.handlers.GameStateManager;
-import com.fragmentsofyou.handlers.HUD;
-import com.fragmentsofyou.handlers.MapCollision;
+import com.fragmentsofyou.handlers.*;
 
 public class Play extends GameState {
 
@@ -55,6 +53,7 @@ public class Play extends GameState {
     private EstadoMision misionActual = EstadoMision.HABLAR_CON_ABUELA;
 
     private Rectangle rectCama;
+    private ScreenFader fader;
 
 
     public Play(GameStateManager gsm) {
@@ -73,19 +72,20 @@ public class Play extends GameState {
         mapCollision = new MapCollision(map, "paredes y muebles", world);
         mapRenderer = new OrthogonalTiledMapRenderer(map);
 
-        Vector2 spawn = obtenerSpawn();
-        jugador = new Jugador(spawn.x, spawn.y, rayHandler);
-        enemigo = new Mecento(spawn.x + 22, spawn.y + 25, jugador);
+        Vector2 spawnJugador = obtenerSpawnPorNombre("spawn", 160f, 90f);
+        jugador = new Jugador(spawnJugador.x, spawnJugador.y, rayHandler);
+        // enemigo = new Mecento(spawn.x + 22, spawn.y + 25, jugador);
 
         shapeRenderer = new ShapeRenderer();
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 
-        abuela = new Abuela(220f, 220f);
+        Vector2 spawnAbuela = obtenerSpawnPorNombre("spawnAbuela", 220f, 220f);
+        abuela = new Abuela(spawnAbuela.x, spawnAbuela.y);
 
         rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
-
+        fader = new ScreenFader();
 
         efectoSobrecarga = new ParticleEffect();
         efectoSobrecarga.load(
@@ -95,10 +95,10 @@ public class Play extends GameState {
         efectoSobrecarga.scaleEffect(0.18f);
     }
 
-    private Vector2 obtenerSpawn() {
+    private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {
         for (int i = 0; i < map.getLayers().getCount(); i++) {
             MapLayer capa = map.getLayers().get(i);
-            MapObject spawnPoint = capa.getObjects().get("spawn");
+            MapObject spawnPoint = capa.getObjects().get(nombreSpawn);
 
             if (spawnPoint != null) {
                 if (spawnPoint instanceof RectangleMapObject) {
@@ -112,7 +112,7 @@ public class Play extends GameState {
                 }
             }
         }
-        return new Vector2(160f, 90f);
+        return new Vector2(xDefecto, yDefecto);
     }
 
     private void setupIluminacion() {
@@ -143,6 +143,17 @@ public class Play extends GameState {
             return;
         }
 
+        fader.update(dt);
+
+        if (misionActual == EstadoMision.IR_A_DORMIR && rectCama != null) {
+            Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
+
+            if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E) && rectJugador.overlaps(rectCama)) {
+                misionActual = EstadoMision.COMPLETADO;
+                fader.startFadeOut(Color.BLACK, 1.5f);
+            }
+        }//hola
+
         if (enemigo != null) {
             enemigo.update(dt, mapCollision);
 
@@ -168,13 +179,6 @@ public class Play extends GameState {
                 }
             }
 
-            if (misionActual == EstadoMision.IR_A_DORMIR && rectCama != null) {
-                Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
-
-                if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E) && rectJugador.overlaps(rectCama)) {
-                    misionActual = EstadoMision.COMPLETADO;
-                }
-            }//hola
 
             if (jugador.consumioDestello()) {
                 audio.playDestello();
@@ -231,20 +235,9 @@ public class Play extends GameState {
 
         float alpha = jugador.getLinterna().getAlphaFlash();
         if (alpha > 0f) {
-            Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-            shapeRenderer.setProjectionMatrix(cam.combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(1f, 1f, 1f, alpha);
-            shapeRenderer.rect(
-                cam.position.x - cam.viewportWidth / 2f,
-                cam.position.y - cam.viewportHeight / 2f,
-                cam.viewportWidth,
-                cam.viewportHeight
-            );
-            shapeRenderer.end();
+            fader.renderOverlay(cam, Color.WHITE, alpha);
         }
+        fader.renderFade(cam);
         sb.setProjectionMatrix(cam.combined.cpy().setToOrtho2D(0, 0, cam.viewportWidth, cam.viewportHeight));
         sb.begin();
 
@@ -280,5 +273,6 @@ public class Play extends GameState {
         if (hud != null) hud.dispose();
         if (efectoSobrecarga != null) efectoSobrecarga.dispose();
         if (abuela != null) abuela.dispose();
+        if (fader != null) fader.dispose();
     }
 }
