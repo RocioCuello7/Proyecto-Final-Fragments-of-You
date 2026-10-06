@@ -49,6 +49,7 @@ public class Play extends GameState {
     private boolean particulaActiva = false;
 
     private Abuela abuela;
+    private boolean abuelaPresente=true;
 
     private EstadoMision misionActual = EstadoMision.HABLAR_CON_ABUELA;
 
@@ -118,7 +119,7 @@ public class Play extends GameState {
     private void setupIluminacion() {
         world = new World(new Vector2(0, 0), true);
         rayHandler = new RayHandler(world);
-        rayHandler.setAmbientLight(0.07f);
+        rayHandler.setAmbientLight(0.4f);
     }
 
     @Override
@@ -132,10 +133,12 @@ public class Play extends GameState {
 
         jugador.update(dt, mapCollision);
 
-        abuela.update(dt, jugador.getX(), jugador.getY());
+        if (abuelaPresente) {
+            abuela.update(dt, jugador.getX(), jugador.getY());
 
-        if (abuela.isDialogoTerminado() && misionActual == EstadoMision.HABLAR_CON_ABUELA) {
-            misionActual = EstadoMision.IR_A_DORMIR;
+            if (abuela.isDialogoTerminado() && misionActual == EstadoMision.HABLAR_CON_ABUELA) {
+                misionActual = EstadoMision.IR_A_DORMIR;
+            }
         }
 
         if (jugador.isMuerto()) {
@@ -154,6 +157,14 @@ public class Play extends GameState {
             }
         }//hola
 
+        if(misionActual == EstadoMision.COMPLETADO && fader.isFinished()){
+            fader.startFlash(Color.BLACK, 2.0f);
+            misionActual=EstadoMision.EXPLORAR;
+            rayHandler.setAmbientLight(0.07f);
+
+            abuelaPresente=false;
+
+        }
         if (enemigo != null) {
             enemigo.update(dt, mapCollision);
 
@@ -226,7 +237,9 @@ public class Play extends GameState {
         if (particulaActiva) {
             efectoSobrecarga.draw(sb);
         }
-        abuela.render(sb);
+        if(abuelaPresente){
+            abuela.render(sb);
+        }
 
         sb.end();
 
