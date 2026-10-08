@@ -12,7 +12,6 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -20,7 +19,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.entities.Abuela;
 import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
-import com.fragmentsofyou.enumeradores.EstadoMision;
 import com.fragmentsofyou.handlers.*;
 
 public class Play extends GameState {
@@ -41,34 +39,11 @@ public class Play extends GameState {
 
     private HUD hud;
     private AudioManager audio;
-
-    private ParticleEffect efectoSobrecarga;
-    private boolean particulaActiva = false;
-
     private Abuela abuela;
-    private boolean abuelaPresente=true;
-
-    private EstadoMision misionActual = EstadoMision.HABLAR_CON_ABUELA;
-
-    private Rectangle rectCama;
     private ScreenFader fader;
 
-    private Rectangle rectNota;
-    private Rectangle rectPuerta;
-
-    private boolean notaLeida = false;
-    private boolean mostrandoTextoGleen = false;
-    private float timerTextoGleen = 0f;
-    private final float DURACION_TEXTO_GLEEN = 2.5f;
-
-    private boolean puertaUsada = false;
-    private boolean transicionPuertaUsada=false;
-
-    private boolean esperandoTP = false;
-    private float timerDelayPuerta = 0f;
-    private final float TIEMPO_DELAY = 0.8f;
-
-    private Vector2 puntoDestinoTP;
+    private MisionManager misionManager;
+    private CombateManager combateManager;
 
 
 
@@ -96,23 +71,16 @@ public class Play extends GameState {
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
+        combateManager = new CombateManager();
 
         Vector2 spawnAbuela = obtenerSpawnPorNombre("spawnAbuela", 220f, 220f);
+
         abuela = new Abuela(spawnAbuela.x, spawnAbuela.y);
 
-        rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
-        rectNota = mapCollision.obtenerRectanguloPorNombre("nota-abuela");
-        rectPuerta = mapCollision.obtenerRectanguloPorNombre("puertacasa");
         fader = new ScreenFader();
 
-        puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
-
-        efectoSobrecarga = new ParticleEffect();
-        efectoSobrecarga.load(
-            Gdx.files.internal("particulas/ParticulaAmarilla.p"),
-            Gdx.files.internal("particulas")
-        );
-        efectoSobrecarga.scaleEffect(0.18f);
+        Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
+        misionManager = new MisionManager(mapCollision, puntoDestinoTP);
     }
 
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {
@@ -152,139 +120,22 @@ public class Play extends GameState {
 
         jugador.update(dt, mapCollision);
 
-        if (jugador.isMostrandoDialogo()) {
-            if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E)) {
-                jugador.avanzarDialogo();
-            }
-        }
+        boolean dialogoEstabaActivo = jugador.isMostrandoDialogo();
+        misionManager.update(dt, jugador, abuela, fader, rayHandler);
 
-        if (misionActual == EstadoMision.EXPLORAR && !jugador.isDialogoNotaTerminado() && rectNota != null) {
-            Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
-
-            if (rectJugador.overlaps(rectNota) && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E)) {
-                if (!jugador.isMostrandoDialogo()) {
-                    String[] textoNota = new String[] {
-                        "¿Qué es esto ... ?",
-                        ". . . ",
-                        " donde esta la           abuela ? "
-                    };
-                    jugador.iniciarDialogoNota(textoNota);
-                }
-            }
-        }
-
-
-        if (jugador.isDialogoNotaTerminado() && !puertaUsada && rectPuerta != null) {
-            Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
-
-            if (rectJugador.overlaps(rectPuerta)) {
-
-                fader.startFadeOut(Color.BLACK, 1.5f);
-                transicionPuertaUsada = true;
-                puertaUsada = true;
-                jugador.setPuedoMoverme(false);
-            }
-        }
-        if (transicionPuertaUsada&& fader.isFinished()) {
-            transicionPuertaUsada= false;
-            esperandoTP = true;
-            timerDelayPuerta = TIEMPO_DELAY;
-        }
-
-        if (esperandoTP) {
-            timerDelayPuerta -= dt;
-
-            if (timerDelayPuerta <= 0) {
-                esperandoTP = false;
-
-                if (puntoDestinoTP != null) {
-                    jugador.teletransportar(puntoDestinoTP.x, puntoDestinoTP.y);
-                }
-                fader.startFlash(Color.BLACK, 2.0f);
-                jugador.setPuedoMoverme(true);
-            }
+        if (dialogoEstabaActivo && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E)) {
+            jugador.avanzarDialogo();
         }
 
         fader.update(dt);
-
-        if (abuelaPresente) {
-            abuela.update(dt, jugador.getX(), jugador.getY());
-
-            if (abuela.isDialogoTerminado() && misionActual == EstadoMision.HABLAR_CON_ABUELA) {
-                misionActual = EstadoMision.IR_A_DORMIR;
-            }
-        }
 
         if (jugador.isMuerto()) {
             gsm.setState(GameStateManager.GAMEOVER);
             return;
         }
 
-
-        if (misionActual == EstadoMision.IR_A_DORMIR && rectCama != null) {
-            Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
-
-            if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E) && rectJugador.overlaps(rectCama)) {
-                misionActual = EstadoMision.COMPLETADO;
-                fader.startFadeOut(Color.BLACK, 1.5f);
-            }
-        }//hola
-
-        if(misionActual == EstadoMision.COMPLETADO && fader.isFinished()){
-            fader.startFlash(Color.BLACK, 2.0f);
-            misionActual=EstadoMision.EXPLORAR;
-            rayHandler.setAmbientLight(0.07f);
-
-            abuelaPresente=false;
-
-        }
-        if (enemigo != null) {
-            enemigo.update(dt, mapCollision);
-
-            boolean lineaLibre = mapCollision.hayLineaDeVision(
-                jugador.getX(), jugador.getY(), enemigo.getX(), enemigo.getY()
-            );
-
-            if (jugador.getLinterna().puedeHacerDanio()) {
-                boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
-                    jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(), enemigo.getY()
-                );
-
-                if (alcanzada && lineaLibre) {
-                    audio.playDestello();
-                    enemigo.relentizar(3.0f);
-                    enemigo.recibirDanio(30f);
-                    jugador.getLinterna().registrarImpacto();
-
-                    efectoSobrecarga.reset();
-                    efectoSobrecarga.setPosition(enemigo.getX() + 3f, enemigo.getY() + 3f);
-                    efectoSobrecarga.start();
-                    particulaActiva = true;
-                }
-            }
-
-
-            if (jugador.consumioDestello()) {
-                audio.playDestello();
-                enemigo.aturdir(2.0f);
-                enemigo.recibirDanio(25f);
-            }
-
-            if (enemigo.isMuerto()) {
-                enemigo.dispose();
-                enemigo = null;
-            }
-        }
-
-        if (particulaActiva) {
-            efectoSobrecarga.update(dt);
-            if (efectoSobrecarga.isComplete()) {
-                particulaActiva = false;
-            }
-        }
-
+        combateManager.update(dt, jugador, enemigo, mapCollision, audio);
         rayHandler.update();
-
         cam.position.set(jugador.getX(), jugador.getY(), 0);
         cam.update();
     }
@@ -307,10 +158,8 @@ public class Play extends GameState {
         if (enemigo != null) {
             enemigo.render(sb);
         }
-        if (particulaActiva) {
-            efectoSobrecarga.draw(sb);
-        }
-        if(abuelaPresente){
+        combateManager.renderParticulas(sb);
+        if (misionManager.isAbuelaPresente() && abuela != null) {
             abuela.render(sb);
         }
 
@@ -327,7 +176,12 @@ public class Play extends GameState {
         sb.setProjectionMatrix(cam.combined.cpy().setToOrtho2D(0, 0, cam.viewportWidth, cam.viewportHeight));
         sb.begin();
 
-        hud.renderFuenteObjetivo(sb, misionActual.getTextoObjetivo(), cam.viewportWidth - 100f, cam.viewportHeight - 8f);
+        hud.renderFuenteObjetivo(
+            sb,
+            misionManager.getMisionActual().getTextoObjetivo(),
+            cam.viewportWidth - 100f,
+            cam.viewportHeight - 8f
+        );
         sb.end();
         hud.render(sb, jugador);
     }
@@ -350,15 +204,14 @@ public class Play extends GameState {
         if (map != null) map.dispose();
         if (mapRenderer != null) mapRenderer.dispose();
         if (jugador != null) jugador.dispose();
-        if (enemigo != null) enemigo.dispose();
         if (rayHandler != null) rayHandler.dispose();
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
 
         if (audio != null) audio.dispose();
         if (hud != null) hud.dispose();
-        if (efectoSobrecarga != null) efectoSobrecarga.dispose();
         if (abuela != null) abuela.dispose();
         if (fader != null) fader.dispose();
+        if (combateManager != null) combateManager.dispose();
     }
 }//hola
