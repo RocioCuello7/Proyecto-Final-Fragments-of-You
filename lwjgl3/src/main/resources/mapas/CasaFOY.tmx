@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="80" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="135">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="80" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="153">
  <tileset firstgid="1" source="Muebles y Paredes.tsx"/>
  <layer id="1" name="pisos/paredes" width="80" height="60">
   <data encoding="csv">
@@ -321,8 +321,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="9" name="Interacciones">
+ <objectgroup id="9" name="interacciones">
   <object id="133" name="cama" x="966.667" y="861.667" width="65" height="56.3333"/>
+  <object id="135" name="nota-abuela" x="873.5" y="752.5" width="27" height="17.75"/>
  </objectgroup>
  <objectgroup id="6" name="paredes y muebles">
   <object id="1" gid="27" x="526" y="144.667" width="16" height="16"/>
@@ -423,5 +424,9 @@
   <object id="122" x="1010" y="85.5" width="56.25" height="10"/>
   <object id="123" x="1039.33" y="89.3333" height="0.666667"/>
   <object id="124" x="788.667" y="2.66667" width="482" height="62"/>
+  <object id="144" name="puertacasa" x="879.5" y="805" width="21.5" height="4.25"/>
+  <object id="152" name="tp1" x="34.75" y="93.125">
+   <point/>
+  </object>
  </objectgroup>
 </map>

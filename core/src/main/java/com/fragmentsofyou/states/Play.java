@@ -4,9 +4,7 @@ import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -22,7 +20,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.entities.Abuela;
 import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
-import com.fragmentsofyou.entities.Mecento;
 import com.fragmentsofyou.enumeradores.EstadoMision;
 import com.fragmentsofyou.handlers.*;
 
@@ -56,6 +53,24 @@ public class Play extends GameState {
     private Rectangle rectCama;
     private ScreenFader fader;
 
+    private Rectangle rectNota;
+    private Rectangle rectPuerta;
+
+    private boolean notaLeida = false;
+    private boolean mostrandoTextoGleen = false;
+    private float timerTextoGleen = 0f;
+    private final float DURACION_TEXTO_GLEEN = 2.5f;
+
+    private boolean puertaUsada = false;
+    private boolean transicionPuertaUsada=false;
+
+    private boolean esperandoTP = false;
+    private float timerDelayPuerta = 0f;
+    private final float TIEMPO_DELAY = 0.8f;
+
+    private Vector2 puntoDestinoTP;
+
+
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -86,7 +101,11 @@ public class Play extends GameState {
         abuela = new Abuela(spawnAbuela.x, spawnAbuela.y);
 
         rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
+        rectNota = mapCollision.obtenerRectanguloPorNombre("nota-abuela");
+        rectPuerta = mapCollision.obtenerRectanguloPorNombre("puertacasa");
         fader = new ScreenFader();
+
+        puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
 
         efectoSobrecarga = new ParticleEffect();
         efectoSobrecarga.load(
@@ -133,6 +152,61 @@ public class Play extends GameState {
 
         jugador.update(dt, mapCollision);
 
+        if (jugador.isMostrandoDialogo()) {
+            if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E)) {
+                jugador.avanzarDialogo();
+            }
+        }
+
+        if (misionActual == EstadoMision.EXPLORAR && !jugador.isDialogoNotaTerminado() && rectNota != null) {
+            Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
+
+            if (rectJugador.overlaps(rectNota) && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E)) {
+                if (!jugador.isMostrandoDialogo()) {
+                    String[] textoNota = new String[] {
+                        "¿Qué es esto ... ?",
+                        ". . . ",
+                        " donde esta la           abuela ? "
+                    };
+                    jugador.iniciarDialogoNota(textoNota);
+                }
+            }
+        }
+
+
+        if (jugador.isDialogoNotaTerminado() && !puertaUsada && rectPuerta != null) {
+            Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
+
+            if (rectJugador.overlaps(rectPuerta)) {
+
+                fader.startFadeOut(Color.BLACK, 1.5f);
+                transicionPuertaUsada = true;
+                puertaUsada = true;
+                jugador.setPuedoMoverme(false);
+            }
+        }
+        if (transicionPuertaUsada&& fader.isFinished()) {
+            transicionPuertaUsada= false;
+            esperandoTP = true;
+            timerDelayPuerta = TIEMPO_DELAY;
+        }
+
+        if (esperandoTP) {
+            timerDelayPuerta -= dt;
+
+            if (timerDelayPuerta <= 0) {
+                esperandoTP = false;
+
+                if (puntoDestinoTP != null) {
+                    jugador.teletransportar(puntoDestinoTP.x, puntoDestinoTP.y);
+                }
+                fader.startFlash(Color.BLACK, 2.0f);
+                jugador.setPuedoMoverme(true);
+            }
+        }
+
+        fader.update(dt);
+
         if (abuelaPresente) {
             abuela.update(dt, jugador.getX(), jugador.getY());
 
@@ -146,7 +220,6 @@ public class Play extends GameState {
             return;
         }
 
-        fader.update(dt);
 
         if (misionActual == EstadoMision.IR_A_DORMIR && rectCama != null) {
             Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
