@@ -4,6 +4,7 @@ import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -19,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.entities.Abuela;
 import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
+import com.fragmentsofyou.entities.Mecento;
 import com.fragmentsofyou.handlers.*;
 
 public class Play extends GameState {
@@ -44,6 +47,8 @@ public class Play extends GameState {
 
     private MisionManager misionManager;
     private CombateManager combateManager;
+
+    private Texture texturaNota;
 
 
 
@@ -79,7 +84,10 @@ public class Play extends GameState {
 
         fader = new ScreenFader();
 
+        texturaNota=new Texture(Gdx.files.internal("mapas/hojaCarta.png"));
+
         Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
+        Vector2 puntoDestinoTP2 = obtenerSpawnPorNombre("tp2", 700f, 400f);
         misionManager = new MisionManager(mapCollision, puntoDestinoTP);
     }
 
@@ -133,6 +141,10 @@ public class Play extends GameState {
             gsm.setState(GameStateManager.GAMEOVER);
             return;
         }
+        if(enemigo == null){
+            Vector2 spawnEnemigo=obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
+            enemigo=new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador);
+        }
 
         combateManager.update(dt, jugador, enemigo, mapCollision, audio);
         rayHandler.update();
@@ -152,6 +164,10 @@ public class Play extends GameState {
 
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
+        if(!misionManager.isAbuelaPresente() && misionManager.getRectNota() != null){
+            Rectangle rNota=misionManager.getRectNota();
+            sb.draw(texturaNota, rNota.x, rNota.y);
+        }
         if (!jugador.isMuerto()) {
             jugador.render(sb);
         }
@@ -162,6 +178,7 @@ public class Play extends GameState {
         if (misionManager.isAbuelaPresente() && abuela != null) {
             abuela.render(sb);
         }
+
 
         sb.end();
 
@@ -212,6 +229,7 @@ public class Play extends GameState {
         if (hud != null) hud.dispose();
         if (abuela != null) abuela.dispose();
         if (fader != null) fader.dispose();
+        if(texturaNota!=null) texturaNota.dispose();
         if (combateManager != null) combateManager.dispose();
     }
 }//hola
