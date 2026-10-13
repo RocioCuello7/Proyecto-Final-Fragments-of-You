@@ -71,7 +71,6 @@ public class Play extends GameState {
 
         Vector2 spawnJugador = obtenerSpawnPorNombre("spawn", 160f, 90f);
         jugador = new Jugador(spawnJugador.x, spawnJugador.y, rayHandler);
-        // enemigo = new Mecento(spawn.x + 22, spawn.y + 25, jugador);
 
         shapeRenderer = new ShapeRenderer();
 
@@ -90,8 +89,9 @@ public class Play extends GameState {
 
         Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
         Vector2 puntoDestinoTP2 = obtenerSpawnPorNombre("tp2", 700f, 400f);
+        Vector2 puntoDestinoTP3 = obtenerSpawnPorNombre("tp3",900f,1000f);
 
-        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2);
+        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2,puntoDestinoTP3);
     }
 
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {

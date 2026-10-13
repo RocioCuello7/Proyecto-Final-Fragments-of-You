@@ -6,7 +6,8 @@ public enum EstadoMision {
     IR_A_DORMIR("Objetivo: anda a dormir wachin"),
     EXPLORAR("Objetivo: Investiga los ruidos extraños"),
     COMPLETADO("Objetivo completado!!!"),
-    COMBATE_Y_BUSQUEDA("Objetivo: Enfrenta al enemigo y encuentra un fragmento...");
+    COMBATE_Y_BUSQUEDA("Objetivo: Enfrenta al enemigo y encuentra un fragmento..."),
+    BUSQUEDA("Objetivo: ? ? ?");
 
 
     private final String textoObjetivo;

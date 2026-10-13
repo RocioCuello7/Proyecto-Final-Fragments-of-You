@@ -12,45 +12,44 @@ import com.fragmentsofyou.enumeradores.EstadoMision;
 
 public class MisionManager {
 
+    private ZonaTP puertaCasaTP;
+    private ZonaTP puertaPasilloTP2;
+    private ZonaTP puertaSalidaTP1;
+    private ZonaTP puertaSiguienteTP3;
+
+    private boolean esperandoTP = false;
+    private float timerDelayTP = 0f;
+    private final float TIEMPO_DELAY = 0.8f;
+    private Vector2 destinoActualTP;
+
     private EstadoMision misionActual = EstadoMision.HABLAR_CON_ABUELA;
 
     private Rectangle rectCama;
     private Rectangle rectNota;
     private Rectangle rectObjetoAbuela;
-    private Rectangle rectPuerta;
-    private Rectangle rectPuertaPasillo;
-    private Rectangle rectPuertaSalidaCombate1;
 
     private MapCollision mapCollision;
     private Vector2 puntoDestinoTP;
     private Vector2 puntoDestinoTP2;
 
     private boolean abuelaPresente =true;
-    private boolean puertaUsada = false;
-    private boolean transicionPuertaUsada = false;
-    private boolean esperandoTP = false;
-    private float timerDelayPuerta = 0f;
-    private final float TIEMPO_DELAY = 0.8f;
-
-    private boolean puertaPasilloUsada = false;
-    private boolean transicionPuertaPasilloUsada = false;
-    private boolean esperandoTP2 = false;
-    private float timerDelayTP2 = 0f;
     private boolean enemigoSpawned = false;
     private boolean enemigoDerrotado=false;
-
     private boolean objetoEncontrado = false;
 
-    public MisionManager(MapCollision mapCollision, Vector2 puntoDestinoTP, Vector2 puntoDestinoTP2){
+    private Vector2 tp3;
+
+    public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3){
         this.mapCollision=mapCollision;
         this.rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
         this.rectNota = null;
         this.rectObjetoAbuela=mapCollision.obtenerRectanguloPorNombre("cepilloDientesAbuela");
-        this.rectPuerta = mapCollision.obtenerRectanguloPorNombre("puertacasa");
-        this.rectPuertaPasillo = mapCollision.obtenerRectanguloPorNombre("puertaPasillo");
-        this.rectPuertaSalidaCombate1 = mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate1");
-        this.puntoDestinoTP = puntoDestinoTP;
-        this.puntoDestinoTP2 = puntoDestinoTP2;
+
+        this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false);
+        this.puertaPasilloTP2 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp2, false);
+        this.puertaSalidaTP1 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate1"), tp1, true);
+        this.puertaSiguienteTP3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSiguiente"), tp3, true);
+        this.tp3 = tp3;
 
     }
 
@@ -94,60 +93,47 @@ public class MisionManager {
             }
         }
 
-        if (jugador.isDialogoNotaTerminado() && !puertaUsada && rectPuerta != null) {
-            if (rectJugador.overlaps(rectPuerta)) {
-                fader.startFadeOut(Color.BLACK, 1.5f);
-                transicionPuertaUsada = true;
-                puertaUsada = true;
-                jugador.setPuedoMoverme(false);
+        if (jugador.isDialogoNotaTerminado() && puertaCasaTP.verificarYActivar(jugador, fader, objetoEncontrado)) {
+            esperandoTP = true;
+            timerDelayTP = TIEMPO_DELAY;
+            destinoActualTP = puertaCasaTP.getDestino();
+        }
+
+        if (jugador.isDialogoNotaTerminado() && puertaPasilloTP2.verificarYActivar(jugador, fader, objetoEncontrado)) {
+            esperandoTP = true;
+            timerDelayTP = TIEMPO_DELAY;
+            if (objetoEncontrado) {
+                destinoActualTP = tp3;
+            } else {
+                destinoActualTP = puertaPasilloTP2.getDestino();
+                enemigoSpawned = true;
+                misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
             }
         }
 
-        if (transicionPuertaUsada && fader.isFinished()) {
-            transicionPuertaUsada = false;
+        if (puertaSalidaTP1.verificarYActivar(jugador, fader, objetoEncontrado)) {
+            if (objetoEncontrado) {
+                esperandoTP = true;
+                timerDelayTP = TIEMPO_DELAY;
+                destinoActualTP = puertaSalidaTP1.getDestino();
+            }
+        }
+
+        if (puertaSiguienteTP3.verificarYActivar(jugador, fader, objetoEncontrado)) {
             esperandoTP = true;
-            timerDelayPuerta = TIEMPO_DELAY;
+            timerDelayTP = TIEMPO_DELAY;
+            destinoActualTP = puertaSiguienteTP3.getDestino();
         }
 
         if(esperandoTP){
-            timerDelayPuerta -=dt;
-            if (timerDelayPuerta<=0){
-                esperandoTP=false;
-                if(puntoDestinoTP!=null){
-                    jugador.teletransportar(puntoDestinoTP.x,puntoDestinoTP.y);
-                }
-                fader.startFlash(Color.BLACK,2.0f);
-                jugador.setPuedoMoverme(true);
-            }
-        }
-
-        if(jugador.isDialogoNotaTerminado() && !puertaPasilloUsada && rectPuertaPasillo !=null){
-            if(rectJugador.overlaps(rectPuertaPasillo)){
-                fader.startFadeOut(Color.BLACK, 1.5f);
-                transicionPuertaPasilloUsada=true;
-                puertaPasilloUsada=true;
-                jugador.setPuedoMoverme(false);
-            }
-        }
-
-        if(transicionPuertaPasilloUsada && fader.isFinished()){
-            transicionPuertaPasilloUsada=false;
-            esperandoTP2=true;
-            timerDelayTP2= TIEMPO_DELAY;
-        }
-
-        if(esperandoTP2){
-            timerDelayTP2-=dt;
-            if(timerDelayTP2 <=0){
-                esperandoTP2=false;
-                if(puntoDestinoTP2!=null){
-                    jugador.teletransportar(puntoDestinoTP2.x, puntoDestinoTP2.y);
+            timerDelayTP -= dt;
+            if (timerDelayTP <= 0){
+                esperandoTP = false;
+                if(destinoActualTP != null){
+                    jugador.teletransportar(destinoActualTP.x, destinoActualTP.y);
                 }
                 fader.startFlash(Color.BLACK, 2.0f);
                 jugador.setPuedoMoverme(true);
-                enemigoSpawned=true;
-
-                misionActual=EstadoMision.COMBATE_Y_BUSQUEDA;
             }
         }
 
@@ -161,29 +147,12 @@ public class MisionManager {
                     };
                jugador.iniciarDialogoNota(textoObjeto);
                 objetoEncontrado=true;
+                puertaPasilloTP2.reset();
+                misionActual = EstadoMision.BUSQUEDA;
 
                 }
             }
         }
-
-        if(rectPuertaSalidaCombate1 !=null && rectJugador.overlaps(rectPuertaSalidaCombate1)){
-            if(objetoEncontrado){
-                if(puntoDestinoTP!=null){
-                    jugador.teletransportar(puntoDestinoTP.x, puntoDestinoTP.y);
-                    fader.startFlash(Color.BLACK, 2.0f);
-                }
-            }else{
-                if(!jugador.isMostrandoDialogo() && Gdx.input.isKeyJustPressed(Input.Keys.E)){
-                    jugador.iniciarDialogoNota(new String[]{
-                        "La puerta está cerrada...",
-                        "Necesito encontrar el objeto",
-                        "de la abuela antes de irme."
-                    });
-
-                }
-            }
-        }
-
 
     }
 
