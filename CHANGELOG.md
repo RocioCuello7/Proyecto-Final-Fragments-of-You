@@ -2,6 +2,28 @@
 
 Todos los cambios significativos del proyecto serán documentados en este archivo.
 
+## [0.7.0] - 2026-10-13
+
+### Agregado
+- **Sistema de tipografía y diálogos:** Integración de la librería `gdx-freetype` para la carga y renderizado de fuentes personalizadas en los cuadros de texto.
+- **Globos de texto dinámicos:** Implementación de contenedores de diálogo mediante `NinePatch` para una mejor presentación visual de los mensajes.
+- **Entidad Abuela:** Creación del sprite, animaciones y lógica de comportamiento e interacciones iniciales del personaje.
+- **Mecánica de sueño y transición:** Adición del objeto interactuable "cama" en el mapa y la clase `ScreenFader` para manejar los efectos de fundido al completar la misión de dormir.
+- **Sistema de teletransporte:** Implementación de tránsitos entre mapas mediante marcadores posicionales (`tp1`, `tp2`, `tp3`) configurados directamente en Tiled.
+- **Narrativa y eventos de exploración:** Incorporación de la carta/nota misteriosa interactiva y los eventos de aparición del primer enemigo.
+- **Clase reutilizable `ZonaTP`:** Encapsulamiento modular de la lógica de colisiones, restricciones por objetos y estados de activación para todas las puertas del juego.
+- **Control de combate y spawn:** Implementación del control de aparición y gestión de la derrota definitiva del enemigo.
+
+### Modificado
+- **Animación y renderizado del jugador:** Actualización del animador del jugador a un sistema de 4 direcciones e integración de iluminación dinámica personalizada con `RayHandler`.
+- **Expansión cartográfica:** Amplicación y rediseño de los mapas Tiled principales y los entornos específicos para combate.
+- **Refactorización estructural de `Play.java`:** Desacoplamiento masivo de responsabilidades mediante la separación de la lógica en los módulos especializados `CombateManager` y `MisionManager`.
+- **Flujo de progresión de misiones:** Reestructuración de los estados de juego (diálogo inicial, descanso, reducción de la luz ambiental post-despertar, desaparición de la abuela e inicio de búsqueda e investigación).
+- **Optimización de tránsitos y puertas:** Actualización del flujo de teletransporte multi-etapa con soporte para la reutilización dinámica de accesos (como la puerta del pasillo que conmuta entre objetivos).
+
+### Corregido
+- Solución de bucles de fotogramas y crasheos por referencias nulas (`NullPointerException`) durante las validaciones de coordenadas y activaciones de teletransporte.
+  
 ## [0.6.0] - 2026-09-03
 
 ### Agregado
