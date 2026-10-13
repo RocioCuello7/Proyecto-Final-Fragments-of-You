@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.entities.Jugador;
@@ -88,7 +89,8 @@ public class HUD {
 
     public void renderFuenteObjetivo(SpriteBatch sb, String textoObjetivo, float x, float y) {
         fuentePixel.setColor(com.badlogic.gdx.graphics.Color.YELLOW);
-        fuentePixel.draw(sb, textoObjetivo, x, y);
+        float anchoMaximo=130f;
+        fuentePixel.draw(sb, textoObjetivo, x, y, anchoMaximo, Align.left, true);
     }
 
     public void dispose() {

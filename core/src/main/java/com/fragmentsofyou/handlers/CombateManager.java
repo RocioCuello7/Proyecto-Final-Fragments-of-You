@@ -53,7 +53,7 @@ public class CombateManager {
         }
 
         if (enemigo.isMuerto()) {
-            enemigo.dispose();
+            //enemigo.dispose();
         }
 
         if (particulaActiva) {

@@ -16,8 +16,11 @@ public class MisionManager {
 
     private Rectangle rectCama;
     private Rectangle rectNota;
+    private Rectangle rectObjetoAbuela;
     private Rectangle rectPuerta;
     private Rectangle rectPuertaPasillo;
+    private Rectangle rectPuertaSalidaCombate1;
+
     private MapCollision mapCollision;
     private Vector2 puntoDestinoTP;
     private Vector2 puntoDestinoTP2;
@@ -34,13 +37,18 @@ public class MisionManager {
     private boolean esperandoTP2 = false;
     private float timerDelayTP2 = 0f;
     private boolean enemigoSpawned = false;
+    private boolean enemigoDerrotado=false;
 
-    public MisionManager(MapCollision mapCollision, Vector2 puntoDestinoTP){
+    private boolean objetoEncontrado = false;
+
+    public MisionManager(MapCollision mapCollision, Vector2 puntoDestinoTP, Vector2 puntoDestinoTP2){
         this.mapCollision=mapCollision;
         this.rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
         this.rectNota = null;
+        this.rectObjetoAbuela=mapCollision.obtenerRectanguloPorNombre("cepilloDientesAbuela");
         this.rectPuerta = mapCollision.obtenerRectanguloPorNombre("puertacasa");
         this.rectPuertaPasillo = mapCollision.obtenerRectanguloPorNombre("puertaPasillo");
+        this.rectPuertaSalidaCombate1 = mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate1");
         this.puntoDestinoTP = puntoDestinoTP;
         this.puntoDestinoTP2 = puntoDestinoTP2;
 
@@ -113,7 +121,7 @@ public class MisionManager {
             }
         }
 
-        if(jugador.isDialogoNotaTerminado() && puertaPasilloUsada && rectPuertaPasillo!=null){
+        if(jugador.isDialogoNotaTerminado() && !puertaPasilloUsada && rectPuertaPasillo !=null){
             if(rectJugador.overlaps(rectPuertaPasillo)){
                 fader.startFadeOut(Color.BLACK, 1.5f);
                 transicionPuertaPasilloUsada=true;
@@ -123,7 +131,7 @@ public class MisionManager {
         }
 
         if(transicionPuertaPasilloUsada && fader.isFinished()){
-            transicionPuertaPasilloUsada=true;
+            transicionPuertaPasilloUsada=false;
             esperandoTP2=true;
             timerDelayTP2= TIEMPO_DELAY;
         }
@@ -138,8 +146,44 @@ public class MisionManager {
                 fader.startFlash(Color.BLACK, 2.0f);
                 jugador.setPuedoMoverme(true);
                 enemigoSpawned=true;
+
+                misionActual=EstadoMision.COMBATE_Y_BUSQUEDA;
             }
         }
+
+        if(!objetoEncontrado && rectObjetoAbuela != null && rectJugador.overlaps(rectObjetoAbuela)){
+            if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                if(!jugador.isMostrandoDialogo()){
+                    String[] textoObjeto = new String[]{
+                        "¡Encontré el cepillo de abuela!",
+                        "Esto significa que ella debe",
+                        "estar cerca... No me voy a rendir."
+                    };
+               jugador.iniciarDialogoNota(textoObjeto);
+                objetoEncontrado=true;
+
+                }
+            }
+        }
+
+        if(rectPuertaSalidaCombate1 !=null && rectJugador.overlaps(rectPuertaSalidaCombate1)){
+            if(objetoEncontrado){
+                if(puntoDestinoTP!=null){
+                    jugador.teletransportar(puntoDestinoTP.x, puntoDestinoTP.y);
+                    fader.startFlash(Color.BLACK, 2.0f);
+                }
+            }else{
+                if(!jugador.isMostrandoDialogo() && Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                    jugador.iniciarDialogoNota(new String[]{
+                        "La puerta está cerrada...",
+                        "Necesito encontrar el objeto",
+                        "de la abuela antes de irme."
+                    });
+
+                }
+            }
+        }
+
 
     }
 
@@ -148,5 +192,19 @@ public class MisionManager {
 
     public Rectangle getRectNota() {
         return rectNota;
+    }
+
+    public boolean debeSpawnarEnemigo() {
+        return enemigoSpawned && !enemigoDerrotado;
+    }
+    public boolean isObjetoEncontrado(){
+        return objetoEncontrado;
+    }
+    public Rectangle getRectObjetoAbuela(){
+        return rectObjetoAbuela;
+    }
+
+    public void setEnemigoDerrotado(boolean derrotado){
+        this.enemigoDerrotado=derrotado;
     }
 }

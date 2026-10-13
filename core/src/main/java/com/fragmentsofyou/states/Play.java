@@ -49,6 +49,7 @@ public class Play extends GameState {
     private CombateManager combateManager;
 
     private Texture texturaNota;
+    private Texture texturaObjetoAbuela;
 
 
 
@@ -85,10 +86,12 @@ public class Play extends GameState {
         fader = new ScreenFader();
 
         texturaNota=new Texture(Gdx.files.internal("mapas/hojaCarta.png"));
+        texturaObjetoAbuela=new Texture(Gdx.files.internal("mapas/cepilloDientesAbuela.png"));
 
         Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
         Vector2 puntoDestinoTP2 = obtenerSpawnPorNombre("tp2", 700f, 400f);
-        misionManager = new MisionManager(mapCollision, puntoDestinoTP);
+
+        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2);
     }
 
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {
@@ -141,7 +144,7 @@ public class Play extends GameState {
             gsm.setState(GameStateManager.GAMEOVER);
             return;
         }
-        if(enemigo == null){
+        if(misionManager.debeSpawnarEnemigo() && enemigo==null){
             Vector2 spawnEnemigo=obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
             enemigo=new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador);
         }
@@ -168,11 +171,22 @@ public class Play extends GameState {
             Rectangle rNota=misionManager.getRectNota();
             sb.draw(texturaNota, rNota.x, rNota.y);
         }
+        if(!misionManager.isObjetoEncontrado() && misionManager.getRectObjetoAbuela() != null){
+            Rectangle rCepillo= misionManager.getRectObjetoAbuela();
+            sb.draw(texturaObjetoAbuela, rCepillo.x, rCepillo.y);
+        }
         if (!jugador.isMuerto()) {
             jugador.render(sb);
         }
         if (enemigo != null) {
-            enemigo.render(sb);
+            if(!enemigo.isMuerto()){
+                enemigo.render(sb);
+            }else{
+                misionManager.setEnemigoDerrotado(true);
+                enemigo=null;
+
+                rayHandler.setAmbientLight(0.35f);
+            }
         }
         combateManager.renderParticulas(sb);
         if (misionManager.isAbuelaPresente() && abuela != null) {
@@ -196,8 +210,8 @@ public class Play extends GameState {
         hud.renderFuenteObjetivo(
             sb,
             misionManager.getMisionActual().getTextoObjetivo(),
-            cam.viewportWidth - 100f,
-            cam.viewportHeight - 8f
+            cam.viewportWidth - 180f,
+            cam.viewportHeight - 20f
         );
         sb.end();
         hud.render(sb, jugador);
@@ -230,6 +244,7 @@ public class Play extends GameState {
         if (abuela != null) abuela.dispose();
         if (fader != null) fader.dispose();
         if(texturaNota!=null) texturaNota.dispose();
+        if(texturaObjetoAbuela!=null) texturaObjetoAbuela.dispose();
         if (combateManager != null) combateManager.dispose();
     }
 }//hola
