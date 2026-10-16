@@ -178,7 +178,7 @@ public class MisionManager {
                 objetoEncontrado=true;
                 puertaPasilloTP2.reset();
                 misionActual = EstadoMision.BUSQUEDA;
-
+                jugador.setVidaJugador(80);
                 }
             }
         }

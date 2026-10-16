@@ -238,6 +238,13 @@ public class Jugador extends Entidad{
         }
     }
 
+    public void setVidaJugador(int vida){
+        this.vidaActual+=vida;
+        if(vidaActual>vidaMax){
+            this.vidaActual=100;
+        }
+    }
+
     public void setDestelloHabilitado(boolean destelloHabilitado) {
         this.destelloHabilitado = destelloHabilitado;
     }
