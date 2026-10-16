@@ -50,6 +50,9 @@ public class Jugador extends Entidad{
     private float paddingX = 15f;
     private float paddingY = 25f;
 
+    private boolean sobrecargaHabilitada = false;
+    private boolean destelloHabilitado = false;
+
 
     public Jugador(float startX, float startY, RayHandler rayHandler) {
         super(startX,startY,10f,10f,90f,100);
@@ -104,13 +107,13 @@ public class Jugador extends Entidad{
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            if (ataquesHabilitados && linterna.puedeConsumirEnergia(20f)) {
+            if (sobrecargaHabilitada && linterna.puedeConsumirEnergia(20f)) {
                     linterna.dispararSobrecarga();
             }
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-            if(ataquesHabilitados) {
+            if(destelloHabilitado ) {
                 destelloDisparado=true;
             }
         }
@@ -225,8 +228,18 @@ public class Jugador extends Entidad{
         this.linternaHabilitada = linternaHabilitada;
     }
 
-    public void setAtaquesHabilitados(boolean ataquesHabilitados) {
-        this.ataquesHabilitados = ataquesHabilitados;
+    public void setSobrecargaHabilitada(boolean sobrecargaHabilitada) {
+        this.sobrecargaHabilitada = sobrecargaHabilitada;
+        if (sobrecargaHabilitada) {
+            this.linternaHabilitada = true;
+            if (this.linterna != null && !this.linterna.isEncendida()) {
+                this.linterna.alternarEncendido();
+            }
+        }
+    }
+
+    public void setDestelloHabilitado(boolean destelloHabilitado) {
+        this.destelloHabilitado = destelloHabilitado;
     }
 
 }

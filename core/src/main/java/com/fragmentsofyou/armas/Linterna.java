@@ -191,6 +191,9 @@ public class Linterna {
         this.linterna.setActive(estado);
     }
 
+    public boolean isEncendida() {
+        return encendida;
+    }
     public float getEnergia() { return energia; }
     public float getEnergiaMax() { return energiaMax; }
 }

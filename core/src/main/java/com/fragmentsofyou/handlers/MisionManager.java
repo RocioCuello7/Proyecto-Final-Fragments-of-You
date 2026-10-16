@@ -40,6 +40,10 @@ public class MisionManager {
     private boolean objetoEncontrado = false;
     private boolean notaLeida=false;
 
+    private boolean primerEnemigoDerrotado = false;
+    private boolean todosEnemigosDerrotados = false;
+
+
     private Vector2 tp3;
 
     public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3){
@@ -54,6 +58,8 @@ public class MisionManager {
         this.puertaSalidaTP1 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate1"), tp1, true);
         this.puertaSiguienteTP3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSiguiente"), tp3, true);
         this.tp3 = tp3;
+
+
 
     }
 
@@ -130,7 +136,7 @@ public class MisionManager {
                 enemigoSpawned = true;
                 misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
 
-                jugador.setAtaquesHabilitados(true);
+                jugador.setSobrecargaHabilitada(true);
             }
         }
 
@@ -179,6 +185,27 @@ public class MisionManager {
 
     }
 
+    public boolean debeSpawnarEnemigo() {
+        return enemigoSpawned && !primerEnemigoDerrotado;
+    }
+
+    public boolean isPrimerEnemigoDerrotado() {
+        return primerEnemigoDerrotado;
+    }
+
+    public void setPrimerEnemigoDerrotado(boolean derrotado) {
+        this.primerEnemigoDerrotado = derrotado;
+    }
+
+    public boolean isTodosEnemigosDerrotados() {
+        return todosEnemigosDerrotados;
+    }
+
+    public void setTodosEnemigosDerrotados(boolean derrotados) {
+        this.todosEnemigosDerrotados = derrotados;
+        this.enemigoDerrotado = derrotados;
+    }
+
     public EstadoMision getMisionActual() { return misionActual; }
     public boolean isAbuelaPresente() { return abuelaPresente; }
 
@@ -186,9 +213,6 @@ public class MisionManager {
         return rectNota;
     }
 
-    public boolean debeSpawnarEnemigo() {
-        return enemigoSpawned && !enemigoDerrotado;
-    }
     public boolean isObjetoEncontrado(){
         return objetoEncontrado;
     }

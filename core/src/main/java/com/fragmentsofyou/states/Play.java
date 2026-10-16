@@ -24,6 +24,8 @@ import com.fragmentsofyou.entities.Jugador;
 import com.fragmentsofyou.entities.Mecento;
 import com.fragmentsofyou.handlers.*;
 
+import java.util.ArrayList;
+
 public class Play extends GameState {
 
     private Viewport playView;
@@ -52,7 +54,8 @@ public class Play extends GameState {
     private Texture texturaObjetoAbuela;
     private Texture texturaLinterna;
 
-
+    private ArrayList<Enemigo> enemigos = new ArrayList<>();
+    private boolean segundaOleadaSpawned = false;
 
 
     public Play(GameStateManager gsm) {
@@ -148,9 +151,42 @@ public class Play extends GameState {
             gsm.setState(GameStateManager.GAMEOVER);
             return;
         }
-        if(misionManager.debeSpawnarEnemigo() && enemigo==null){
-            Vector2 spawnEnemigo=obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
-            enemigo=new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador);
+        if(misionManager.debeSpawnarEnemigo() && enemigos.isEmpty() && !segundaOleadaSpawned){
+            Vector2 spawnEnemigo =obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
+            enemigos.add(new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador));
+        }
+
+        if(misionManager.isPrimerEnemigoDerrotado() && !segundaOleadaSpawned){
+            segundaOleadaSpawned = true;
+
+            Vector2 spawn2 = obtenerSpawnPorNombre("spawnEnemigo2",200f,200f);
+            Vector2 spawn3 = obtenerSpawnPorNombre("spawnEnemigo3",250f,250f);
+
+            enemigos.add(new Mecento(spawn2.x,spawn2.y,jugador));
+            enemigos.add(new Mecento(spawn2.x + 15f ,spawn2.y,jugador));
+
+
+            enemigos.add(new Mecento(spawn3.x,spawn3.y,jugador));
+            enemigos.add(new Mecento(spawn3.x-15f,spawn3.y,jugador));
+
+
+        }
+
+        for (int i = enemigos.size() - 1; i >= 0; i--) {
+            Enemigo e = enemigos.get(i);
+            combateManager.update(dt, jugador, e, mapCollision, audio);
+
+            if (e.isMuerto()) {
+                if (!segundaOleadaSpawned) {
+                    misionManager.setPrimerEnemigoDerrotado(true);
+                }
+                enemigos.remove(i);
+            }
+        }
+
+        if (segundaOleadaSpawned && enemigos.isEmpty()) {
+            misionManager.setTodosEnemigosDerrotados(true);
+            rayHandler.setAmbientLight(0.35f);
         }
 
         combateManager.update(dt, jugador, enemigo, mapCollision, audio);
@@ -186,14 +222,9 @@ public class Play extends GameState {
         if (!jugador.isMuerto()) {
             jugador.render(sb);
         }
-        if (enemigo != null) {
-            if(!enemigo.isMuerto()){
-                enemigo.render(sb);
-            }else{
-                misionManager.setEnemigoDerrotado(true);
-                enemigo=null;
-
-                rayHandler.setAmbientLight(0.35f);
+        for (Enemigo e : enemigos) {
+            if (!e.isMuerto()) {
+                e.render(sb);
             }
         }
         combateManager.renderParticulas(sb);
@@ -255,5 +286,12 @@ public class Play extends GameState {
         if(texturaObjetoAbuela!=null) texturaObjetoAbuela.dispose();
         if (combateManager != null) combateManager.dispose();
         if (texturaLinterna != null) texturaLinterna.dispose();
+
+        if (enemigos != null) {
+            for (Enemigo e : enemigos) {
+                e.dispose();
+            }
+            enemigos.clear();
+        }
     }
 }//hola
