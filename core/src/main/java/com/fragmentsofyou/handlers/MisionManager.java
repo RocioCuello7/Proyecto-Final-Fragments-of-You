@@ -25,6 +25,7 @@ public class MisionManager {
     private EstadoMision misionActual = EstadoMision.HABLAR_CON_ABUELA;
 
     private Rectangle rectCama;
+    private Rectangle rectLinterna;
     private Rectangle rectNota;
     private Rectangle rectObjetoAbuela;
 
@@ -33,15 +34,18 @@ public class MisionManager {
     private Vector2 puntoDestinoTP2;
 
     private boolean abuelaPresente =true;
+    private boolean linternaRecolectada=false;
     private boolean enemigoSpawned = false;
     private boolean enemigoDerrotado=false;
     private boolean objetoEncontrado = false;
+    private boolean notaLeida=false;
 
     private Vector2 tp3;
 
     public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3){
         this.mapCollision=mapCollision;
         this.rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
+        this.rectLinterna =null;
         this.rectNota = null;
         this.rectObjetoAbuela=mapCollision.obtenerRectanguloPorNombre("cepilloDientesAbuela");
 
@@ -78,9 +82,26 @@ public class MisionManager {
             abuelaPresente = false;
 
             rectNota=mapCollision.obtenerRectanguloPorNombre("nota-abuela");
+            rectLinterna=mapCollision.obtenerRectanguloPorNombre("linternaGlenn");
+
+        }
+        if (misionActual == EstadoMision.EXPLORAR && !linternaRecolectada && rectLinterna != null) {
+            if (rectJugador.overlaps(rectLinterna) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                if (!jugador.isMostrandoDialogo()) {
+                    String[] textoLinterna = new String[]{
+                        "Encontré la linterna de la abuela.",
+                        "Ahora debería poder alumbrar",
+                        "en esta oscuridad."
+                    };
+                    jugador.iniciarDialogoNota(textoLinterna);
+                    linternaRecolectada = true;
+                    jugador.setLinternaHabilitada(true);
+                }
+            }
         }
 
-        if(misionActual== EstadoMision.EXPLORAR && !jugador.isDialogoNotaTerminado() && rectNota!=null){
+
+        if(misionActual== EstadoMision.EXPLORAR && !notaLeida && rectNota!=null){
             if(rectJugador.overlaps(rectNota) && Gdx.input.isKeyJustPressed(Input.Keys.E)){
                 if(!jugador.isMostrandoDialogo()) {
                     String[] textoNota = new String[]{
@@ -108,6 +129,8 @@ public class MisionManager {
                 destinoActualTP = puertaPasilloTP2.getDestino();
                 enemigoSpawned = true;
                 misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
+
+                jugador.setAtaquesHabilitados(true);
             }
         }
 
@@ -172,6 +195,8 @@ public class MisionManager {
     public Rectangle getRectObjetoAbuela(){
         return rectObjetoAbuela;
     }
+    public Rectangle getRectLinterna() {return rectLinterna;}
+    public boolean isLinternaRecolectada() {return linternaRecolectada;}
 
     public void setEnemigoDerrotado(boolean derrotado){
         this.enemigoDerrotado=derrotado;

@@ -50,6 +50,8 @@ public class Play extends GameState {
 
     private Texture texturaNota;
     private Texture texturaObjetoAbuela;
+    private Texture texturaLinterna;
+
 
 
 
@@ -86,6 +88,8 @@ public class Play extends GameState {
 
         texturaNota=new Texture(Gdx.files.internal("mapas/hojaCarta.png"));
         texturaObjetoAbuela=new Texture(Gdx.files.internal("mapas/cepilloDientesAbuela.png"));
+        texturaLinterna=new Texture(Gdx.files.internal("mapas/linternaGlenn.png"));
+
 
         Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
         Vector2 puntoDestinoTP2 = obtenerSpawnPorNombre("tp2", 700f, 400f);
@@ -175,6 +179,10 @@ public class Play extends GameState {
             Rectangle rCepillo= misionManager.getRectObjetoAbuela();
             sb.draw(texturaObjetoAbuela, rCepillo.x, rCepillo.y);
         }
+        if(!misionManager.isLinternaRecolectada() && misionManager.getRectLinterna() != null){
+            Rectangle rLinterna = misionManager.getRectLinterna();
+            sb.draw(texturaLinterna, rLinterna.x, rLinterna.y);
+        }
         if (!jugador.isMuerto()) {
             jugador.render(sb);
         }
@@ -246,5 +254,6 @@ public class Play extends GameState {
         if(texturaNota!=null) texturaNota.dispose();
         if(texturaObjetoAbuela!=null) texturaObjetoAbuela.dispose();
         if (combateManager != null) combateManager.dispose();
+        if (texturaLinterna != null) texturaLinterna.dispose();
     }
 }//hola

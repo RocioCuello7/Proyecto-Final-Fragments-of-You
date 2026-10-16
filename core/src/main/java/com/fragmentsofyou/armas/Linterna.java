@@ -37,7 +37,7 @@ public class Linterna {
     private float velocidadRecarga = 30f;
 
     public Linterna(RayHandler rayHandler, float x, float y, float rotacion){
-        this.encendida = true;
+        this.encendida = false;
         this.sobrecargada=false;
         this.tiempoCooldown=0f;
 
@@ -52,6 +52,7 @@ public class Linterna {
             rotacionSegura,
             CONO_NORMAL
         );
+        this.linterna.setActive(false);
     }
 
     public void update(float dt, float x, float y, float rotacion) {
@@ -183,6 +184,11 @@ public class Linterna {
                 energia = energiaMax;
             }
         }
+    }
+
+    public void setEncendida(boolean estado) {
+        this.encendida = estado;
+        this.linterna.setActive(estado);
     }
 
     public float getEnergia() { return energia; }

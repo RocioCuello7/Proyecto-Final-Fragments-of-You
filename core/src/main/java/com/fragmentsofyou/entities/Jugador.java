@@ -27,6 +27,8 @@ public class Jugador extends Entidad{
     private float rotacionMouse;
 
     private boolean destelloDisparado = false;
+    private boolean linternaHabilitada = false;
+    private boolean ataquesHabilitados = false;
 
     private float dirX, dirY;
 
@@ -96,17 +98,19 @@ public class Jugador extends Entidad{
         if (Gdx.input.isKeyPressed(Input.Keys.A)) dirX -= 1;
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            if(linternaHabilitada){
             linterna.alternarEncendido();
+            }
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            if (linterna.puedeConsumirEnergia(20f)) {
+            if (ataquesHabilitados && linterna.puedeConsumirEnergia(20f)) {
                     linterna.dispararSobrecarga();
             }
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-            if(linterna.dispararDestello()) {
+            if(ataquesHabilitados) {
                 destelloDisparado=true;
             }
         }
@@ -217,5 +221,12 @@ public class Jugador extends Entidad{
         if(luzPersonal!=null) luzPersonal.dispose();
     }
 
+    public void setLinternaHabilitada(boolean linternaHabilitada) {
+        this.linternaHabilitada = linternaHabilitada;
+    }
+
+    public void setAtaquesHabilitados(boolean ataquesHabilitados) {
+        this.ataquesHabilitados = ataquesHabilitados;
+    }
 
 }
