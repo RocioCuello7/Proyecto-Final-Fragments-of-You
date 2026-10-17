@@ -66,7 +66,7 @@ public class Play extends GameState {
 
         hud = new HUD();
         audio = new AudioManager();
-        audio.iniciarMusica();
+        audio.iniciarMusicaAmbiente();
 
         setupIluminacion();
 
@@ -139,7 +139,7 @@ public class Play extends GameState {
         jugador.update(dt, mapCollision);
 
         boolean dialogoEstabaActivo = jugador.isMostrandoDialogo();
-        misionManager.update(dt, jugador, abuela, fader, rayHandler);
+        misionManager.update(dt, jugador, abuela, fader, rayHandler,audio);
 
         if (dialogoEstabaActivo && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E)) {
             jugador.avanzarDialogo();
@@ -147,10 +147,6 @@ public class Play extends GameState {
 
         fader.update(dt);
 
-        if (jugador.isMuerto()) {
-            gsm.setState(GameStateManager.GAMEOVER);
-            return;
-        }
         if(misionManager.debeSpawnarEnemigo() && enemigos.isEmpty() && !segundaOleadaSpawned){
             Vector2 spawnEnemigo =obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
             enemigos.add(new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador));
@@ -172,9 +168,10 @@ public class Play extends GameState {
 
         }
 
+        combateManager.update(dt, jugador, enemigos, mapCollision, audio);
+
         for (int i = enemigos.size() - 1; i >= 0; i--) {
             Enemigo e = enemigos.get(i);
-            combateManager.update(dt, jugador, e, mapCollision, audio);
 
             if (e.isMuerto()) {
                 if (!segundaOleadaSpawned) {
@@ -189,7 +186,11 @@ public class Play extends GameState {
             rayHandler.setAmbientLight(0.35f);
         }
 
-        combateManager.update(dt, jugador, enemigo, mapCollision, audio);
+        if (jugador.isMuerto()) {
+            gsm.setState(GameStateManager.GAMEOVER);
+            return;
+        }
+
         rayHandler.update();
         cam.position.set(jugador.getX(), jugador.getY(), 0);
         cam.update();
@@ -274,7 +275,10 @@ public class Play extends GameState {
         if (map != null) map.dispose();
         if (mapRenderer != null) mapRenderer.dispose();
         if (jugador != null) jugador.dispose();
-        if (rayHandler != null) rayHandler.dispose();
+        if (rayHandler != null) {
+            rayHandler.dispose();
+            rayHandler=null;
+        }
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
 

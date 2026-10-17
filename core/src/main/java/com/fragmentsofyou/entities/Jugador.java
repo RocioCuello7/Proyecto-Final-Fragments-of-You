@@ -220,8 +220,6 @@ public class Jugador extends Entidad{
 
     public void dispose() {
         if (animador != null) animador.dispose();
-        if (linterna != null) linterna.dispose();
-        if(luzPersonal!=null) luzPersonal.dispose();
     }
 
     public void setLinternaHabilitada(boolean linternaHabilitada) {

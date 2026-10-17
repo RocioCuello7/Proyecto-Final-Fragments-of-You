@@ -63,7 +63,7 @@ public class MisionManager {
 
     }
 
-    public void update(float dt, Jugador jugador, Abuela abuela, ScreenFader fader, RayHandler rayHandler){
+    public void update(float dt, Jugador jugador, Abuela abuela, ScreenFader fader, RayHandler rayHandler, AudioManager audio){
         Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
 
         if(abuelaPresente && abuela!=null){
@@ -163,6 +163,8 @@ public class MisionManager {
                 }
                 fader.startFlash(Color.BLACK, 2.0f);
                 jugador.setPuedoMoverme(true);
+                audio.pausarMusicaAmbiente();
+                audio.iniciarMusicaAngel();
             }
         }
 
