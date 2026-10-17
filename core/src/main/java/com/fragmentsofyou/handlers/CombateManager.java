@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.fragmentsofyou.entities.Enemigo;
 import com.fragmentsofyou.entities.Jugador;
 
+import java.util.ArrayList;
+
 public class CombateManager {
     private ParticleEffect efectoSobrecarga;
     private boolean particulaActiva = false;
@@ -19,28 +21,51 @@ public class CombateManager {
         efectoSobrecarga.scaleEffect(0.18f);
     }
 
-    public void update(float dt, Jugador jugador, Enemigo enemigo, MapCollision mapCollision, AudioManager audio) {
-        if (enemigo == null) return;
+    public void update(float dt, Jugador jugador, ArrayList<Enemigo> enemigos , MapCollision mapCollision, AudioManager audio) {
+        if (enemigos == null || enemigos.isEmpty()) return;
 
-        enemigo.update(dt, mapCollision);
-
-        boolean lineaLibre = mapCollision.hayLineaDeVision(
-            jugador.getX(), jugador.getY(), enemigo.getX(), enemigo.getY()
-        );
+        for (Enemigo e : enemigos) {
+            if (e != null && !e.isMuerto()) {
+                e.update(dt, mapCollision);
+            }
+        }
 
         if (jugador.getLinterna().puedeHacerDanio()) {
-            boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
-                jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(), enemigo.getY()
-            );
+            Enemigo enemigoMasCercano = null;
+            float menorDistanciaSq = Float.MAX_VALUE;
 
-            if (alcanzada && lineaLibre) {
+            for (Enemigo enemigo : enemigos) {
+                if (enemigo != null && !enemigo.isMuerto()) {
+
+                    boolean lineaLibre = mapCollision.hayLineaDeVision(
+                        jugador.getX(), jugador.getY(), enemigo.getX(), enemigo.getY()
+                    );
+
+                    boolean alcanzada = jugador.getLinterna().estaEnRangoSobrecarga(
+                        jugador.getX(), jugador.getY(), jugador.getRotacion(), enemigo.getX(), enemigo.getY()
+                    );
+
+                    if (alcanzada && lineaLibre) {
+                        float dx = enemigo.getX() - jugador.getX();
+                        float dy = enemigo.getY() - jugador.getY();
+                        float distanciaSq = dx * dx + dy * dy;
+
+                        if (distanciaSq < menorDistanciaSq) {
+                            menorDistanciaSq = distanciaSq;
+                            enemigoMasCercano = enemigo;
+                        }
+                    }
+                }
+            }
+
+            if (enemigoMasCercano != null) {
                 audio.playDestello();
-                enemigo.relentizar(3.0f);
-                enemigo.recibirDanio(30f);
+                enemigoMasCercano.relentizar(3.0f);
+                enemigoMasCercano.recibirDanio(30f);
                 jugador.getLinterna().registrarImpacto();
 
                 efectoSobrecarga.reset();
-                efectoSobrecarga.setPosition(enemigo.getX() + 3f, enemigo.getY() + 3f);
+                efectoSobrecarga.setPosition(enemigoMasCercano.getX() + 3f, enemigoMasCercano.getY() + 3f);
                 efectoSobrecarga.start();
                 particulaActiva = true;
             }
@@ -48,12 +73,12 @@ public class CombateManager {
 
         if (jugador.consumioDestello()) {
             audio.playDestello();
-            enemigo.aturdir(2.0f);
-            enemigo.recibirDanio(25f);
-        }
-
-        if (enemigo.isMuerto()) {
-            //enemigo.dispose();
+            for (Enemigo enemigo : enemigos) {
+                if (enemigo != null && !enemigo.isMuerto()) {
+                    enemigo.aturdir(2.0f);
+                    enemigo.recibirDanio(25f);
+                }
+            }
         }
 
         if (particulaActiva) {
