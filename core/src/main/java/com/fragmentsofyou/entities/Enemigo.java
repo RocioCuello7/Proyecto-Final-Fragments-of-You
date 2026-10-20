@@ -99,7 +99,11 @@ public abstract class Enemigo extends Entidad {
         else if (dirY < 0 && dirX < 0) direccionActual = FourDirection.SOUTH;
     }
 
-    private void atacar() {
+    protected void atacar() {
+        if (objetivo == null) {
+            return;
+        }
+
         objetivo.recibirDanio(danio);
         cooldownActual = cooldownTotal;
     }

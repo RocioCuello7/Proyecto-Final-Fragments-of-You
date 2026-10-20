@@ -135,6 +135,9 @@ public class MisionManager {
             if (objetoEncontrado) {
                 destinoActualTP = tp3;
                 argosSpawned=true;
+
+                jugador.setDestelloHabilitado(true);
+
             } else {
                 destinoActualTP = puertaPasilloTP2.getDestino();
                 enemigoSpawned = true;
@@ -153,10 +156,13 @@ public class MisionManager {
         }
 
         if (puertaSiguienteTP3.verificarYActivar(jugador, fader, objetoEncontrado)) {
+
             esperandoTP = true;
             timerDelayTP = TIEMPO_DELAY;
             destinoActualTP = puertaSiguienteTP3.getDestino();
             argosSpawned = true;
+
+            jugador.setDestelloHabilitado(true);
         }
 
         if(esperandoTP){

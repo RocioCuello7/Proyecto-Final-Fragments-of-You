@@ -11,7 +11,7 @@ import com.fragmentsofyou.handlers.MapCollision;
 public class ProyectilOcular {
     private float x, y;
     private float velX, velY;
-    private float velocidad=88f;
+    private float velocidad=110f;
     private Rectangle bounds;
     private boolean activo=true;
     private static Texture texturaProyectil;

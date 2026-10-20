@@ -13,13 +13,18 @@ public class Argos extends Enemigo{
     private Animacion2Direcciones animador;
     private ArrayList<ProyectilOcular> listaProyectiles;
     private float tiempoDisparo=0f;
-    private final float cooldownsDisparo=1.4f;
+    private final float cooldownsDisparo=0.7f;
 
     private final float rangoDisparo = 100f;
     private final float tiempoPreparacion = 0.35f;
 
     private float tiempoPreparando = 0f;
     private boolean preparandoDisparo = false;
+
+    private final float rangoCuerpoACuerpo = 20f;
+    private final float danioCuerpoACuerpo = 40f;
+    private final float cooldownCuerpoACuerpo = 1.2f;
+    private float tiempoCuerpoACuerpo = 0f;
 
     public Argos(float startX, float startY, Entidad objetivo, ArrayList<ProyectilOcular> proyectiles){
         super(startX, startY,14f,14f,22f,130,15f,100f,2.0f,objetivo);
@@ -31,9 +36,18 @@ public class Argos extends Enemigo{
     public void update(float dt, MapCollision mapCollision){
         super.update(dt, mapCollision);
 
+
         if (isMuerto()) return;
 
         animador.update(dt, dirX);
+
+        if (tiempoAturdido > 0f) {
+            preparandoDisparo = false;
+            tiempoPreparando = 0f;
+            tiempoDisparo = 0f;
+            tiempoCuerpoACuerpo = 0f;
+            return;
+        }
 
         if (objetivo == null) return;
 
@@ -55,6 +69,11 @@ public class Argos extends Enemigo{
             tiempoPreparando = 0f;
             tiempoDisparo = 0f;
             return;
+        }
+
+        if (tiempoAturdido <= 0f) {
+            tiempoCuerpoACuerpo += dt;
+            atacarCuerpoACuerpo();
         }
 
         tiempoDisparo += dt;
@@ -80,6 +99,32 @@ public class Argos extends Enemigo{
     private void disparar() {
         if(listaProyectiles != null && objetivo != null){
             listaProyectiles.add(new ProyectilOcular(x, y, objetivo.getX(), objetivo.getY()));
+        }
+    }
+
+    private void atacarCuerpoACuerpo() {
+        if (objetivo == null || objetivo.isMuerto()) {
+            return;
+        }
+
+        float centroArgosX = x + width / 2f;
+        float centroArgosY = y + height / 2f;
+
+        float centroJugadorX = objetivo.getX() + objetivo.getWidth() / 2f;
+        float centroJugadorY = objetivo.getY() + objetivo.getHeight() / 2f;
+
+        float diffX = centroJugadorX - centroArgosX;
+        float diffY = centroJugadorY - centroArgosY;
+
+        float distancia = (float) Math.sqrt(
+            diffX * diffX + diffY * diffY
+        );
+
+        if (distancia <= rangoCuerpoACuerpo
+            && tiempoCuerpoACuerpo >= cooldownCuerpoACuerpo) {
+
+            objetivo.recibirDanio(danioCuerpoACuerpo);
+            tiempoCuerpoACuerpo = 0f;
         }
     }
 

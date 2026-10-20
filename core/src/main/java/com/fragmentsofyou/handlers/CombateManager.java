@@ -72,11 +72,20 @@ public class CombateManager {
         }
 
         if (jugador.consumioDestello()) {
-            audio.playDestello();
-            for (Enemigo enemigo : enemigos) {
-                if (enemigo != null && !enemigo.isMuerto()) {
-                    enemigo.aturdir(2.0f);
-                    enemigo.recibirDanio(25f);
+
+            boolean activado = jugador.getLinterna().dispararDestello();
+
+
+            if (activado) {
+                audio.playDestello();
+
+                if (enemigos != null) {
+                    for (Enemigo enemigo : enemigos) {
+                        if (enemigo != null && !enemigo.isMuerto()) {
+                            enemigo.aturdir(2.0f);
+                            enemigo.recibirDanio(25f);
+                        }
+                    }
                 }
             }
         }

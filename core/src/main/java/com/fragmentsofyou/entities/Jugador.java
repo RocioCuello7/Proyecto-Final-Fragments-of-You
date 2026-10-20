@@ -117,6 +117,8 @@ public class Jugador extends Entidad{
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+
+
             if(destelloHabilitado ) {
                 destelloDisparado=true;
             }
