@@ -18,10 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.fragmentsofyou.entities.Abuela;
-import com.fragmentsofyou.entities.Enemigo;
-import com.fragmentsofyou.entities.Jugador;
-import com.fragmentsofyou.entities.Mecento;
+import com.fragmentsofyou.entities.*;
 import com.fragmentsofyou.handlers.*;
 
 import java.util.ArrayList;
@@ -56,7 +53,7 @@ public class Play extends GameState {
 
     private ArrayList<Enemigo> enemigos = new ArrayList<>();
     private boolean segundaOleadaSpawned = false;
-
+    private ArrayList<ProyectilOcular> listaProyectilesOculares = new ArrayList<>();
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -168,6 +165,19 @@ public class Play extends GameState {
 
         }
 
+        if(misionManager.debeSpawnarArgos()){
+            Vector2 spawnArgos = obtenerSpawnPorNombre("spawnArgos", 400f, 200f);
+            enemigos.add(new Argos(spawnArgos.x, spawnArgos.y, jugador, listaProyectilesOculares));
+        }
+
+        for (int i = listaProyectilesOculares.size() - 1; i >= 0; i--) {
+            ProyectilOcular p = listaProyectilesOculares.get(i);
+            p.update(dt, mapCollision, jugador);
+            if (!p.isActivo()) {
+                listaProyectilesOculares.remove(i);
+            }
+        }
+
         combateManager.update(dt, jugador, enemigos, mapCollision, audio);
 
         for (int i = enemigos.size() - 1; i >= 0; i--) {
@@ -228,6 +238,11 @@ public class Play extends GameState {
                 e.render(sb);
             }
         }
+
+        for(ProyectilOcular p : listaProyectilesOculares){
+            p.render(sb);
+        }
+
         combateManager.renderParticulas(sb);
         if (misionManager.isAbuelaPresente() && abuela != null) {
             abuela.render(sb);
@@ -290,6 +305,8 @@ public class Play extends GameState {
         if(texturaObjetoAbuela!=null) texturaObjetoAbuela.dispose();
         if (combateManager != null) combateManager.dispose();
         if (texturaLinterna != null) texturaLinterna.dispose();
+
+        ProyectilOcular.dispose();
 
         if (enemigos != null) {
             for (Enemigo e : enemigos) {

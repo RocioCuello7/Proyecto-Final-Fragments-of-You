@@ -58,5 +58,12 @@ public class ProyectilOcular {
         }
     }
 
+    public static void dispose() {
+        if (texturaProyectil != null) {
+            texturaProyectil.dispose();
+            texturaProyectil = null;
+        }
+    }
+
     public boolean isActivo(){ return activo; }
 }

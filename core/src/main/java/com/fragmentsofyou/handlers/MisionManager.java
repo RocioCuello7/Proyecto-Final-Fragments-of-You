@@ -39,6 +39,8 @@ public class MisionManager {
     private boolean enemigoDerrotado=false;
     private boolean objetoEncontrado = false;
     private boolean notaLeida=false;
+    private boolean argosSpawned=false;
+
 
     private boolean primerEnemigoDerrotado = false;
     private boolean todosEnemigosDerrotados = false;
@@ -56,7 +58,7 @@ public class MisionManager {
         this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false);
         this.puertaPasilloTP2 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp2, false);
         this.puertaSalidaTP1 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate1"), tp1, true);
-        this.puertaSiguienteTP3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSiguiente"), tp3, true);
+        this.puertaSiguienteTP3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate2"), tp3, true);
         this.tp3 = tp3;
 
 
@@ -131,6 +133,7 @@ public class MisionManager {
             timerDelayTP = TIEMPO_DELAY;
             if (objetoEncontrado) {
                 destinoActualTP = tp3;
+                argosSpawned=true;
             } else {
                 destinoActualTP = puertaPasilloTP2.getDestino();
                 enemigoSpawned = true;
@@ -152,6 +155,7 @@ public class MisionManager {
             esperandoTP = true;
             timerDelayTP = TIEMPO_DELAY;
             destinoActualTP = puertaSiguienteTP3.getDestino();
+            argosSpawned = true;
         }
 
         if(esperandoTP){
@@ -186,7 +190,13 @@ public class MisionManager {
         }
 
     }
-
+    public boolean debeSpawnarArgos() {
+        if (argosSpawned) {
+            argosSpawned = false;
+            return true;
+        }
+        return false;
+    }
     public boolean debeSpawnarEnemigo() {
         return enemigoSpawned && !primerEnemigoDerrotado;
     }
