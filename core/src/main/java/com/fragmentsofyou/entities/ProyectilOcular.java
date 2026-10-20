@@ -11,15 +11,18 @@ import com.fragmentsofyou.handlers.MapCollision;
 public class ProyectilOcular {
     private float x, y;
     private float velX, velY;
-    private float velocidad=75f;
+    private float velocidad=88f;
     private Rectangle bounds;
     private boolean activo=true;
     private static Texture texturaProyectil;
 
+    private static final float ANCHO = 8f;
+    private static final float ALTO = 8f;
+
     public ProyectilOcular(float startX, float startY, float objetivoX, float objetivoY){
-        this.x=startX;
-        this.y=startY;
-        this.bounds=new Rectangle(x, y, 6f, 6f);
+        this.x = startX ;
+        this.y = startY ;
+        this.bounds=new Rectangle(x - ANCHO / 2f, y - ALTO / 2f, ANCHO, ALTO);
 
         if(texturaProyectil==null){
             Pixmap pixmap = new Pixmap(8, 8, Pixmap.Format.RGBA8888);
@@ -34,27 +37,50 @@ public class ProyectilOcular {
         this.velY=(float) Math.sin(angulo)*velocidad;
     }
 
-    public void update(float dt, MapCollision mapCollision, Jugador jugador){
-        if(!activo) return;
+    public void update(float dt, MapCollision mapCollision, Jugador jugador) {
+        if (!activo) return;
 
-        x+=velX*dt;
-        y+=velY*dt;
-        bounds.setPosition(x, y);
+        float distanciaMovimiento = velocidad * dt;
+        int pasos = Math.max(1, (int) Math.ceil(distanciaMovimiento / 2f));
+        float subDt = dt / pasos;
 
-        if(mapCollision!=null && mapCollision.isColliding(x,y,bounds.getWidth(), bounds.getHeight())){
-            activo=false;
-        }
+        for (int i = 0; i < pasos; i++) {
+            float siguienteX = x + velX * subDt;
+            float siguienteY = y + velY * subDt;
 
-        Rectangle rectJugador = new Rectangle(jugador.getX()-8f, jugador.getY()-8f,16f,16f );
-        if(bounds.overlaps(rectJugador)){
-            jugador.recibirImpactoOcular(10f);
-            activo=false;
+            if (mapCollision != null &&
+                mapCollision.isColliding(
+                    siguienteX, siguienteY, ANCHO, ALTO
+                )) {
+                activo = false;
+                return;
+            }
+
+            x = siguienteX;
+            y = siguienteY;
+            bounds.setPosition(
+                x - ANCHO / 2f,
+                y - ALTO / 2f
+            );
+
+            float dx = x - jugador.getX();
+            float dy = y - jugador.getY();
+
+            float radioX = ANCHO / 2f + jugador.getWidth() / 2f;
+            float radioY = ALTO / 2f + jugador.getHeight() / 2f;
+
+            if (Math.abs(dx) <= radioX &&
+                Math.abs(dy) <= radioY) {
+                jugador.recibirImpactoOcular(10f);
+                activo = false;
+                return;
+            }
         }
     }
 
     public void render(SpriteBatch sb){
         if(activo && texturaProyectil!=null){
-            sb.draw(texturaProyectil,x,y,8,8);
+            sb.draw(texturaProyectil, x - ANCHO / 2f, y - ALTO / 2f, ANCHO, ALTO);
         }
     }
 

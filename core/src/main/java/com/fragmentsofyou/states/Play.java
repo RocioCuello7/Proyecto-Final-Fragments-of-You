@@ -55,6 +55,8 @@ public class Play extends GameState {
     private boolean segundaOleadaSpawned = false;
     private ArrayList<ProyectilOcular> listaProyectilesOculares = new ArrayList<>();
 
+    private boolean argosSpawned = false;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -165,11 +167,20 @@ public class Play extends GameState {
 
         }
 
-        if(misionManager.debeSpawnarArgos()){
-            Vector2 spawnArgos = obtenerSpawnPorNombre("spawnArgos", 400f, 200f);
-            enemigos.add(new Argos(spawnArgos.x, spawnArgos.y, jugador, listaProyectilesOculares));
-        }
+        if (misionManager.debeSpawnarArgos() && !argosSpawned) {
+            argosSpawned = true;
 
+            Vector2 spawnArgos = obtenerSpawnPorNombre(
+                "spawnArgos", 400f, 200f
+            );
+
+            enemigos.add(new Argos(
+                spawnArgos.x,
+                spawnArgos.y,
+                jugador,
+                listaProyectilesOculares
+            ));
+        }
         for (int i = listaProyectilesOculares.size() - 1; i >= 0; i--) {
             ProyectilOcular p = listaProyectilesOculares.get(i);
             p.update(dt, mapCollision, jugador);

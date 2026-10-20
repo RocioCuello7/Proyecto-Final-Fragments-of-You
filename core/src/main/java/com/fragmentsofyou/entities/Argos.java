@@ -13,38 +13,73 @@ public class Argos extends Enemigo{
     private Animacion2Direcciones animador;
     private ArrayList<ProyectilOcular> listaProyectiles;
     private float tiempoDisparo=0f;
-    private final float cooldownsDisparo=2.2f;
+    private final float cooldownsDisparo=1.4f;
+
+    private final float rangoDisparo = 100f;
+    private final float tiempoPreparacion = 0.35f;
+
+    private float tiempoPreparando = 0f;
+    private boolean preparandoDisparo = false;
 
     public Argos(float startX, float startY, Entidad objetivo, ArrayList<ProyectilOcular> proyectiles){
         super(startX, startY,14f,14f,22f,130,15f,100f,2.0f,objetivo);
         this.listaProyectiles=proyectiles;
-        this.animador = new Animacion2Direcciones("enemigos/", "enemigo2Left_2.png", "enemigo2Right_2.png", 6, 0.14f);
+        this.animador = new Animacion2Direcciones("enemigos/", "enemigo2Left.png", "enemigo2Right.png", 6, 0.14f);
+        this.rangoAtaque = 0f;
     }
 
     public void update(float dt, MapCollision mapCollision){
         super.update(dt, mapCollision);
 
-        if(isMuerto()) return;
+        if (isMuerto()) return;
+
         animador.update(dt, dirX);
 
-        if(objetivo != null){
-            float diffX= objetivo.getX()-x;
-            float diffY= objetivo.getY()-y;
-            float distancia = (float) Math.sqrt(diffX*diffX + diffY*diffY);
+        if (objetivo == null) return;
 
-            if(distancia <= rangoAtaque){
-                tiempoDisparo+=dt;
-                if(tiempoDisparo >= cooldownsDisparo){
-                    disparar();
-                    tiempoDisparo=0f;
-                }
+        float diffX = objetivo.getX() - x;
+        float diffY = objetivo.getY() - y;
+        float distancia = (float) Math.sqrt(
+            diffX * diffX + diffY * diffY
+        );
+
+        boolean puedeDisparar =
+            distancia <= rangoDisparo &&
+                (mapCollision == null ||
+                    mapCollision.hayLineaDeVision(
+                        x, y, objetivo.getX(), objetivo.getY()
+                    ));
+
+        if (!puedeDisparar) {
+            preparandoDisparo = false;
+            tiempoPreparando = 0f;
+            tiempoDisparo = 0f;
+            return;
+        }
+
+        tiempoDisparo += dt;
+
+        if (!preparandoDisparo &&
+            tiempoDisparo >= cooldownsDisparo) {
+            preparandoDisparo = true;
+            tiempoPreparando = 0f;
+        }
+
+        if (preparandoDisparo) {
+            tiempoPreparando += dt;
+
+            if (tiempoPreparando >= tiempoPreparacion) {
+                disparar();
+                preparandoDisparo = false;
+                tiempoPreparando = 0f;
+                tiempoDisparo = 0f;
             }
         }
     }
 
     private void disparar() {
         if(listaProyectiles != null && objetivo != null){
-            listaProyectiles.add(new ProyectilOcular(x,y, objetivo.getX(), objetivo.getY()));
+            listaProyectiles.add(new ProyectilOcular(x, y, objetivo.getX(), objetivo.getY()));
         }
     }
 

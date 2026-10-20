@@ -128,7 +128,13 @@ public class Jugador extends Entidad{
     @Override
     public void update(float dt, MapCollision mapCollision) {
 
-        mover(dirX,dirY,speed,dt,mapCollision);
+
+        float velocidadActual = speed;
+
+        if(tiempoRalentizadoOcular>0f){
+            velocidadActual = speed * 0.6f;
+        }
+        mover(dirX,dirY,velocidadActual,dt,mapCollision);
 
         if (Gdx.input.isKeyPressed(Input.Keys.R)) {
             linterna.recargar(dt);
@@ -140,10 +146,17 @@ public class Jugador extends Entidad{
         animador.update(dt, dirX, dirY);
         linterna.update(dt, x, y, rotacionMouse);
 
-        if(tiempoRalentizadoOcular>0f){
-            tiempoInmovilOcular-=dt;
-            if(tiempoInmovilOcular<=0f){
-                puedoMoverme=true;
+        if (tiempoRalentizadoOcular > 0f) {
+            tiempoRalentizadoOcular -= dt;
+            if (tiempoRalentizadoOcular <= 0f) {
+                impactosOcularesRecibidos = 0;
+            }
+        }
+
+        if (tiempoInmovilOcular > 0f) {
+            tiempoInmovilOcular -= dt;
+            if (tiempoInmovilOcular <= 0f) {
+                puedoMoverme = true;
             }
         }
     }
@@ -220,13 +233,15 @@ public class Jugador extends Entidad{
         recibirDanio(danio);
         impactosOcularesRecibidos++;
 
-        if(impactosOcularesRecibidos==1 || impactosOcularesRecibidos==2){
-            tiempoRalentizadoOcular=2.0f;
-        }else if(impactosOcularesRecibidos >= 3){
-            tiempoInmovilOcular=3.0f;
+        if(impactosOcularesRecibidos==1 || impactosOcularesRecibidos ==2){
+            tiempoRalentizadoOcular=3.0f;
+        }else if(impactosOcularesRecibidos>=3){
+            tiempoInmovilOcular=2.0f;
             puedoMoverme=false;
             impactosOcularesRecibidos=0;
+            tiempoRalentizadoOcular=0;
         }
+
     }
 
     public void setPuedoMoverme(boolean puedoMoverme) {

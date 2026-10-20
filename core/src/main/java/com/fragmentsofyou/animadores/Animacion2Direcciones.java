@@ -13,8 +13,8 @@ public class Animacion2Direcciones {
     private float stateTime=0f;
 
     public Animacion2Direcciones(String rutaBase, String enemigo2Left, String enemigo2Right, int cols, float frameDuration){
-        Texture texIzq=new Texture("enemigos/enemigo2Left.png");
-        Texture texDer=new Texture("enemigos/enemigo2Right.png");
+        Texture texIzq = new Texture(rutaBase + enemigo2Left);
+        Texture texDer = new Texture(rutaBase + enemigo2Right);
 
         texturas.add(texIzq);
         texturas.add(texDer);
