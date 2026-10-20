@@ -1,10 +1,7 @@
 package com.fragmentsofyou.handlers;
 
 import com.fragmentsofyou.Main;
-import com.fragmentsofyou.states.GameOver;
-import com.fragmentsofyou.states.GameState;
-import com.fragmentsofyou.states.Menu;
-import com.fragmentsofyou.states.Play;
+import com.fragmentsofyou.states.*;
 
 import java.util.Stack;
 
@@ -17,6 +14,7 @@ public class GameStateManager {
     public static final int PLAY = 1;
     public static final int SETTINGS = 2;
     public static final int GAMEOVER = 3;
+    public static final int VICTORIA = 4;
 
     public GameStateManager(Main game) {
         this.game = game;
@@ -50,6 +48,7 @@ public class GameStateManager {
         if (state == MENU) return new Menu(this);
         if (state == PLAY) return new Play(this);
         if(state == GAMEOVER) return new GameOver(this);
+        if(state == VICTORIA) return new Victoria(this);
     return null;
     }
 
