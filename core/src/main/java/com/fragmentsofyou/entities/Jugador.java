@@ -53,6 +53,10 @@ public class Jugador extends Entidad{
     private boolean sobrecargaHabilitada = false;
     private boolean destelloHabilitado = false;
 
+    private int impactosOcularesRecibidos=0;
+    private float tiempoRalentizadoOcular=0f;
+    private float tiempoInmovilOcular=0f;
+
 
     public Jugador(float startX, float startY, RayHandler rayHandler) {
         super(startX,startY,10f,10f,90f,100);
@@ -135,6 +139,13 @@ public class Jugador extends Entidad{
         }
         animador.update(dt, dirX, dirY);
         linterna.update(dt, x, y, rotacionMouse);
+
+        if(tiempoRalentizadoOcular>0f){
+            tiempoInmovilOcular-=dt;
+            if(tiempoInmovilOcular<=0f){
+                puedoMoverme=true;
+            }
+        }
     }
     @Override
     public void render(SpriteBatch sb) {
@@ -202,6 +213,19 @@ public class Jugador extends Entidad{
             indiceDialogo = 0;
             dialogoNotaTerminado = true;
             setPuedoMoverme(true);
+        }
+    }
+
+    public void recibirImpactoOcular(float danio){
+        recibirDanio(danio);
+        impactosOcularesRecibidos++;
+
+        if(impactosOcularesRecibidos==1 || impactosOcularesRecibidos==2){
+            tiempoRalentizadoOcular=2.0f;
+        }else if(impactosOcularesRecibidos >= 3){
+            tiempoInmovilOcular=3.0f;
+            puedoMoverme=false;
+            impactosOcularesRecibidos=0;
         }
     }
 
