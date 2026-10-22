@@ -16,6 +16,9 @@ public class MisionManager {
     private ZonaTP puertaPasilloTP2;
     private ZonaTP puertaSalidaTP1;
     private ZonaTP puertaSiguienteTP3;
+    private ZonaTP puertaSalidaCombate2;
+    private ZonaTP puertaSiguienteTP4;
+    private ZonaTP puertasalidaCombate3;
 
     private boolean esperandoTP = false;
     private float timerDelayTP = 0f;
@@ -28,42 +31,55 @@ public class MisionManager {
     private Rectangle rectLinterna;
     private Rectangle rectNota;
     private Rectangle rectObjetoAbuela;
+    private Rectangle rectEspejoAbuela;
+    private Rectangle rectFotoFinal;
 
     private MapCollision mapCollision;
-    private Vector2 puntoDestinoTP;
-    private Vector2 puntoDestinoTP2;
 
     private boolean abuelaPresente =true;
     private boolean linternaRecolectada=false;
     private boolean enemigoSpawned = false;
     private boolean enemigoDerrotado=false;
     private boolean objetoEncontrado = false;
+    private boolean espejoRecolectado=false;
     private boolean notaLeida=false;
-    private boolean argosSpawned=false;
+    private boolean fotoFinalRecolectada=false;
 
+    private boolean argosSpawned=false;
 
     private boolean primerEnemigoDerrotado = false;
     private boolean todosEnemigosDerrotados = false;
+    private boolean jefeDerrotado = false;
 
-
+    private Vector2 tp1;
+    private Vector2 tp2;
     private Vector2 tp3;
+    private Vector2 tp4;
 
     public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3){
         this.mapCollision=mapCollision;
+        this.tp1=tp1;
+        this.tp2 = tp2;
+        this.tp3 = tp3;
+        this.tp4=tp4;
+
         this.rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
         this.rectLinterna =null;
         this.rectNota = null;
         this.rectObjetoAbuela=mapCollision.obtenerRectanguloPorNombre("cepilloDientesAbuela");
+        this.rectEspejoAbuela=mapCollision.obtenerRectanguloPorNombre("espejoAbuela");
+        this.rectFotoFinal=mapCollision.obtenerRectanguloPorNombre("fotoFinal");
 
         this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false);
+
         this.puertaPasilloTP2 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp2, false);
         this.puertaSalidaTP1 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate1"), tp1, true);
 
-        this.puertaSiguienteTP3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate2"), tp3, true);
-        this.tp3 = tp3;
+        this.puertaSiguienteTP3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp3, true);
+        this.puertaSalidaCombate2= new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate2"),tp1,true);
 
-
-
+        this.puertaSiguienteTP4=new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"),tp4,true);
+        this.puertasalidaCombate3=new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate3"),tp1,true);
     }
 
     public void update(float dt, Jugador jugador, Abuela abuela, ScreenFader fader, RayHandler rayHandler, AudioManager audio){
@@ -135,6 +151,7 @@ public class MisionManager {
             if (objetoEncontrado) {
                 destinoActualTP = tp3;
                 argosSpawned=true;
+                misionActual=EstadoMision.COMBATE_Y_BUSQUEDA;
 
                 jugador.setDestelloHabilitado(true);
 
@@ -155,6 +172,28 @@ public class MisionManager {
             }
         }
 
+        if(espejoRecolectado){
+            if(puertaSalidaCombate2.verificarYActivar(jugador, fader, true)){
+                esperandoTP=true;
+                timerDelayTP=TIEMPO_DELAY;
+                destinoActualTP=tp1;
+            }
+        }
+
+        if(esperandoTP){
+            timerDelayTP-=dt;
+            if(timerDelayTP<=0){
+                esperandoTP=false;
+                if(destinoActualTP!=null){
+                    jugador.teletransportar(destinoActualTP.x, destinoActualTP.y);
+                }
+                fader.startFlash(Color.BLACK, 2.0f);
+                jugador.setPuedoMoverme(true);
+                audio.pausarMusicaAmbiente();
+                audio.iniciarMusicaAngel();
+            }
+        }
+
         if (puertaSiguienteTP3.verificarYActivar(jugador, fader, objetoEncontrado)) {
 
             esperandoTP = true;
@@ -163,20 +202,6 @@ public class MisionManager {
             argosSpawned = true;
 
             jugador.setDestelloHabilitado(true);
-        }
-
-        if(esperandoTP){
-            timerDelayTP -= dt;
-            if (timerDelayTP <= 0){
-                esperandoTP = false;
-                if(destinoActualTP != null){
-                    jugador.teletransportar(destinoActualTP.x, destinoActualTP.y);
-                }
-                fader.startFlash(Color.BLACK, 2.0f);
-                jugador.setPuedoMoverme(true);
-                audio.pausarMusicaAmbiente();
-                audio.iniciarMusicaAngel();
-            }
         }
 
         if(!objetoEncontrado && rectObjetoAbuela != null && rectJugador.overlaps(rectObjetoAbuela)){
@@ -195,8 +220,43 @@ public class MisionManager {
                 }
             }
         }
+        if(!espejoRecolectado && rectEspejoAbuela != null && rectJugador.overlaps(rectEspejoAbuela)){
+            if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                if(!jugador.isMostrandoDialogo()){
+                    String[] textoEspejo = new String[]{
+                        "Encontré el espejo de la abuela...",
+                        "Siento que la voy a encontrar pronto."
+                    };
+                    jugador.iniciarDialogoNota(textoEspejo);
+                    espejoRecolectado = true;
+                    puertaSiguienteTP3.reset();
+                    misionActual = EstadoMision.COMPLETADO;
+                }
+            }
+        }
 
+        if(objetoEncontrado && espejoRecolectado){
+            if(puertaSiguienteTP4.verificarYActivar(jugador, fader, true)){
+                esperandoTP=true;
+                timerDelayTP=TIEMPO_DELAY;
+                destinoActualTP=tp4;
+                misionActual=EstadoMision.COMBATE_Y_BUSQUEDA;
+            }
+        }
+
+        if(puertasalidaCombate3.verificarYActivar(jugador,fader,true)){
+            esperandoTP=true;
+            timerDelayTP=TIEMPO_DELAY;
+            destinoActualTP=tp1;
+        }
+
+        if(jefeDerrotado && !fotoFinalRecolectada && rectFotoFinal!=null && rectJugador.overlaps(rectFotoFinal)){
+            if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+                fotoFinalRecolectada=true;
+            }
+        }
     }
+
     public boolean debeSpawnarArgos() {
         if (argosSpawned) {
             argosSpawned = false;
@@ -226,20 +286,15 @@ public class MisionManager {
     }
 
     public EstadoMision getMisionActual() { return misionActual; }
-    public boolean isAbuelaPresente() { return abuelaPresente; }
-
-    public Rectangle getRectNota() {
-        return rectNota;
-    }
-
-    public boolean isObjetoEncontrado(){
-        return objetoEncontrado;
-    }
-    public Rectangle getRectObjetoAbuela(){
-        return rectObjetoAbuela;
-    }
+    public Rectangle getRectNota() {return rectNota;}
+    public Rectangle getRectObjetoAbuela(){return rectObjetoAbuela;}
     public Rectangle getRectLinterna() {return rectLinterna;}
+    public Rectangle getRectEspejoAbuela() {return rectEspejoAbuela;}
+
+    public boolean isAbuelaPresente() { return abuelaPresente; }
+    public boolean isObjetoEncontrado(){return objetoEncontrado;}
     public boolean isLinternaRecolectada() {return linternaRecolectada;}
+    public boolean isEspejoRecolectado() {return espejoRecolectado; }
 
     public void setEnemigoDerrotado(boolean derrotado){
         this.enemigoDerrotado=derrotado;

@@ -50,6 +50,7 @@ public class Play extends GameState {
     private Texture texturaNota;
     private Texture texturaObjetoAbuela;
     private Texture texturaLinterna;
+    private Texture texturaEspejoAbuela;
 
     private ArrayList<Enemigo> enemigos = new ArrayList<>();
     private boolean segundaOleadaSpawned = false;
@@ -91,6 +92,7 @@ public class Play extends GameState {
         texturaNota=new Texture(Gdx.files.internal("mapas/hojaCarta.png"));
         texturaObjetoAbuela=new Texture(Gdx.files.internal("mapas/cepilloDientesAbuela.png"));
         texturaLinterna=new Texture(Gdx.files.internal("mapas/linternaGlenn.png"));
+        texturaEspejoAbuela=new Texture(Gdx.files.internal("mapas/espejoAbuela.png"));
 
 
         Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
@@ -241,6 +243,12 @@ public class Play extends GameState {
             Rectangle rLinterna = misionManager.getRectLinterna();
             sb.draw(texturaLinterna, rLinterna.x, rLinterna.y);
         }
+
+        if (!misionManager.isEspejoRecolectado() && misionManager.getRectEspejoAbuela() != null) {
+            Rectangle rEspejo = misionManager.getRectEspejoAbuela();
+            sb.draw(texturaEspejoAbuela, rEspejo.x, rEspejo.y);
+        }
+
         if (!jugador.isMuerto()) {
             jugador.render(sb);
         }
@@ -316,6 +324,7 @@ public class Play extends GameState {
         if(texturaObjetoAbuela!=null) texturaObjetoAbuela.dispose();
         if (combateManager != null) combateManager.dispose();
         if (texturaLinterna != null) texturaLinterna.dispose();
+        if (texturaEspejoAbuela != null) texturaEspejoAbuela.dispose();
 
         ProyectilOcular.dispose();
 

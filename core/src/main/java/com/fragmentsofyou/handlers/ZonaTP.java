@@ -25,11 +25,7 @@ public class ZonaTP {
         if (rectJugador.overlaps(area)) {
             if (requiereObjeto && !objetoEncontrado) {
                 if (!jugador.isMostrandoDialogo()) {
-                    jugador.iniciarDialogoNota(new String[]{
-                        "La puerta está cerrada...",
-                        "Necesito encontrar el objeto",
-                        "de la abuela antes de irme."
-                    });
+
                 }
                 return false;
             }
