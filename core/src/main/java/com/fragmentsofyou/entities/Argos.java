@@ -26,6 +26,12 @@ public class Argos extends Enemigo{
     private final float cooldownCuerpoACuerpo = 1.2f;
     private float tiempoCuerpoACuerpo = 0f;
 
+    private float objetivoAnteriorX;
+    private float objetivoAnteriorY;
+    private float velocidadObjetivoX;
+    private float velocidadObjetivoY;
+    private boolean posicionObjetivoInicializada = false;
+
     public Argos(float startX, float startY, Entidad objetivo, ArrayList<ProyectilOcular> proyectiles){
         super(startX, startY,14f,14f,22f,130,15f,100f,2.0f,objetivo);
         this.listaProyectiles=proyectiles;
@@ -38,6 +44,21 @@ public class Argos extends Enemigo{
 
 
         if (isMuerto()) return;
+
+        if (objetivo != null && dt > 0f) {
+            float jugadorX = objetivo.getX();
+            float jugadorY = objetivo.getY();
+
+            if (posicionObjetivoInicializada) {
+                velocidadObjetivoX = (jugadorX - objetivoAnteriorX) / dt;
+                velocidadObjetivoY = (jugadorY - objetivoAnteriorY) / dt;
+            } else {
+                posicionObjetivoInicializada = true;
+            }
+
+            objetivoAnteriorX = jugadorX;
+            objetivoAnteriorY = jugadorY;
+        }
 
         animador.update(dt, dirX);
 
@@ -97,9 +118,44 @@ public class Argos extends Enemigo{
     }
 
     private void disparar() {
-        if(listaProyectiles != null && objetivo != null){
-            listaProyectiles.add(new ProyectilOcular(x, y, objetivo.getX(), objetivo.getY()));
+        if (listaProyectiles == null || objetivo == null) {
+            return;
         }
+
+        float anticipacion = 0.20f;
+
+        float objetivoX = objetivo.getX()
+            + velocidadObjetivoX * anticipacion;
+
+        float objetivoY = objetivo.getY()
+            + velocidadObjetivoY * anticipacion;
+
+        float desviacionMaxima = 22f;
+
+        float desplazamientoX = objetivoX - objetivo.getX();
+        float desplazamientoY = objetivoY - objetivo.getY();
+
+        desplazamientoX = Math.max(
+            -desviacionMaxima,
+            Math.min(desviacionMaxima, desplazamientoX)
+        );
+
+        desplazamientoY = Math.max(
+            -desviacionMaxima,
+            Math.min(desviacionMaxima, desplazamientoY)
+        );
+
+        objetivoX = objetivo.getX() + desplazamientoX;
+        objetivoY = objetivo.getY() + desplazamientoY;
+
+        listaProyectiles.add(
+            new ProyectilOcular(
+                x,
+                y,
+                objetivoX,
+                objetivoY
+            )
+        );
     }
 
     private void atacarCuerpoACuerpo() {

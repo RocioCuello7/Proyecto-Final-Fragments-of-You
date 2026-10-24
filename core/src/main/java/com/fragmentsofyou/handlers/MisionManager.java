@@ -224,7 +224,7 @@ public class MisionManager {
             if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
                 if(!jugador.isMostrandoDialogo()){
                     String[] textoEspejo = new String[]{
-                        "Encontré el espejo de la abuela...",
+                        "Encontré el espejo de la abuela . . .",
                         "Siento que la voy a encontrar pronto."
                     };
                     jugador.iniciarDialogoNota(textoEspejo);

@@ -19,6 +19,8 @@ public class ProyectilOcular {
     private static final float ANCHO = 8f;
     private static final float ALTO = 8f;
 
+    private float curvatura = 2.5f;
+
     public ProyectilOcular(float startX, float startY, float objetivoX, float objetivoY){
         this.x = startX ;
         this.y = startY ;
@@ -45,6 +47,36 @@ public class ProyectilOcular {
         float subDt = dt / pasos;
 
         for (int i = 0; i < pasos; i++) {
+
+            float anguloActual = (float) Math.atan2(velY, velX);
+
+            float anguloObjetivo = (float) Math.atan2(
+                jugador.getY() - y,
+                jugador.getX() - x
+            );
+
+            float diferencia = anguloObjetivo - anguloActual;
+
+            while (diferencia > Math.PI) {
+                diferencia -= 2f * (float) Math.PI;
+            }
+
+            while (diferencia < -Math.PI) {
+                diferencia += 2f * (float) Math.PI;
+            }
+
+            float giroMaximo = curvatura * subDt;
+
+            diferencia = Math.max(
+                -giroMaximo,
+                Math.min(giroMaximo, diferencia)
+            );
+
+            float nuevoAngulo = anguloActual + diferencia;
+
+            velX = (float) Math.cos(nuevoAngulo) * velocidad;
+            velY = (float) Math.sin(nuevoAngulo) * velocidad;
+
             float siguienteX = x + velX * subDt;
             float siguienteY = y + velY * subDt;
 
@@ -58,6 +90,7 @@ public class ProyectilOcular {
 
             x = siguienteX;
             y = siguienteY;
+
             bounds.setPosition(
                 x - ANCHO / 2f,
                 y - ALTO / 2f
