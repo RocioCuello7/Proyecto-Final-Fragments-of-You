@@ -284,9 +284,20 @@ public class Play extends GameState {
         hud.renderFuenteObjetivo(
             sb,
             misionManager.getMisionActual().getTextoObjetivo(),
-            cam.viewportWidth - 180f,
-            cam.viewportHeight - 20f
+            10f,
+            155f
         );
+
+        String textoIndicador = misionManager.getTextoIndicador(jugador);
+        if(textoIndicador!=null){
+            hud.renderFuenteObjetivo(
+                sb,
+                textoIndicador,
+                10f,
+                10f
+            );
+        }
+
         sb.end();
         hud.render(sb, jugador);
     }

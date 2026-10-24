@@ -33,6 +33,7 @@ public class MisionManager {
     private Rectangle rectObjetoAbuela;
     private Rectangle rectEspejoAbuela;
     private Rectangle rectFotoFinal;
+    private Rectangle rectAbuela;
 
     private MapCollision mapCollision;
 
@@ -69,6 +70,7 @@ public class MisionManager {
         this.rectObjetoAbuela=mapCollision.obtenerRectanguloPorNombre("cepilloDientesAbuela");
         this.rectEspejoAbuela=mapCollision.obtenerRectanguloPorNombre("espejoAbuela");
         this.rectFotoFinal=mapCollision.obtenerRectanguloPorNombre("fotoFinal");
+        this.rectAbuela=mapCollision.obtenerRectanguloPorNombre("abuela");
 
         this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false);
 
@@ -255,6 +257,53 @@ public class MisionManager {
                 fotoFinalRecolectada=true;
             }
         }
+    }
+
+    public String getTextoIndicador(Jugador jugador){
+        if(jugador.isMostrandoDialogo()) return null;
+
+        Rectangle rectJugador=new Rectangle(jugador.getX()-8f, jugador.getY()-8f,16f,16f);
+
+        if(abuelaPresente && rectAbuela!=null && rectJugador.overlaps(rectAbuela)){
+            return "| E | Hablar";
+        }
+
+        if(misionActual==EstadoMision.IR_A_DORMIR && rectCama!=null && rectJugador.overlaps(rectCama)){
+            return "| E | Dormir";
+        }
+
+        if(misionActual==EstadoMision.EXPLORAR && !linternaRecolectada && rectLinterna!=null && rectJugador.overlaps(rectLinterna)){
+            return "| E | Recoger Linterna";
+        }
+
+        if(misionActual==EstadoMision.EXPLORAR && rectNota!=null && rectJugador.overlaps(rectNota)){
+            return "| E | Leer Nota";
+        }
+
+        if(!objetoEncontrado && rectObjetoAbuela!=null && rectJugador.overlaps(rectObjetoAbuela)){
+            return "| E | Recoger Fragmento";
+        }
+
+        if(!espejoRecolectado && rectEspejoAbuela!=null && rectJugador.overlaps(rectEspejoAbuela)){
+            return "| E | Recoger Fragmento";
+        }
+
+        if(jefeDerrotado && !fotoFinalRecolectada && rectFotoFinal!=null && rectJugador.overlaps(rectFotoFinal)){
+            return "| E | Recoger Fragmento";
+        }
+
+        if (misionActual == EstadoMision.COMBATE_Y_BUSQUEDA || misionActual == EstadoMision.BUSQUEDA) {
+            if (argosSpawned || espejoRecolectado) {
+                return "[R] Recargar | [Click Izq] Disparar | [Click Der] Destello";
+            } else {
+                return "[R] Recargar | [Click Izq] Disparar";
+            }
+        }
+
+        if (linternaRecolectada) {
+            return "[F] Activar linterna";
+        }
+        return null;
     }
 
     public boolean debeSpawnarArgos() {

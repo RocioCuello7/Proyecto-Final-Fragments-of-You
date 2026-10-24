@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="80" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="249">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="80" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="250">
  <tileset firstgid="1" source="Muebles y Paredes.tsx"/>
  <layer id="1" name="pisos/paredes" width="80" height="60">
   <data encoding="csv">
@@ -328,6 +328,7 @@
   <object id="212" name="linternaGlenn" x="1040" y="880.182" width="15.8182" height="15.8182"/>
   <object id="241" name="espejoAbuela" x="302.5" y="320.25" width="17.75" height="16.5"/>
   <object id="245" name="fotoFinal" x="1039" y="128.5" width="16.5" height="16.5"/>
+  <object id="249" name="abuela" x="895.75" y="740.25" width="16.25" height="21.75"/>
  </objectgroup>
  <objectgroup id="6" name="paredes y muebles">
   <object id="1" gid="27" x="526" y="144.667" width="16" height="16"/>
