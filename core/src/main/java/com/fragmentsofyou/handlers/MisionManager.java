@@ -21,6 +21,8 @@ public class MisionManager {
     private ZonaTP puertasalidaCombate3;
 
     private boolean esperandoTP = false;
+    private boolean esperandoDespertar=false;
+
     private float timerDelayTP = 0f;
     private final float TIEMPO_DELAY = 0.8f;
     private Vector2 destinoActualTP;
@@ -85,178 +87,177 @@ public class MisionManager {
     }
 
     public void update(float dt, Jugador jugador, Abuela abuela, ScreenFader fader, RayHandler rayHandler, AudioManager audio){
-        Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
+            Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
 
-        if(abuelaPresente && abuela!=null){
-            abuela.update(dt, jugador.getX(),jugador.getY());
+            if (abuelaPresente && abuela != null) {
+                abuela.update(dt, jugador.getX(), jugador.getY());
 
-            if(abuela.isDialogoTerminado() && misionActual == EstadoMision.HABLAR_CON_ABUELA){
-                misionActual = EstadoMision.IR_A_DORMIR;
-           }
-        }
-
-        if(misionActual == EstadoMision.IR_A_DORMIR && rectCama != null){
-            if(Gdx.input.isKeyJustPressed(Input.Keys.E) && rectJugador.overlaps(rectCama)){
-                misionActual = EstadoMision.COMPLETADO;
-                fader.startFadeOut(Color.BLACK,1.5f);
-            }
-        }
-
-        if (misionActual == EstadoMision.COMPLETADO && fader.isFinished()) {
-            fader.startFlash(Color.BLACK, 2.0f);
-            misionActual = EstadoMision.EXPLORAR;
-            rayHandler.setAmbientLight(0.07f);
-            abuelaPresente = false;
-
-            rectNota=mapCollision.obtenerRectanguloPorNombre("nota-abuela");
-            rectLinterna=mapCollision.obtenerRectanguloPorNombre("linternaGlenn");
-
-        }
-        if (misionActual == EstadoMision.EXPLORAR && !linternaRecolectada && rectLinterna != null) {
-            if (rectJugador.overlaps(rectLinterna) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                if (!jugador.isMostrandoDialogo()) {
-                    String[] textoLinterna = new String[]{
-                        "Encontré la linterna de la abuela.",
-                        "Ahora debería poder alumbrar",
-                        "en esta oscuridad."
-                    };
-                    jugador.iniciarDialogoNota(textoLinterna);
-                    linternaRecolectada = true;
-                    jugador.setLinternaHabilitada(true);
+                if (abuela.isDialogoTerminado() && misionActual == EstadoMision.HABLAR_CON_ABUELA) {
+                    misionActual = EstadoMision.IR_A_DORMIR;
                 }
             }
-        }
 
-
-        if(misionActual== EstadoMision.EXPLORAR && !notaLeida && rectNota!=null){
-            if(rectJugador.overlaps(rectNota) && Gdx.input.isKeyJustPressed(Input.Keys.E)){
-                if(!jugador.isMostrandoDialogo()) {
-                    String[] textoNota = new String[]{
-                        "¿Qué es esto ... ?",
-                        ". . . ",
-                        " donde esta la           abuela ? "
-                    };
-                    jugador.iniciarDialogoNota(textoNota);
+            if (misionActual == EstadoMision.IR_A_DORMIR && rectCama != null) {
+                if (Gdx.input.isKeyJustPressed(Input.Keys.E) && rectJugador.overlaps(rectCama)) {
+                    esperandoDespertar = true;
+                    fader.startFadeOut(Color.BLACK, 1.5f);
                 }
             }
-        }
 
-        if (jugador.isDialogoNotaTerminado() && puertaCasaTP.verificarYActivar(jugador, fader, objetoEncontrado)) {
-            esperandoTP = true;
-            timerDelayTP = TIEMPO_DELAY;
-            destinoActualTP = puertaCasaTP.getDestino();
-        }
+            if (esperandoDespertar && fader.isFinished()) {
+                esperandoDespertar = false;
+                fader.startFlash(Color.BLACK, 2.0f);
+                misionActual = EstadoMision.EXPLORAR;
+                rayHandler.setAmbientLight(0.07f);
+                abuelaPresente = false;
 
-        if (jugador.isDialogoNotaTerminado() && puertaPasilloTP2.verificarYActivar(jugador, fader, objetoEncontrado)) {
-            esperandoTP = true;
-            timerDelayTP = TIEMPO_DELAY;
-            if (objetoEncontrado) {
-                destinoActualTP = tp3;
-                argosSpawned=true;
-                misionActual=EstadoMision.COMBATE_Y_BUSQUEDA;
-
-                jugador.setDestelloHabilitado(true);
-
-            } else {
-                destinoActualTP = puertaPasilloTP2.getDestino();
-                enemigoSpawned = true;
-                misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
-
-                jugador.setSobrecargaHabilitada(true);
+                rectNota = mapCollision.obtenerRectanguloPorNombre("nota-abuela");
+                rectLinterna = mapCollision.obtenerRectanguloPorNombre("linternaGlenn");
             }
-        }
 
-        if (puertaSalidaTP1.verificarYActivar(jugador, fader, objetoEncontrado)) {
-            if (objetoEncontrado) {
+            if (misionActual == EstadoMision.EXPLORAR && !linternaRecolectada && rectLinterna != null) {
+                if (rectJugador.overlaps(rectLinterna) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                    if (!jugador.isMostrandoDialogo()) {
+                        String[] textoLinterna = new String[]{
+                            "Encontré la linterna de la abuela.",
+                            "Ahora debería poder alumbrar",
+                            "en esta oscuridad."
+                        };
+                        jugador.iniciarDialogoNota(textoLinterna);
+                        linternaRecolectada = true;
+                        jugador.setLinternaHabilitada(true);
+                    }
+                }
+            }
+
+            if (misionActual == EstadoMision.EXPLORAR && !notaLeida && rectNota != null) {
+                if (rectJugador.overlaps(rectNota) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                    if (!jugador.isMostrandoDialogo()) {
+                        String[] textoNota = new String[]{
+                            "¿Qué es esto ... ?",
+                            ". . . ",
+                            " donde esta la           abuela ? "
+                        };
+                        jugador.iniciarDialogoNota(textoNota);
+                    }
+                }
+            }
+
+            if (jugador.isDialogoNotaTerminado() && puertaCasaTP.verificarYActivar(jugador, fader, objetoEncontrado)) {
                 esperandoTP = true;
                 timerDelayTP = TIEMPO_DELAY;
-                destinoActualTP = puertaSalidaTP1.getDestino();
+                destinoActualTP = puertaCasaTP.getDestino();
             }
-        }
 
-        if(espejoRecolectado){
-            if(puertaSalidaCombate2.verificarYActivar(jugador, fader, true)){
-                esperandoTP=true;
-                timerDelayTP=TIEMPO_DELAY;
-                destinoActualTP=tp1;
-            }
-        }
-
-        if(esperandoTP){
-            timerDelayTP-=dt;
-            if(timerDelayTP<=0){
-                esperandoTP=false;
-                if(destinoActualTP!=null){
-                    jugador.teletransportar(destinoActualTP.x, destinoActualTP.y);
-                }
-                fader.startFlash(Color.BLACK, 2.0f);
-                jugador.setPuedoMoverme(true);
-                audio.pausarMusicaAmbiente();
-                audio.iniciarMusicaAngel();
-            }
-        }
-
-        if (puertaSiguienteTP3.verificarYActivar(jugador, fader, objetoEncontrado)) {
-
-            esperandoTP = true;
-            timerDelayTP = TIEMPO_DELAY;
-            destinoActualTP = puertaSiguienteTP3.getDestino();
-            argosSpawned = true;
-
-            jugador.setDestelloHabilitado(true);
-        }
-
-        if(!objetoEncontrado && rectObjetoAbuela != null && rectJugador.overlaps(rectObjetoAbuela)){
-            if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-                if(!jugador.isMostrandoDialogo()){
-                    String[] textoObjeto = new String[]{
-                        "¡Encontré el cepillo de abuela!",
-                        "Esto significa que ella debe",
-                        "estar cerca... No me voy a rendir."
-                    };
-               jugador.iniciarDialogoNota(textoObjeto);
-                objetoEncontrado=true;
-                puertaPasilloTP2.reset();
-                misionActual = EstadoMision.BUSQUEDA;
-                jugador.setVidaJugador(80);
+            if (jugador.isDialogoNotaTerminado() && puertaPasilloTP2.verificarYActivar(jugador, fader, objetoEncontrado)) {
+                esperandoTP = true;
+                timerDelayTP = TIEMPO_DELAY;
+                if (objetoEncontrado) {
+                    destinoActualTP = tp3;
+                    argosSpawned = true;
+                    misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
+                    jugador.setDestelloHabilitado(true);
+                } else {
+                    destinoActualTP = puertaPasilloTP2.getDestino();
+                    enemigoSpawned = true;
+                    misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
+                    jugador.setSobrecargaHabilitada(true);
                 }
             }
-        }
-        if(!espejoRecolectado && rectEspejoAbuela != null && rectJugador.overlaps(rectEspejoAbuela)){
-            if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-                if(!jugador.isMostrandoDialogo()){
-                    String[] textoEspejo = new String[]{
-                        "Encontré el espejo de la abuela . . .",
-                        "Siento que la voy a encontrar pronto."
-                    };
-                    jugador.iniciarDialogoNota(textoEspejo);
-                    espejoRecolectado = true;
-                    puertaSiguienteTP3.reset();
-                    misionActual = EstadoMision.COMPLETADO;
+
+            if (puertaSalidaTP1.verificarYActivar(jugador, fader, objetoEncontrado)) {
+                if (objetoEncontrado) {
+                    esperandoTP = true;
+                    timerDelayTP = TIEMPO_DELAY;
+                    destinoActualTP = puertaSalidaTP1.getDestino();
+                    misionActual=EstadoMision.EXPLORAR_PASILLO;
                 }
             }
-        }
 
-        if(objetoEncontrado && espejoRecolectado){
-            if(puertaSiguienteTP4.verificarYActivar(jugador, fader, true)){
-                esperandoTP=true;
-                timerDelayTP=TIEMPO_DELAY;
-                destinoActualTP=tp4;
-                misionActual=EstadoMision.COMBATE_Y_BUSQUEDA;
+            if (espejoRecolectado) {
+                if (puertaSalidaCombate2.verificarYActivar(jugador, fader, true)) {
+                    esperandoTP = true;
+                    timerDelayTP = TIEMPO_DELAY;
+                    destinoActualTP = tp1;
+                    misionActual=EstadoMision.EXPLORAR_PASILLO;
+                }
             }
-        }
 
-        if(puertasalidaCombate3.verificarYActivar(jugador,fader,true)){
-            esperandoTP=true;
-            timerDelayTP=TIEMPO_DELAY;
-            destinoActualTP=tp1;
-        }
-
-        if(jefeDerrotado && !fotoFinalRecolectada && rectFotoFinal!=null && rectJugador.overlaps(rectFotoFinal)){
-            if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-                fotoFinalRecolectada=true;
+            if (esperandoTP) {
+                timerDelayTP -= dt;
+                if (timerDelayTP <= 0) {
+                    esperandoTP = false;
+                    if (destinoActualTP != null) {
+                        jugador.teletransportar(destinoActualTP.x, destinoActualTP.y);
+                    }
+                    fader.startFlash(Color.BLACK, 2.0f);
+                    jugador.setPuedoMoverme(true);
+                    audio.pausarMusicaAmbiente();
+                    audio.iniciarMusicaAngel();
+                }
             }
-        }
+
+            if (puertaSiguienteTP3.verificarYActivar(jugador, fader, objetoEncontrado)) {
+                esperandoTP = true;
+                timerDelayTP = TIEMPO_DELAY;
+                destinoActualTP = puertaSiguienteTP3.getDestino();
+                argosSpawned = true;
+
+                jugador.setDestelloHabilitado(true);
+            }
+
+            if (!objetoEncontrado && rectObjetoAbuela != null && rectJugador.overlaps(rectObjetoAbuela)) {
+                if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                    if (!jugador.isMostrandoDialogo()) {
+                        String[] textoObjeto = new String[]{
+                            "¡Encontré el cepillo de abuela!",
+                            "Esto significa que ella debe",
+                            "estar cerca... No me voy a rendir."
+                        };
+                        jugador.iniciarDialogoNota(textoObjeto);
+                        objetoEncontrado = true;
+                        puertaPasilloTP2.reset();
+                        misionActual = EstadoMision.BUSCAR_SALIDA;
+                        jugador.setVidaJugador(80);
+                    }
+                }
+            }
+
+            if (!espejoRecolectado && rectEspejoAbuela != null && rectJugador.overlaps(rectEspejoAbuela)) {
+                if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                    if (!jugador.isMostrandoDialogo()) {
+                        String[] textoEspejo = new String[]{
+                            "Encontré el espejo de la abuela . . .",
+                            "Siento que la voy a encontrar pronto."
+                        };
+                        jugador.iniciarDialogoNota(textoEspejo);
+                        espejoRecolectado = true;
+                        puertaSiguienteTP3.reset();
+                        misionActual = EstadoMision.BUSCAR_SALIDA;
+                    }
+                }
+            }
+
+            if (objetoEncontrado && espejoRecolectado) {
+                if (puertaSiguienteTP4.verificarYActivar(jugador, fader, true)) {
+                    esperandoTP = true;
+                    timerDelayTP = TIEMPO_DELAY;
+                    destinoActualTP = tp4;
+                    misionActual = EstadoMision.FASES_FINALES;
+                }
+            }
+
+            if (puertasalidaCombate3.verificarYActivar(jugador, fader, true)) {
+                esperandoTP = true;
+                timerDelayTP = TIEMPO_DELAY;
+                destinoActualTP = tp1;
+            }
+
+            if (jefeDerrotado && !fotoFinalRecolectada && rectFotoFinal != null && rectJugador.overlaps(rectFotoFinal)) {
+                if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                    fotoFinalRecolectada = true;
+                }
+            }
     }
 
     public String getTextoIndicador(Jugador jugador){
@@ -292,8 +293,8 @@ public class MisionManager {
             return "| E | Recoger Fragmento";
         }
 
-        if (misionActual == EstadoMision.COMBATE_Y_BUSQUEDA || misionActual == EstadoMision.BUSQUEDA) {
-            if (argosSpawned || espejoRecolectado) {
+        if (misionActual == EstadoMision.COMBATE_Y_BUSQUEDA) {
+            if (jugador.isDestelloHabilitado()) {
                 return "[R] Recargar | [Click Izq] Disparar | [Click Der] Destello";
             } else {
                 return "[R] Recargar | [Click Izq] Disparar";

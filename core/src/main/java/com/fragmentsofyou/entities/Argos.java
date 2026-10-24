@@ -33,7 +33,7 @@ public class Argos extends Enemigo{
     private boolean posicionObjetivoInicializada = false;
 
     public Argos(float startX, float startY, Entidad objetivo, ArrayList<ProyectilOcular> proyectiles){
-        super(startX, startY,14f,14f,22f,130,15f,100f,2.0f,objetivo);
+        super(startX, startY,14f,14f,22f,1,15f,100f,2.0f,objetivo);
         this.listaProyectiles=proyectiles;
         this.animador = new Animacion2Direcciones("enemigos/", "enemigo2Left.png", "enemigo2Right.png", 6, 0.14f);
         this.rangoAtaque = 0f;

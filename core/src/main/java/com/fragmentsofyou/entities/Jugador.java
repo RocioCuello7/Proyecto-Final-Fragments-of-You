@@ -288,4 +288,7 @@ public class Jugador extends Entidad{
         this.destelloHabilitado = destelloHabilitado;
     }
 
+    public boolean isDestelloHabilitado() {
+        return destelloHabilitado;
+    }
 }
