@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -60,6 +61,10 @@ public class Play extends GameState {
 
     private boolean argosSpawned = false;
 
+    private float tiempoTemblorCamara=0f;
+    private float intensidadTemblor=0f;
+    private int vidaAnteriorJugador;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -78,6 +83,7 @@ public class Play extends GameState {
 
         Vector2 spawnJugador = obtenerSpawnPorNombre("spawn", 160f, 90f);
         jugador = new Jugador(spawnJugador.x, spawnJugador.y, rayHandler);
+        vidaAnteriorJugador= jugador.getVidaActual();
 
         shapeRenderer = new ShapeRenderer();
 
@@ -213,7 +219,21 @@ public class Play extends GameState {
         }
 
         rayHandler.update();
-        cam.position.set(jugador.getX(), jugador.getY(), 0);
+
+        if (jugador.getVidaActual() < vidaAnteriorJugador) {
+            tiempoTemblorCamara = 0.25f;
+            intensidadTemblor = 3.5f;
+        }
+        vidaAnteriorJugador = jugador.getVidaActual();
+
+        if (tiempoTemblorCamara > 0) {
+            tiempoTemblorCamara -= dt;
+            float offsetX = (MathUtils.random() - 0.5f) * 2f * intensidadTemblor;
+            float offsetY = (MathUtils.random() - 0.5f) * 2f * intensidadTemblor;
+            cam.position.set(jugador.getX() + offsetX, jugador.getY() + offsetY, 0);
+        } else {
+            cam.position.set(jugador.getX(), jugador.getY(), 0);
+        }
         cam.update();
     }
 
