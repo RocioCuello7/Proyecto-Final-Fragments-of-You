@@ -64,6 +64,7 @@ public class Play extends GameState {
     private float tiempoTemblorCamara=0f;
     private float intensidadTemblor=0f;
     private int vidaAnteriorJugador;
+    private float alphaDanio=0f;
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -223,6 +224,7 @@ public class Play extends GameState {
         if (jugador.getVidaActual() < vidaAnteriorJugador) {
             tiempoTemblorCamara = 0.25f;
             intensidadTemblor = 3.5f;
+            alphaDanio=0.6f;
         }
         vidaAnteriorJugador = jugador.getVidaActual();
 
@@ -233,6 +235,9 @@ public class Play extends GameState {
             cam.position.set(jugador.getX() + offsetX, jugador.getY() + offsetY, 0);
         } else {
             cam.position.set(jugador.getX(), jugador.getY(), 0);
+        }
+        if(alphaDanio>0f){
+            alphaDanio-=dt*1.5f;
         }
         cam.update();
     }
@@ -315,6 +320,15 @@ public class Play extends GameState {
                 10f,
                 10f
             );
+        }
+
+        if(alpha > 0f){
+            fader.renderOverlay(cam, Color.WHITE, alpha);
+        }
+
+
+        if (alphaDanio > 0f) {
+            fader.renderOverlay(cam, Color.RED, alphaDanio);
         }
 
         sb.end();
