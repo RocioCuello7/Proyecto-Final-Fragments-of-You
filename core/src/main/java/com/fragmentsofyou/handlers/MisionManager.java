@@ -59,12 +59,16 @@ public class MisionManager {
     private Vector2 tp3;
     private Vector2 tp4;
 
-    public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3){
+    private DialogoManager dialogoManager;
+
+    public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3, DialogoManager dialogoManager){
         this.mapCollision=mapCollision;
         this.tp1=tp1;
         this.tp2 = tp2;
         this.tp3 = tp3;
-        this.tp4=tp4;
+
+
+        this.dialogoManager = dialogoManager;
 
         this.rectCama = mapCollision.obtenerRectanguloPorNombre("cama");
         this.rectLinterna =null;
@@ -74,23 +78,23 @@ public class MisionManager {
         this.rectFotoFinal=mapCollision.obtenerRectanguloPorNombre("fotoFinal");
         this.rectAbuela=mapCollision.obtenerRectanguloPorNombre("abuela");
 
-        this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false);
+        this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false, dialogoManager);
 
-        this.puertaPasilloTP2 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp2, false);
-        this.puertaSalidaTP1 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate1"), tp1, true);
+        this.puertaPasilloTP2 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp2, false, dialogoManager);
+        this.puertaSalidaTP1 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate1"), tp1, true, dialogoManager);
 
-        this.puertaSiguienteTP3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp3, true);
-        this.puertaSalidaCombate2= new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate2"),tp1,true);
+        this.puertaSiguienteTP3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp3, true, dialogoManager);
+        this.puertaSalidaCombate2 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate2"), tp1, true, dialogoManager);
 
-        this.puertaSiguienteTP4=new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"),tp4,true);
-        this.puertasalidaCombate3=new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate3"),tp1,true);
+        this.puertaSiguienteTP4 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaPasillo"), tp4, true, dialogoManager);
+        this.puertasalidaCombate3 = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertaSalidaCombate3"), tp1, true, dialogoManager);
     }
 
     public void update(float dt, Jugador jugador, Abuela abuela, ScreenFader fader, RayHandler rayHandler, AudioManager audio){
             Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
 
             if (abuelaPresente && abuela != null) {
-                abuela.update(dt, jugador.getX(), jugador.getY());
+                abuela.update(dt, jugador.getX(), jugador.getY(), jugador, dialogoManager);
 
                 if (abuela.isDialogoTerminado() && misionActual == EstadoMision.HABLAR_CON_ABUELA) {
                     misionActual = EstadoMision.IR_A_DORMIR;
@@ -117,13 +121,13 @@ public class MisionManager {
 
             if (misionActual == EstadoMision.EXPLORAR && !linternaRecolectada && rectLinterna != null) {
                 if (rectJugador.overlaps(rectLinterna) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                    if (!jugador.isMostrandoDialogo()) {
+                    if (!dialogoManager.isMostrandoDialogo()) {
                         String[] textoLinterna = new String[]{
                             "Encontré la linterna de la abuela.",
                             "Ahora debería poder alumbrar",
                             "en esta oscuridad."
                         };
-                        jugador.iniciarDialogoNota(textoLinterna);
+                        dialogoManager.iniciarDialogo(textoLinterna, jugador);
                         linternaRecolectada = true;
                         jugador.setLinternaHabilitada(true);
                     }
@@ -132,24 +136,25 @@ public class MisionManager {
 
             if (misionActual == EstadoMision.EXPLORAR && !notaLeida && rectNota != null) {
                 if (rectJugador.overlaps(rectNota) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                    if (!jugador.isMostrandoDialogo()) {
+                    if (!dialogoManager.isMostrandoDialogo()) {
                         String[] textoNota = new String[]{
                             "¿Qué es esto ... ?",
                             ". . . ",
                             " donde esta la           abuela ? "
                         };
-                        jugador.iniciarDialogoNota(textoNota);
+                        dialogoManager.iniciarDialogo(textoNota, jugador);
+                        notaLeida=true;
                     }
                 }
             }
 
-            if (jugador.isDialogoNotaTerminado() && puertaCasaTP.verificarYActivar(jugador, fader, objetoEncontrado)) {
+        if (!dialogoManager.isMostrandoDialogo() && puertaCasaTP.verificarYActivar(jugador, fader, objetoEncontrado)) {
                 esperandoTP = true;
                 timerDelayTP = TIEMPO_DELAY;
                 destinoActualTP = puertaCasaTP.getDestino();
             }
 
-            if (jugador.isDialogoNotaTerminado() && puertaPasilloTP2.verificarYActivar(jugador, fader, objetoEncontrado)) {
+        if (!dialogoManager.isMostrandoDialogo() && puertaPasilloTP2.verificarYActivar(jugador, fader, objetoEncontrado)) {
                 esperandoTP = true;
                 timerDelayTP = TIEMPO_DELAY;
                 if (objetoEncontrado) {
@@ -208,13 +213,13 @@ public class MisionManager {
 
             if (!objetoEncontrado && rectObjetoAbuela != null && rectJugador.overlaps(rectObjetoAbuela)) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                    if (!jugador.isMostrandoDialogo()) {
+                    if (!dialogoManager.isMostrandoDialogo()) {
                         String[] textoObjeto = new String[]{
                             "¡Encontré el cepillo de abuela!",
                             "Esto significa que ella debe",
                             "estar cerca... No me voy a rendir."
                         };
-                        jugador.iniciarDialogoNota(textoObjeto);
+                        dialogoManager.iniciarDialogo(textoObjeto, jugador);
                         objetoEncontrado = true;
                         puertaPasilloTP2.reset();
                         misionActual = EstadoMision.BUSCAR_SALIDA;
@@ -225,15 +230,16 @@ public class MisionManager {
 
             if (!espejoRecolectado && rectEspejoAbuela != null && rectJugador.overlaps(rectEspejoAbuela)) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                    if (!jugador.isMostrandoDialogo()) {
+                    if (!dialogoManager.isMostrandoDialogo()) {
                         String[] textoEspejo = new String[]{
                             "Encontré el espejo de la abuela . . .",
                             "Siento que la voy a encontrar pronto."
                         };
-                        jugador.iniciarDialogoNota(textoEspejo);
+                        dialogoManager.iniciarDialogo(textoEspejo, jugador);
                         espejoRecolectado = true;
                         puertaSiguienteTP3.reset();
                         misionActual = EstadoMision.BUSCAR_SALIDA;
+                        jugador.setVidaJugador(80);
                     }
                 }
             }
@@ -261,7 +267,7 @@ public class MisionManager {
     }
 
     public String getTextoIndicador(Jugador jugador){
-        if(jugador.isMostrandoDialogo()) return null;
+        if(dialogoManager.isMostrandoDialogo()) return null;
 
         Rectangle rectJugador=new Rectangle(jugador.getX()-8f, jugador.getY()-8f,16f,16f);
 

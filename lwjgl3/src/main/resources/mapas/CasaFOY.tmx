@@ -323,12 +323,12 @@
  </layer>
  <objectgroup id="9" name="interacciones">
   <object id="133" name="cama" x="966.667" y="861.667" width="65" height="56.3333"/>
-  <object id="135" name="nota-abuela" x="873.5" y="752.5" width="27" height="17.75"/>
+  <object id="135" name="nota-abuela" x="873" y="752.375" width="27" height="17.75"/>
   <object id="202" name="cepilloDientesAbuela" x="31.3333" y="927.333" width="18" height="15.3333"/>
   <object id="212" name="linternaGlenn" x="1040" y="880.182" width="15.8182" height="15.8182"/>
   <object id="241" name="espejoAbuela" x="302.5" y="320.25" width="17.75" height="16.5"/>
   <object id="245" name="fotoFinal" x="1039" y="128.5" width="16.5" height="16.5"/>
-  <object id="249" name="abuela" x="895.75" y="740.25" width="16.25" height="21.75"/>
+  <object id="249" name="abuela" x="899.625" y="744.25" width="10.75" height="12.75"/>
  </objectgroup>
  <objectgroup id="6" name="paredes y muebles">
   <object id="1" gid="27" x="526" y="144.667" width="16" height="16"/>

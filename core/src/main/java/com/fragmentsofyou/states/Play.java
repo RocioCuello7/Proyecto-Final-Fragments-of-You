@@ -41,6 +41,8 @@ public class Play extends GameState {
 
     private HUD hud;
     private AudioManager audio;
+    private DialogoManager dialogoManager;
+
     private Abuela abuela;
     private ScreenFader fader;
 
@@ -82,6 +84,7 @@ public class Play extends GameState {
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         combateManager = new CombateManager();
+        dialogoManager=new DialogoManager();
 
         Vector2 spawnAbuela = obtenerSpawnPorNombre("spawnAbuela", 220f, 220f);
 
@@ -99,7 +102,8 @@ public class Play extends GameState {
         Vector2 puntoDestinoTP2 = obtenerSpawnPorNombre("tp2", 700f, 400f);
         Vector2 puntoDestinoTP3 = obtenerSpawnPorNombre("tp3",900f,1000f);
 
-        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2,puntoDestinoTP3);
+
+        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2,puntoDestinoTP3,dialogoManager);
     }
 
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {
@@ -139,34 +143,27 @@ public class Play extends GameState {
 
         jugador.update(dt, mapCollision);
 
-        boolean dialogoEstabaActivo = jugador.isMostrandoDialogo();
-        misionManager.update(dt, jugador, abuela, fader, rayHandler,audio);
-
-        if (dialogoEstabaActivo && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.E)) {
-            jugador.avanzarDialogo();
-        }
+        dialogoManager.update(dt, jugador);
+        misionManager.update(dt, jugador, abuela, fader, rayHandler, audio);
 
         fader.update(dt);
 
         if(misionManager.debeSpawnarEnemigo() && enemigos.isEmpty() && !segundaOleadaSpawned){
-            Vector2 spawnEnemigo =obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
+            Vector2 spawnEnemigo = obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
             enemigos.add(new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador));
         }
 
         if(misionManager.isPrimerEnemigoDerrotado() && !segundaOleadaSpawned){
             segundaOleadaSpawned = true;
 
-            Vector2 spawn2 = obtenerSpawnPorNombre("spawnEnemigo2",200f,200f);
-            Vector2 spawn3 = obtenerSpawnPorNombre("spawnEnemigo3",250f,250f);
+            Vector2 spawn2 = obtenerSpawnPorNombre("spawnEnemigo2", 200f, 200f);
+            Vector2 spawn3 = obtenerSpawnPorNombre("spawnEnemigo3", 250f, 250f);
 
-            enemigos.add(new Mecento(spawn2.x,spawn2.y,jugador));
-            enemigos.add(new Mecento(spawn2.x + 15f ,spawn2.y,jugador));
+            enemigos.add(new Mecento(spawn2.x, spawn2.y, jugador));
+            enemigos.add(new Mecento(spawn2.x + 15f, spawn2.y, jugador));
 
-
-            enemigos.add(new Mecento(spawn3.x,spawn3.y,jugador));
-            enemigos.add(new Mecento(spawn3.x-15f,spawn3.y,jugador));
-
-
+            enemigos.add(new Mecento(spawn3.x, spawn3.y, jugador));
+            enemigos.add(new Mecento(spawn3.x - 15f, spawn3.y, jugador));
         }
 
         if (misionManager.debeSpawnarArgos() && !argosSpawned) {
@@ -183,6 +180,7 @@ public class Play extends GameState {
                 listaProyectilesOculares
             ));
         }
+
         for (int i = listaProyectilesOculares.size() - 1; i >= 0; i--) {
             ProyectilOcular p = listaProyectilesOculares.get(i);
             p.update(dt, mapCollision, jugador);
@@ -267,6 +265,7 @@ public class Play extends GameState {
             abuela.render(sb);
         }
 
+        dialogoManager.render(sb, jugador.getX(), jugador.getY());
 
         sb.end();
 
@@ -334,6 +333,7 @@ public class Play extends GameState {
         if(texturaNota!=null) texturaNota.dispose();
         if(texturaObjetoAbuela!=null) texturaObjetoAbuela.dispose();
         if (combateManager != null) combateManager.dispose();
+        if(dialogoManager!=null) dialogoManager.dispose();
         if (texturaLinterna != null) texturaLinterna.dispose();
         if (texturaEspejoAbuela != null) texturaEspejoAbuela.dispose();
 

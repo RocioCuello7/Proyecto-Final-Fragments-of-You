@@ -6,15 +6,17 @@ import com.badlogic.gdx.math.Vector2;
 import com.fragmentsofyou.entities.Jugador;
 
 public class ZonaTP {
+    private DialogoManager dialogoManager;
     private Rectangle area;
     private Vector2 destino;
     private boolean requiereObjeto;
     private boolean activada = false;
 
-    public ZonaTP(Rectangle area, Vector2 destino, boolean requiereObjeto) {
+    public ZonaTP(Rectangle area, Vector2 destino, boolean requiereObjeto, DialogoManager dialogoManager) {
         this.area = area;
         this.destino = destino;
         this.requiereObjeto = requiereObjeto;
+        this.dialogoManager = dialogoManager;
     }
 
     public boolean verificarYActivar(Jugador jugador, ScreenFader fader, boolean objetoEncontrado) {
@@ -24,8 +26,7 @@ public class ZonaTP {
 
         if (rectJugador.overlaps(area)) {
             if (requiereObjeto && !objetoEncontrado) {
-                if (!jugador.isMostrandoDialogo()) {
-
+                if (dialogoManager != null && !dialogoManager.isMostrandoDialogo()) {
                 }
                 return false;
             }
