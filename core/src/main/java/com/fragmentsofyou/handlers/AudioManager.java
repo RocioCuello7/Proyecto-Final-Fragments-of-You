@@ -10,6 +10,12 @@ public class AudioManager{
     private Sound sonidoDestello;
     private Sound sonidoDisparo;
     private Music musicaAngel;
+    public Sound agarrarObjeto;
+    public Sound bum;
+    public Sound disparo;
+    public Sound sonidoRaro;
+    private Music tvVieja;
+    public Sound Pasos;
 
     public AudioManager() {
         musicaAmbiente = Gdx.audio.newMusic(Gdx.files.internal("musica/Twin Peaks Theme (Instrumental).mp3"));
@@ -19,6 +25,32 @@ public class AudioManager{
         musicaAngel = Gdx.audio.newMusic(Gdx.files.internal("musica/Massive Attack - Angel Instrumental (1998) - CR055FIRE.mp3"));
         musicaAngel.setLooping(true);
         musicaAngel.setVolume(0.06f);
+
+        agarrarObjeto = Gdx.audio.newSound(
+            Gdx.files.internal("sonidos/agarrarObjeto.wav")
+        );
+
+        bum = Gdx.audio.newSound(
+            Gdx.files.internal("sonidos/bumm.mp3")
+        );
+
+        disparo = Gdx.audio.newSound(
+            Gdx.files.internal("sonidos/disparo.mp3")
+        );
+
+        sonidoRaro = Gdx.audio.newSound(
+            Gdx.files.internal("sonidos/Drone_1.wav")
+        );
+
+        tvVieja = Gdx.audio.newMusic(
+            Gdx.files.internal("sonidos/Old TV static - CSX2000.mp3")
+        );
+        tvVieja.setLooping(true);
+        tvVieja.setVolume(0.04f);
+
+        Pasos = Gdx.audio.newSound(
+            Gdx.files.internal("sonidos/Thick Carpet Step_6.wav")
+        );
 
         sonidoDestello = Gdx.audio.newSound(Gdx.files.internal("sonidos/destello.mp3"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("sonidos/disparo.mp3"));
@@ -39,6 +71,25 @@ public class AudioManager{
     public void pausarMusicaAmbiente() {
         if (musicaAmbiente != null && musicaAmbiente.isPlaying()) {
             musicaAmbiente.pause();
+        }
+    }
+
+    public void iniciarTvVieja() {
+        if (tvVieja != null && !tvVieja.isPlaying()) {
+            tvVieja.setLooping(true);
+            tvVieja.play();
+        }
+    }
+
+    public void pausarTvVieja() {
+        if (tvVieja != null && tvVieja.isPlaying()) {
+            tvVieja.pause();
+        }
+    }
+
+    public void detenerTvVieja() {
+        if (tvVieja != null && tvVieja.isPlaying()) {
+            tvVieja.stop();
         }
     }
 

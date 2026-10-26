@@ -154,6 +154,8 @@ public class Play extends GameState {
 
         fader.update(dt);
 
+        jugador.setAudioPasos(audio.Pasos);
+
         if(misionManager.debeSpawnarEnemigo() && enemigos.isEmpty() && !segundaOleadaSpawned){
             Vector2 spawnEnemigo = obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
             enemigos.add(new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador));
