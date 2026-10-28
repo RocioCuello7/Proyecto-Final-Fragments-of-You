@@ -4,6 +4,7 @@ import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -39,6 +40,13 @@ public class Jugador extends Entidad {
     private int impactosOcularesRecibidos = 0;
     private float tiempoRalentizadoOcular = 0f;
     private float tiempoInmovilOcular = 0f;
+
+    private float temporizadorPasos = 0f;
+    private float intervaloPasos = 0.35f;
+    private long idSonidoPasos = -1;
+
+    private Sound audioPasos;
+
 
     public Jugador(float startX, float startY, RayHandler rayHandler) {
         super(startX, startY, 10f, 10f, 90f, 100);
@@ -99,6 +107,27 @@ public class Jugador extends Entidad {
             velocidadActual = speed * 0.6f;
         }
         mover(dirX, dirY, velocidadActual, dt, mapCollision);
+        boolean caminando = puedoMoverme && (dirX != 0 || dirY != 0);
+
+        if (caminando) {
+            temporizadorPasos -= dt;
+
+            if (temporizadorPasos <= 0f) {
+                if (audioPasos != null) {
+                    idSonidoPasos = audioPasos.play();
+                    audioPasos.setVolume(idSonidoPasos, 0.25f);
+                }
+
+                temporizadorPasos = intervaloPasos;
+            }
+        } else {
+            temporizadorPasos = 0f;
+
+            if (audioPasos != null && idSonidoPasos != -1) {
+                audioPasos.stop(idSonidoPasos);
+                idSonidoPasos = -1;
+            }
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.R)) {
             linterna.recargar(dt);
@@ -162,6 +191,10 @@ public class Jugador extends Entidad {
             impactosOcularesRecibidos = 0;
             tiempoRalentizadoOcular = 0;
         }
+    }
+
+    public void setAudioPasos(Sound audioPasos) {
+        this.audioPasos = audioPasos;
     }
 
     public void setPuedoMoverme(boolean puedoMoverme) {

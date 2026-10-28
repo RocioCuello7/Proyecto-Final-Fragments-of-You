@@ -36,6 +36,7 @@ public class MisionManager {
     private Rectangle rectEspejoAbuela;
     private Rectangle rectFotoFinal;
     private Rectangle rectAbuela;
+    private Rectangle rectFragmentoShadox;
 
     private MapCollision mapCollision;
 
@@ -61,11 +62,19 @@ public class MisionManager {
 
     private DialogoManager dialogoManager;
 
-    public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3, DialogoManager dialogoManager){
+    private boolean tvIniciada = false;
+    private boolean droneNotaReproducido = false;
+
+    private boolean debeSpawnarShadox = false;
+    private boolean fragmentoShadoxRecolectado = false;
+    private boolean dialogoFragmentoIniciado = false;
+
+    public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3,Vector2 tp4, DialogoManager dialogoManager){
         this.mapCollision=mapCollision;
         this.tp1=tp1;
         this.tp2 = tp2;
         this.tp3 = tp3;
+        this.tp4 = tp4;
 
 
         this.dialogoManager = dialogoManager;
@@ -77,6 +86,7 @@ public class MisionManager {
         this.rectEspejoAbuela=mapCollision.obtenerRectanguloPorNombre("espejoAbuela");
         this.rectFotoFinal=mapCollision.obtenerRectanguloPorNombre("fotoFinal");
         this.rectAbuela=mapCollision.obtenerRectanguloPorNombre("abuela");
+        this.rectFragmentoShadox = mapCollision.obtenerRectanguloPorNombre("fragmentoShadox");
 
         this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false, dialogoManager);
 
@@ -92,6 +102,11 @@ public class MisionManager {
 
     public void update(float dt, Jugador jugador, Abuela abuela, ScreenFader fader, RayHandler rayHandler, AudioManager audio){
             Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
+
+            if (!tvIniciada) {
+                audio.iniciarTvVieja();
+                tvIniciada = true;
+            }
 
             if (abuelaPresente && abuela != null) {
                 abuela.update(dt, jugador.getX(), jugador.getY(), jugador, dialogoManager);
@@ -110,6 +125,10 @@ public class MisionManager {
 
             if (esperandoDespertar && fader.isFinished()) {
                 esperandoDespertar = false;
+
+                audio.detenerTvVieja();
+                audio.bum.play();
+
                 fader.startFlash(Color.BLACK, 2.0f);
                 misionActual = EstadoMision.EXPLORAR;
                 rayHandler.setAmbientLight(0.07f);
@@ -130,8 +149,20 @@ public class MisionManager {
                         dialogoManager.iniciarDialogo(textoLinterna, jugador);
                         linternaRecolectada = true;
                         jugador.setLinternaHabilitada(true);
+                        audio.agarrarObjeto.play();
                     }
                 }
+            }
+
+            if (misionActual == EstadoMision.EXPLORAR && !notaLeida && rectNota != null && rectJugador.overlaps(rectNota)) {
+
+                if (!droneNotaReproducido) {
+                    audio.sonidoRaro.play();
+                    droneNotaReproducido = true;
+                }
+
+            } else {
+                droneNotaReproducido = false;
             }
 
             if (misionActual == EstadoMision.EXPLORAR && !notaLeida && rectNota != null) {
@@ -148,7 +179,7 @@ public class MisionManager {
                 }
             }
 
-        if (!dialogoManager.isMostrandoDialogo() && puertaCasaTP.verificarYActivar(jugador, fader, objetoEncontrado)) {
+        if (misionActual == EstadoMision.EXPLORAR && !dialogoManager.isMostrandoDialogo() && puertaCasaTP.verificarYActivar(jugador, fader, objetoEncontrado)) {
                 esperandoTP = true;
                 timerDelayTP = TIEMPO_DELAY;
                 destinoActualTP = puertaCasaTP.getDestino();
@@ -224,6 +255,7 @@ public class MisionManager {
                         puertaPasilloTP2.reset();
                         misionActual = EstadoMision.BUSCAR_SALIDA;
                         jugador.setVidaJugador(80);
+                        audio.agarrarObjeto.play();
                     }
                 }
             }
@@ -240,6 +272,7 @@ public class MisionManager {
                         puertaSiguienteTP3.reset();
                         misionActual = EstadoMision.BUSCAR_SALIDA;
                         jugador.setVidaJugador(80);
+                        audio.agarrarObjeto.play();
                     }
                 }
             }
@@ -257,6 +290,34 @@ public class MisionManager {
                 esperandoTP = true;
                 timerDelayTP = TIEMPO_DELAY;
                 destinoActualTP = tp1;
+            }
+
+        if (misionActual == EstadoMision.FASES_FINALES && !fragmentoShadoxRecolectado && rectFragmentoShadox != null
+            && rectJugador.overlaps(rectFragmentoShadox)) {
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                if (!dialogoManager.isMostrandoDialogo()) {
+
+                    String[] textoFragmento = {
+                        ". . .",
+                        "Siento una presencia extraña.",
+                        ". . ."
+                    };
+
+                    dialogoManager.iniciarDialogo(textoFragmento, jugador);
+
+                    fragmentoShadoxRecolectado = true;
+                    dialogoFragmentoIniciado = true;
+
+                    audio.agarrarObjeto.play();
+                }
+            }
+        }
+
+            if (dialogoFragmentoIniciado && dialogoManager.isDialogoTerminado()) {
+                dialogoFragmentoIniciado = false;
+                debeSpawnarShadox = true;
+                misionActual = EstadoMision.COMBATE_FINAL;
             }
 
             if (jefeDerrotado && !fotoFinalRecolectada && rectFotoFinal != null && rectJugador.overlaps(rectFotoFinal)) {
@@ -311,6 +372,18 @@ public class MisionManager {
             return "[F] Activar linterna";
         }
         return null;
+    }
+
+    public boolean debeSpawnarShadox() {
+        return debeSpawnarShadox;
+    }
+
+    public void setDebeSpawnarShadox(boolean debeSpawnar) {
+        this.debeSpawnarShadox = debeSpawnar;
+    }
+
+    public Rectangle getRectFragmentoShadox() {
+        return rectFragmentoShadox;
     }
 
     public boolean debeSpawnarArgos() {

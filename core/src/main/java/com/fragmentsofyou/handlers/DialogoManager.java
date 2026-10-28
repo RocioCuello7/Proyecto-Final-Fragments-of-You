@@ -140,8 +140,8 @@ public class DialogoManager {
         float anchoGlobo = anchoTexto + (paddingX * 2f);
         float altoGlobo = altoTexto + (paddingY * 2f) + 15f;
 
-        float posX = usarPosicionPersonalizada ? targetX : jugadorX;
-        float posY = usarPosicionPersonalizada ? targetY : (jugadorY + 18f);
+        float posX = jugadorX;
+        float posY = jugadorY -30f;
 
         float globoX = posX - (anchoGlobo / 2f);
         float globoY = posY;

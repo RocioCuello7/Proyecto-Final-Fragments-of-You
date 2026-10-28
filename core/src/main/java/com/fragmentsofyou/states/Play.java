@@ -66,6 +66,9 @@ public class Play extends GameState {
     private int vidaAnteriorJugador;
     private float alphaDanio=0f;
 
+    private Shadox shadox;
+    private boolean shadoxSpawned = false;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -108,9 +111,10 @@ public class Play extends GameState {
         Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
         Vector2 puntoDestinoTP2 = obtenerSpawnPorNombre("tp2", 700f, 400f);
         Vector2 puntoDestinoTP3 = obtenerSpawnPorNombre("tp3",900f,1000f);
+        Vector2 puntoDestinoTP4 = obtenerSpawnPorNombre("tp4",900f,1000f);
 
 
-        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2,puntoDestinoTP3,dialogoManager);
+        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2,puntoDestinoTP3,puntoDestinoTP4,dialogoManager);
     }
 
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {
@@ -155,6 +159,9 @@ public class Play extends GameState {
 
         fader.update(dt);
 
+
+        jugador.setAudioPasos(audio.Pasos);
+
         if(misionManager.debeSpawnarEnemigo() && enemigos.isEmpty() && !segundaOleadaSpawned){
             Vector2 spawnEnemigo = obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
             enemigos.add(new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador));
@@ -185,6 +192,20 @@ public class Play extends GameState {
                 spawnArgos.y,
                 jugador,
                 listaProyectilesOculares
+            ));
+        }
+
+        if (misionManager.debeSpawnarShadox() && !shadoxSpawned) {
+            shadoxSpawned = true;
+
+            Vector2 spawnShadox = obtenerSpawnPorNombre(
+                "spawnShadox", 400f, 200f
+            );
+
+            enemigos.add(new Shadox(
+                spawnShadox.x,
+                spawnShadox.y,
+                jugador
             ));
         }
 
