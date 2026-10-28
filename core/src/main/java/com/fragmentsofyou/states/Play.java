@@ -65,6 +65,9 @@ public class Play extends GameState {
     private float intensidadTemblor=0f;
     private int vidaAnteriorJugador;
 
+    private Shadox shadox;
+    private boolean shadoxSpawned = false;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -155,6 +158,7 @@ public class Play extends GameState {
 
         fader.update(dt);
 
+
         jugador.setAudioPasos(audio.Pasos);
 
         if(misionManager.debeSpawnarEnemigo() && enemigos.isEmpty() && !segundaOleadaSpawned){
@@ -187,6 +191,20 @@ public class Play extends GameState {
                 spawnArgos.y,
                 jugador,
                 listaProyectilesOculares
+            ));
+        }
+
+        if (misionManager.debeSpawnarShadox() && !shadoxSpawned) {
+            shadoxSpawned = true;
+
+            Vector2 spawnShadox = obtenerSpawnPorNombre(
+                "spawnShadox", 400f, 200f
+            );
+
+            enemigos.add(new Shadox(
+                spawnShadox.x,
+                spawnShadox.y,
+                jugador
             ));
         }
 

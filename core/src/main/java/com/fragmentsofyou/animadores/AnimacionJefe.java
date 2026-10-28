@@ -26,7 +26,7 @@ public class AnimacionJefe{
         animaciones.put(EstadoJefe.IDLE,
             crear(0, 0, 4, 0.15f, Animation.PlayMode.LOOP));
         animaciones.put(EstadoJefe.ATAQUE,
-            crear(2, 2, 9, 0.10f, Animation.PlayMode.NORMAL));
+            crear(6, 5, 9, 0.10f, Animation.PlayMode.NORMAL));
         animaciones.put(EstadoJefe.DESAPARECER,
             crear(4, 5, 9, 0.12f, Animation.PlayMode.NORMAL));
         animaciones.put(EstadoJefe.APARECER,

@@ -36,6 +36,7 @@ public class MisionManager {
     private Rectangle rectEspejoAbuela;
     private Rectangle rectFotoFinal;
     private Rectangle rectAbuela;
+    private Rectangle rectFragmentoShadox;
 
     private MapCollision mapCollision;
 
@@ -64,6 +65,10 @@ public class MisionManager {
     private boolean tvIniciada = false;
     private boolean droneNotaReproducido = false;
 
+    private boolean debeSpawnarShadox = false;
+    private boolean fragmentoShadoxRecolectado = false;
+    private boolean dialogoFragmentoIniciado = false;
+
     public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3,Vector2 tp4, DialogoManager dialogoManager){
         this.mapCollision=mapCollision;
         this.tp1=tp1;
@@ -81,6 +86,7 @@ public class MisionManager {
         this.rectEspejoAbuela=mapCollision.obtenerRectanguloPorNombre("espejoAbuela");
         this.rectFotoFinal=mapCollision.obtenerRectanguloPorNombre("fotoFinal");
         this.rectAbuela=mapCollision.obtenerRectanguloPorNombre("abuela");
+        this.rectFragmentoShadox = mapCollision.obtenerRectanguloPorNombre("fragmentoShadox");
 
         this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false, dialogoManager);
 
@@ -148,10 +154,7 @@ public class MisionManager {
                 }
             }
 
-            if (misionActual == EstadoMision.EXPLORAR
-                && !notaLeida
-                && rectNota != null
-                && rectJugador.overlaps(rectNota)) {
+            if (misionActual == EstadoMision.EXPLORAR && !notaLeida && rectNota != null && rectJugador.overlaps(rectNota)) {
 
                 if (!droneNotaReproducido) {
                     audio.sonidoRaro.play();
@@ -289,6 +292,34 @@ public class MisionManager {
                 destinoActualTP = tp1;
             }
 
+        if (misionActual == EstadoMision.FASES_FINALES && !fragmentoShadoxRecolectado && rectFragmentoShadox != null
+            && rectJugador.overlaps(rectFragmentoShadox)) {
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                if (!dialogoManager.isMostrandoDialogo()) {
+
+                    String[] textoFragmento = {
+                        ". . .",
+                        "Siento una presencia extraña.",
+                        ". . ."
+                    };
+
+                    dialogoManager.iniciarDialogo(textoFragmento, jugador);
+
+                    fragmentoShadoxRecolectado = true;
+                    dialogoFragmentoIniciado = true;
+
+                    audio.agarrarObjeto.play();
+                }
+            }
+        }
+
+            if (dialogoFragmentoIniciado && dialogoManager.isDialogoTerminado()) {
+                dialogoFragmentoIniciado = false;
+                debeSpawnarShadox = true;
+                misionActual = EstadoMision.COMBATE_FINAL;
+            }
+
             if (jefeDerrotado && !fotoFinalRecolectada && rectFotoFinal != null && rectJugador.overlaps(rectFotoFinal)) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                     fotoFinalRecolectada = true;
@@ -341,6 +372,18 @@ public class MisionManager {
             return "[F] Activar linterna";
         }
         return null;
+    }
+
+    public boolean debeSpawnarShadox() {
+        return debeSpawnarShadox;
+    }
+
+    public void setDebeSpawnarShadox(boolean debeSpawnar) {
+        this.debeSpawnarShadox = debeSpawnar;
+    }
+
+    public Rectangle getRectFragmentoShadox() {
+        return rectFragmentoShadox;
     }
 
     public boolean debeSpawnarArgos() {
