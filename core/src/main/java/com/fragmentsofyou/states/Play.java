@@ -107,9 +107,10 @@ public class Play extends GameState {
         Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
         Vector2 puntoDestinoTP2 = obtenerSpawnPorNombre("tp2", 700f, 400f);
         Vector2 puntoDestinoTP3 = obtenerSpawnPorNombre("tp3",900f,1000f);
+        Vector2 puntoDestinoTP4 = obtenerSpawnPorNombre("tp4",900f,1000f);
 
 
-        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2,puntoDestinoTP3,dialogoManager);
+        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2,puntoDestinoTP3,puntoDestinoTP4,dialogoManager);
     }
 
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {

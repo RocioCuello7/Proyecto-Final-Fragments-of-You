@@ -64,11 +64,12 @@ public class MisionManager {
     private boolean tvIniciada = false;
     private boolean droneNotaReproducido = false;
 
-    public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3, DialogoManager dialogoManager){
+    public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3,Vector2 tp4, DialogoManager dialogoManager){
         this.mapCollision=mapCollision;
         this.tp1=tp1;
         this.tp2 = tp2;
         this.tp3 = tp3;
+        this.tp4 = tp4;
 
 
         this.dialogoManager = dialogoManager;
