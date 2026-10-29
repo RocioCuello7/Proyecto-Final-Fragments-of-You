@@ -20,6 +20,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.entities.*;
+import com.fragmentsofyou.enumeradores.EstadoMision;
 import com.fragmentsofyou.handlers.*;
 
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public class Play extends GameState {
     private Texture texturaObjetoAbuela;
     private Texture texturaLinterna;
     private Texture texturaEspejoAbuela;
+    private Texture texturaTazaAbuela;
+    private Texture texturaFotoFinal;
 
     private ArrayList<Enemigo> enemigos = new ArrayList<>();
     private boolean segundaOleadaSpawned = false;
@@ -106,16 +109,16 @@ public class Play extends GameState {
         texturaObjetoAbuela=new Texture(Gdx.files.internal("mapas/cepilloDientesAbuela.png"));
         texturaLinterna=new Texture(Gdx.files.internal("mapas/linternaGlenn.png"));
         texturaEspejoAbuela=new Texture(Gdx.files.internal("mapas/espejoAbuela.png"));
-
+        texturaTazaAbuela = new Texture(Gdx.files.internal("mapas/tazaAbuela.png"));
+        texturaFotoFinal = new Texture(Gdx.files.internal("mapas/fotoFinal.png"));
 
         Vector2 puntoDestinoTP = obtenerSpawnPorNombre("tp1", 500f, 300f);
         Vector2 puntoDestinoTP2 = obtenerSpawnPorNombre("tp2", 700f, 400f);
         Vector2 puntoDestinoTP3 = obtenerSpawnPorNombre("tp3",900f,1000f);
         Vector2 puntoDestinoTP4 = obtenerSpawnPorNombre("tp4",900f,1000f);
+        Vector2 puntoCasaFinal = obtenerSpawnPorNombre("spawnCasa", 160f, 90f);
 
-
-        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2,puntoDestinoTP3,puntoDestinoTP4,dialogoManager);
-    }
+        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2, puntoDestinoTP3, puntoDestinoTP4, puntoCasaFinal, dialogoManager);    }
 
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {
         for (int i = 0; i < map.getLayers().getCount(); i++) {
@@ -197,6 +200,7 @@ public class Play extends GameState {
 
         if (misionManager.debeSpawnarShadox() && !shadoxSpawned) {
             shadoxSpawned = true;
+            rayHandler.setAmbientLight(0.05f);
 
             Vector2 spawnShadox = obtenerSpawnPorNombre(
                 "spawnShadox", 400f, 200f
@@ -205,7 +209,8 @@ public class Play extends GameState {
             enemigos.add(new Shadox(
                 spawnShadox.x,
                 spawnShadox.y,
-                jugador
+                jugador,
+                listaProyectilesOculares
             ));
         }
 
@@ -225,6 +230,13 @@ public class Play extends GameState {
             if (e.isMuerto()) {
                 if (!segundaOleadaSpawned) {
                     misionManager.setPrimerEnemigoDerrotado(true);
+                }
+                if (e instanceof Shadox) {
+                    misionManager.setJefeDerrotado(true);
+                    rayHandler.setAmbientLight(0.35f);
+
+                    audio.pausarMusicaAngel();
+                    audio.iniciarMusicaAmbiente();
                 }
                 enemigos.remove(i);
             }
@@ -275,8 +287,8 @@ public class Play extends GameState {
 
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
-        if(!misionManager.isAbuelaPresente() && misionManager.getRectNota() != null){
-            Rectangle rNota=misionManager.getRectNota();
+        if(misionManager.getMisionActual() == EstadoMision.EXPLORAR && !misionManager.isAbuelaPresente() && misionManager.getRectNota() != null){
+            Rectangle rNota = misionManager.getRectNota();
             sb.draw(texturaNota, rNota.x, rNota.y);
         }
         if(!misionManager.isObjetoEncontrado() && misionManager.getRectObjetoAbuela() != null){
@@ -293,9 +305,20 @@ public class Play extends GameState {
             sb.draw(texturaEspejoAbuela, rEspejo.x, rEspejo.y);
         }
 
+        if (!misionManager.isTazaAbuelaRecolectada() && misionManager.getRectTazaAbuela() != null) {
+            Rectangle rTaza = misionManager.getRectTazaAbuela();
+            sb.draw(texturaTazaAbuela, rTaza.x, rTaza.y);
+        }
+
+        if (misionManager.isJefeDerrotado() && !misionManager.isFotoFinalRecolectada() && misionManager.getRectFotoFinal() != null) {
+            Rectangle rFoto = misionManager.getRectFotoFinal();
+            sb.draw(texturaFotoFinal, rFoto.x, rFoto.y);
+        }
+
         if (!jugador.isMuerto()) {
             jugador.render(sb);
         }
+
         for (Enemigo e : enemigos) {
             if (!e.isMuerto()) {
                 e.render(sb);
@@ -391,6 +414,8 @@ public class Play extends GameState {
         if(dialogoManager!=null) dialogoManager.dispose();
         if (texturaLinterna != null) texturaLinterna.dispose();
         if (texturaEspejoAbuela != null) texturaEspejoAbuela.dispose();
+        if (texturaTazaAbuela != null) texturaTazaAbuela.dispose();
+        if (texturaFotoFinal != null) texturaFotoFinal.dispose();
 
         ProyectilOcular.dispose();
 
