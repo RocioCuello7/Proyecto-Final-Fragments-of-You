@@ -187,6 +187,9 @@ public class MisionManager {
                 esperandoTP = true;
                 timerDelayTP = TIEMPO_DELAY;
                 destinoActualTP = puertaCasaTP.getDestino();
+
+                audio.pausarMusicaAmbiente();
+                audio.iniciarMusicaAngel();
             }
 
         if (!dialogoManager.isMostrandoDialogo() && puertaPasilloTP2.verificarYActivar(jugador, fader, objetoEncontrado)) {
@@ -232,8 +235,7 @@ public class MisionManager {
                     }
                     fader.startFlash(Color.BLACK, 2.0f);
                     jugador.setPuedoMoverme(true);
-                    audio.pausarMusicaAmbiente();
-                    audio.iniciarMusicaAngel();
+
                 }
             }
 
@@ -296,7 +298,8 @@ public class MisionManager {
                     timerDelayTP = TIEMPO_DELAY;
                     destinoActualTP = tpCasaFinal;
 
-                    misionActual=EstadoMision.FINAL;
+                    misionActual=EstadoMision.CASA;
+
                 }
             }
 
@@ -341,9 +344,11 @@ public class MisionManager {
                     dialogoManager.iniciarDialogo(textoFinalFoto, jugador);
                     fotoFinalRecolectada = true;
 
+                    jugador.setVidaJugador(80);
                     misionActual = EstadoMision.BUSCAR_SALIDA;
 
                     audio.agarrarObjeto.play();
+
                 }
             }
     }

@@ -8,7 +8,7 @@ public enum EstadoMision {
     COMBATE_Y_BUSQUEDA("Objetivo: Enfrenta al enemigo y encuentra el fragmento..."),
     BUSCAR_SALIDA("Objetivo: Busca la salida hacia la siguiente zona"),
     EXPLORAR_PASILLO("Objetivo: Explora el pasillo"),
-    FINAL("Objetivo: ? ? ?");
+    CASA("Volviste a. . . casa?");
 
     private final String textoObjetivo;
 
