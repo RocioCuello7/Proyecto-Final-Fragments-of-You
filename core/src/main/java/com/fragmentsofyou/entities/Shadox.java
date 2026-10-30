@@ -1,6 +1,7 @@
 package com.fragmentsofyou.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -26,7 +27,7 @@ public class Shadox extends Enemigo{
     private boolean teletransportandose=false;
 
     public Shadox(float startX, float startY, Entidad objetivo, ArrayList<ProyectilOcular> proyectiles) {
-        super(startX, startY, 24f, 24f, 40f, 1, 15f, 28f, 1.2f, objetivo);
+        super(startX, startY, 24f, 24f, 40f, 50, 10f, 28f, 1.2f, objetivo);
 
         animador = new AnimacionJefe("enemigos/Shadox.png");
         this.listaProyectiles=proyectiles;
@@ -147,6 +148,14 @@ public class Shadox extends Enemigo{
 
     @Override
     public void render(SpriteBatch sb) {
+        if (tiempoDanio > 0f) {
+            sb.setColor(1f, 0.2f, 0.2f, 1f);
+        } else if (tiempoAturdido > 0f) {
+            sb.setColor(0.3f, 0.7f, 1f, 1f);
+        } else if (tiempoRelentizado > 0f) {
+            sb.setColor(1f, 0.85f, 0.3f, 1f);
+        }
+
         sb.draw(
             animador.getCurrentFrame(),
             x - 16f,
@@ -154,6 +163,8 @@ public class Shadox extends Enemigo{
             32f,
             32f
         );
+
+        sb.setColor(Color.WHITE);
     }
 
     @Override
