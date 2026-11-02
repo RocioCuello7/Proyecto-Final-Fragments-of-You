@@ -2,6 +2,27 @@
 
 Todos los cambios significativos del proyecto serán documentados en este archivo.
 
+## [0.8.0] - 2026-11-02
+
+### Agregado
+- **Nuevo enemigo Argos:** Implementación de la clase `Argos`, animaciones en dos direcciones (`Animacion2Direcciones`), ataque cuerpo a cuerpo y sistema de proyectiles oculares (`ProyectilOcular`) con cálculo de desviación y colisiones precisas.
+- **Jefe final (Shadox):** Creación de la entidad `Shadox`, su animador dedicado, patrones de ataque avanzados, nota narrativa previa al combate y estructuración completa del flujo de endgame.
+- **Sistema de audio y efectos:** Integración de nueva música ambiental y un paquete de 5 efectos de sonido personalizados con control de pistas dinámicas.
+- **Efectos visuales y de estado (Feedback de daño):** Implementación del efecto de temblor en pantalla (pánico) por daño recibido, fundido en rojo y cambio dinámico de color en el jefe al ser impactado.
+- **Gestión centralizada de diálogos:** Creación de la clase `DialogoManager` para un mejor control y modularidad de las conversaciones.
+- **Sistema de indicadores visuales:** Incorporación de indicadores en pantalla para agilizar la interacción con elementos del entorno.
+- **Expansión de coleccionables y mapas:** Adición del espejo de la abuela, la foto final post-combate y nuevos puntos de teletransporte (`tp4`) configurados en Tiled.
+- **Desbloqueo de habilidades:** Activación automática de la habilidad de destello de la linterna al ingresar a las salas de combate avanzado.
+
+### Modificado
+- **Flujo de misiones y progresión:** Actualización y reestructuración de los estados de misión para las transiciones hacia el enfrentamiento final y las misiones de búsqueda del espejo.
+- **Mecánicas de curación:** Ajustes en los objetos de apoyo (como el cepillo de dientes) para permitir la recuperación de vida de Glenn.
+- **Configuración de entornos y spawns:** Optimización de puntos de aparición (`spawnCasa`) y revisión de colisiones en los mapas de Tiled.
+
+### Corregido
+- Solución de bugs críticos en el ataque a distancia de Argos y en los tiempos de enfriamiento y uso de la sobrecarga de la linterna.
+- Corrección en el manejo de pantallas de Game Over y sincronización de tránsitos de audio y pausas musicales.
+
 ## [0.7.0] - 2026-10-13
 
 ### Agregado
