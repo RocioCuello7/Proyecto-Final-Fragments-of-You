@@ -27,7 +27,7 @@ public class Shadox extends Enemigo{
     private boolean teletransportandose=false;
 
     public Shadox(float startX, float startY, Entidad objetivo, ArrayList<ProyectilOcular> proyectiles) {
-        super(startX, startY, 24f, 24f, 40f, 50, 10f, 28f, 1.2f, objetivo);
+        super(startX, startY, 24f, 24f, 40f, 300, 10f, 28f, 1.2f, objetivo);
 
         animador = new AnimacionJefe("enemigos/Shadox.png");
         this.listaProyectiles=proyectiles;

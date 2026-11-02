@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fragmentsofyou.elementos.BarraJefe;
 import com.fragmentsofyou.entities.*;
 import com.fragmentsofyou.enumeradores.EstadoMision;
 import com.fragmentsofyou.handlers.*;
@@ -72,6 +73,8 @@ public class Play extends GameState {
     private Shadox shadox;
     private boolean shadoxSpawned = false;
 
+    private BarraJefe barraJefe;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -118,7 +121,11 @@ public class Play extends GameState {
         Vector2 puntoDestinoTP4 = obtenerSpawnPorNombre("tp4",900f,1000f);
         Vector2 puntoCasaFinal = obtenerSpawnPorNombre("spawnCasa", 160f, 90f);
 
-        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2, puntoDestinoTP3, puntoDestinoTP4, puntoCasaFinal, dialogoManager);    }
+        misionManager = new MisionManager(mapCollision, puntoDestinoTP, puntoDestinoTP2, puntoDestinoTP3, puntoDestinoTP4, puntoCasaFinal, dialogoManager);
+
+        barraJefe = new BarraJefe("barras/bossFrame.png", "barras/bossFill.png",
+            160, 162, 150, 16);
+    }
 
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {
         for (int i = 0; i < map.getLayers().getCount(); i++) {
@@ -206,12 +213,16 @@ public class Play extends GameState {
                 "spawnShadox", 400f, 200f
             );
 
-            enemigos.add(new Shadox(
+            shadox = new Shadox(
                 spawnShadox.x,
                 spawnShadox.y,
                 jugador,
                 listaProyectilesOculares
-            ));
+            );
+
+            enemigos.add(shadox);
+
+            hud.mostrarBarraJefe(shadox);
         }
 
         for (int i = listaProyectilesOculares.size() - 1; i >= 0; i--) {
@@ -349,6 +360,7 @@ public class Play extends GameState {
         sb.setProjectionMatrix(cam.combined.cpy().setToOrtho2D(0, 0, cam.viewportWidth, cam.viewportHeight));
         sb.begin();
 
+
         hud.renderFuenteObjetivo(
             sb,
             misionManager.getMisionActual().getTextoObjetivo(),
@@ -416,6 +428,10 @@ public class Play extends GameState {
         if (texturaEspejoAbuela != null) texturaEspejoAbuela.dispose();
         if (texturaTazaAbuela != null) texturaTazaAbuela.dispose();
         if (texturaFotoFinal != null) texturaFotoFinal.dispose();
+        if (barraJefe != null) {
+            barraJefe.dispose();
+        }
+
 
         ProyectilOcular.dispose();
 

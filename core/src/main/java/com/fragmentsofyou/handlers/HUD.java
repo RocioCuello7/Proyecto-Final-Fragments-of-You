@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fragmentsofyou.elementos.BarraJefe;
 import com.fragmentsofyou.entities.Jugador;
+import com.fragmentsofyou.entities.Shadox;
 
 public class HUD {
 
@@ -20,6 +22,9 @@ public class HUD {
     private ShapeRenderer shapeRenderer;
 
     private BitmapFont fuentePixel;
+
+    private BarraJefe barraJefe;
+    private Shadox shadox;
 
     public HUD() {
         hudCam = new OrthographicCamera();
@@ -84,7 +89,31 @@ public class HUD {
 
         font.draw(sb, vidaAct + "/" + vidaMax, 90, 173);
         font.draw(sb, enAct + "/" + enMax, 90, 165);
+
+        if (shadox != null && !shadox.isMuerto() && barraJefe != null) {
+            barraJefe.render(
+                sb,
+                shadox.getVidaActual(),
+                shadox.getVidaMax()
+            );
+        }
         sb.end();
+    }
+
+    public void mostrarBarraJefe(Shadox shadox) {
+        this.shadox = shadox;
+
+        if (barraJefe == null) {
+            barraJefe = new BarraJefe(
+                "barras/bossFrame.png",
+                "barras/bossFill.png",
+                160, 162, 150, 16
+            );
+        }
+    }
+
+    public void ocultarBarraJefe() {
+        shadox = null;
     }
 
     public void renderFuenteObjetivo(SpriteBatch sb, String textoObjetivo, float x, float y) {
