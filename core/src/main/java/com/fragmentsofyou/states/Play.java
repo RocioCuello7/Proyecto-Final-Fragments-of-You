@@ -2,6 +2,7 @@ package com.fragmentsofyou.states;
 
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -75,6 +76,9 @@ public class Play extends GameState {
 
     private BarraJefe barraJefe;
 
+    private boolean pruebaJefeActivada = false;
+
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -127,6 +131,20 @@ public class Play extends GameState {
             160, 162, 150, 16);
     }
 
+    private void iniciarPruebaShadox() {
+        Vector2 spawn = obtenerSpawnPorNombre("spawnShadox", 400f, 200f);
+
+        jugador.setPosition(spawn.x - 40f, spawn.y);
+
+        enemigos.clear();
+        listaProyectilesOculares.clear();
+
+        pruebaJefeActivada = true;
+        shadoxSpawned = false;
+        misionManager.activarCombateFinalPrueba();
+    }
+
+
     private Vector2 obtenerSpawnPorNombre(String nombreSpawn, float xDefecto, float yDefecto) {
         for (int i = 0; i < map.getLayers().getCount(); i++) {
             MapLayer capa = map.getLayers().get(i);
@@ -156,6 +174,10 @@ public class Play extends GameState {
     @Override
     public void handleInput() {
         jugador.handleInput(playView);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F9)
+            && !pruebaJefeActivada) {
+            iniciarPruebaShadox();
+        }
     }
 
     @Override

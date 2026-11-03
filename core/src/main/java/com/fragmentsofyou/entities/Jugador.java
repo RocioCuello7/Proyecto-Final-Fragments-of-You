@@ -242,6 +242,11 @@ public class Jugador extends Entidad {
         }
     }
 
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public void setDestelloHabilitado(boolean destelloHabilitado) {
         this.destelloHabilitado = destelloHabilitado;
     }

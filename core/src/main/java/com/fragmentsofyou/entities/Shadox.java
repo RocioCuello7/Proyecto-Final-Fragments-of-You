@@ -20,11 +20,14 @@ public class Shadox extends Enemigo{
     private boolean atacando = false;
     private boolean impactoAplicado = false;
     private float tiempoAtaque = 0f;
-    private static final float MOMENTO_IMPACTO = 0.45f;
+    private static final float MOMENTO_IMPACTO = 0.35f;
 
     private float temporizadorHabilidad = 0f;
-    private float intervaloHabilidad=3.5f;
+    private float intervaloHabilidad=2.8f;
     private boolean teletransportandose=false;
+
+    private int faseActual = 1;
+    private int distanciaAtaqueObligatoria=100;
 
     public Shadox(float startX, float startY, Entidad objetivo, ArrayList<ProyectilOcular> proyectiles) {
         super(startX, startY, 24f, 24f, 40f, 300, 10f, 28f, 1.2f, objetivo);
@@ -40,31 +43,58 @@ public class Shadox extends Enemigo{
         if (isMuerto()) {
             return;
         }
+        actualizarFase();
+        actualizarVelocidadAtaque();
 
-        if(!atacando && !teletransportandose && objetivo != null){
-            temporizadorHabilidad+=dt;
-            if(temporizadorHabilidad>=intervaloHabilidad){
-                temporizadorHabilidad=0f;
-                float decision= MathUtils.random();
+        if (!atacando && !teletransportandose && objetivo != null) {
+            temporizadorHabilidad += dt;
 
-                if(decision<0.35f){
-                    iniciarTeletransporte();
-                }else if(decision<0.70f){
-                    dispararCeguera();
-                }else{
-                    atacar();
+            if (temporizadorHabilidad >= intervaloHabilidad) {
+                temporizadorHabilidad = 0f;
+
+                float dx = objetivo.getX() - x;
+                float dy = objetivo.getY() - y;
+                float distancia = (float) Math.sqrt(dx * dx + dy * dy);
+
+                if (faseActual == 1) {
+                    if (distancia <= rangoAtaque) {
+                        atacar();
+                    }
+                }
+
+                else {
+                    if (distancia > distanciaAtaqueObligatoria) {
+                        dispararCeguera();
+                    }
+                    else if (distancia <= rangoAtaque) {
+                        atacar();
+                    }
+                    else {
+                        float decision = MathUtils.random();
+
+                        if (decision < 0.5f) {
+                            iniciarTeletransporte();
+                        } else {
+                            dispararCeguera();
+                        }
+                    }
                 }
             }
         }
 
         if(teletransportandose){
             animador.update(dt,dirX);
-            if(animador.getEstado() == EstadoJefe.DESAPARECER && animador.terminoAnimacion()){
-                x=objetivo.getX() + MathUtils.random(-50f,50f);
-                y=objetivo.getY() + MathUtils.random(-50f,50f);
+            if (animador.getEstado() == EstadoJefe.DESAPARECER
+                && animador.terminoAnimacion()) {
+
+                buscarPosicionSegura(mapCollision);
+
                 animador.setEstado(EstadoJefe.APARECER);
-            }else if(animador.getEstado() == EstadoJefe.APARECER && animador.terminoAnimacion()){
-                teletransportandose=false;
+
+            } else if (animador.getEstado() == EstadoJefe.APARECER
+                && animador.terminoAnimacion()) {
+
+                teletransportandose = false;
                 animador.setEstado(EstadoJefe.IDLE);
             }
             return;
@@ -110,9 +140,50 @@ public class Shadox extends Enemigo{
         animador.update(dt, dirX);
     }
 
+    private void actualizarFase() {
+        float porcentajeVida = (float)vidaActual / vidaMax;
+
+        if (porcentajeVida <= 0.33f) {
+            faseActual = 3;
+        } else if (porcentajeVida <= 0.66f) {
+            faseActual = 2;
+        } else {
+            faseActual = 1;
+        }
+    }
+
+    private void actualizarVelocidadAtaque() {
+        if (faseActual == 3) {
+            cooldownTotal = 1.2f / 1.5f;
+            speed = 40f * 1.4f;
+        } else {
+            cooldownTotal = 1.2f;
+            speed = 40f;
+        }
+    }
+
     private void iniciarTeletransporte(){
         teletransportandose=true;
         animador.setEstado(EstadoJefe.DESAPARECER);
+    }
+
+    private boolean buscarPosicionSegura(MapCollision mapCollision) {
+        if (objetivo == null || mapCollision == null) {
+            return false;
+        }
+
+        for (int i = 0; i < 25; i++) {
+            float nuevaX = objetivo.getX() + MathUtils.random(-50f, 50f);
+            float nuevaY = objetivo.getY() + MathUtils.random(-50f, 50f);
+
+            if (!mapCollision.isColliding(nuevaX, nuevaY, 24f, 24f)) {
+                x = nuevaX;
+                y = nuevaY;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void dispararCeguera(){

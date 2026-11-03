@@ -404,6 +404,10 @@ public class MisionManager {
         return null;
     }
 
+    public void activarCombateFinalPrueba() {
+        debeSpawnarShadox = true;
+    }
+
     public boolean debeSpawnarShadox() {
         return debeSpawnarShadox;
     }
