@@ -10,6 +10,7 @@ import com.fragmentsofyou.entities.Abuela;
 import com.fragmentsofyou.entities.Jugador;
 import com.fragmentsofyou.entities.Shadox;
 import com.fragmentsofyou.enumeradores.EstadoMision;
+import com.fragmentsofyou.misiones.DialogosMision;
 
 public class MisionManager {
 
@@ -161,11 +162,7 @@ public class MisionManager {
             if (misionActual == EstadoMision.EXPLORAR && !linternaRecolectada && rectLinterna != null) {
                 if (rectJugador.overlaps(rectLinterna) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                     if (!dialogoManager.isMostrandoDialogo()) {
-                        String[] textoLinterna = new String[]{
-                            "Encontré la linterna de la abuela.",
-                            "Ahora debería poder alumbrar",
-                            "en esta oscuridad."
-                        };
+                        String[] textoLinterna = DialogosMision.LINTERNA;
                         dialogoManager.iniciarDialogo(textoLinterna, jugador);
                         linternaRecolectada = true;
                         jugador.setLinternaHabilitada(true);
@@ -188,11 +185,7 @@ public class MisionManager {
             if (misionActual == EstadoMision.EXPLORAR && !notaLeida && rectNota != null) {
                 if (rectJugador.overlaps(rectNota) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                     if (!dialogoManager.isMostrandoDialogo()) {
-                        String[] textoNota = new String[]{
-                            "¿Qué es esto ... ?",
-                            ". . . ",
-                            " donde esta la           abuela ? "
-                        };
+                        String[] textoNota = DialogosMision.NOTA;
                         dialogoManager.iniciarDialogo(textoNota, jugador);
                         notaLeida=true;
                     }
@@ -267,11 +260,7 @@ public class MisionManager {
             if (!objetoEncontrado && rectObjetoAbuela != null && rectJugador.overlaps(rectObjetoAbuela)) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                     if (!dialogoManager.isMostrandoDialogo()) {
-                        String[] textoObjeto = new String[]{
-                            "¡Encontré el cepillo de abuela!",
-                            "Esto significa que ella debe",
-                            "estar cerca... No me voy a rendir."
-                        };
+                        String[] textoObjeto = DialogosMision.CEPILLO;
                         dialogoManager.iniciarDialogo(textoObjeto, jugador);
                         objetoEncontrado = true;
                         puertaPasilloTP2.reset();
@@ -285,10 +274,7 @@ public class MisionManager {
             if (!espejoRecolectado && rectEspejoAbuela != null && rectJugador.overlaps(rectEspejoAbuela)) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                     if (!dialogoManager.isMostrandoDialogo()) {
-                        String[] textoEspejo = new String[]{
-                            "Encontré el espejo de la abuela . . .",
-                            "Siento que la voy a encontrar pronto."
-                        };
+                        String[] textoEspejo = DialogosMision.ESPEJO;
                         dialogoManager.iniciarDialogo(textoEspejo, jugador);
                         espejoRecolectado = true;
                         puertaSiguienteTP3.reset();
@@ -325,13 +311,7 @@ public class MisionManager {
             if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
                 if (!dialogoManager.isMostrandoDialogo()) {
 
-                    String[] textoFragmento = {
-                        "La taza de te de la abuela",
-                        "Parece conservar el calor de sus manos.",
-                        ". . .",
-                        "Siento una presencia extraña.",
-                        ". . ."
-                    };
+                    String[] textoFragmento = DialogosMision.TAZA;
 
                     dialogoManager.iniciarDialogo(textoFragmento, jugador);
 
@@ -387,13 +367,7 @@ public class MisionManager {
 
             if (jefeDerrotado && !fotoFinalRecolectada && rectFotoFinal != null && rectJugador.overlaps(rectFotoFinal)) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                    String[] textoFinalFoto={
-                        "Somos nosotros... la abuela y yo.",
-                        "Aunque las sombras intenten borrar ",
-                        "tus recuerdos. . .",
-                        "jamás te voy a olvidar.",
-                        "Es hora de volver a casa."
-                    };
+                    String[] textoFinalFoto = DialogosMision.FOTO_FINAL;
                     dialogoManager.iniciarDialogo(textoFinalFoto, jugador);
                     fotoFinalRecolectada = true;
 
