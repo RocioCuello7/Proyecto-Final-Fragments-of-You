@@ -76,7 +76,7 @@ public class Menu extends GameState {
             }
 
             if (botonSettings != null && botonSettings.contains(touchPos.x, touchPos.y)) {
-                // gsm.setState(GameStateManager.SETTINGS);
+                gsm.pushState(GameStateManager.SETTINGS);
             }
 
             if (botonExit != null && botonExit.contains(touchPos.x, touchPos.y)) {

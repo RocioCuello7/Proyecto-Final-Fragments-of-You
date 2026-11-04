@@ -49,7 +49,8 @@ public class GameStateManager {
         if (state == PLAY) return new Play(this);
         if(state == GAMEOVER) return new GameOver(this);
         if(state == VICTORIA) return new Victoria(this);
-    return null;
+        if (state == SETTINGS) return new Settings(this);
+        return null;
     }
 
     public void setState(int state) {
