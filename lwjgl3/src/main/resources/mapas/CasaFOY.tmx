@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="80" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="254">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="80" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="267">
  <tileset firstgid="1" source="Muebles y Paredes.tsx"/>
  <layer id="1" name="pisos/paredes" width="80" height="60">
   <data encoding="csv">
@@ -333,6 +333,9 @@
   <object id="253" name="spawnCasa" x="888.364" y="790.182">
    <point/>
   </object>
+  <object id="259" name="cura2" x="1168" y="112.5" width="15.5" height="15.25"/>
+  <object id="264" name="cura1" x="896" y="176" width="16" height="16"/>
+  <object id="266" name="cura3" x="896.5" y="80.25" width="15" height="16.25"/>
  </objectgroup>
  <objectgroup id="6" name="paredes y muebles">
   <object id="1" gid="27" x="526" y="144.667" width="16" height="16"/>

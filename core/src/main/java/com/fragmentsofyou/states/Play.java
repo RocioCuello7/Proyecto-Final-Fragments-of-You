@@ -187,7 +187,7 @@ public class Play extends GameState {
         jugador.update(dt, mapCollision);
 
         dialogoManager.update(dt, jugador);
-        misionManager.update(dt, jugador, abuela, fader, rayHandler, audio);
+        misionManager.update(dt, jugador, abuela, fader, rayHandler, audio,shadox);
 
         fader.update(dt);
 
@@ -341,6 +341,31 @@ public class Play extends GameState {
         if (!misionManager.isTazaAbuelaRecolectada() && misionManager.getRectTazaAbuela() != null) {
             Rectangle rTaza = misionManager.getRectTazaAbuela();
             sb.draw(texturaTazaAbuela, rTaza.x, rTaza.y);
+        }
+
+        if (misionManager.isCura1Disponible()
+            && !misionManager.isCura1Recolectada()
+            && misionManager.getRectCura1() != null) {
+
+            Rectangle r = misionManager.getRectCura1();
+            sb.draw(texturaTazaAbuela, r.x, r.y, r.width, r.height);
+        }
+
+        if (misionManager.isCurasFinalesDisponibles()) {
+
+            if (!misionManager.isCura2Recolectada()
+                && misionManager.getRectCura2() != null) {
+
+                Rectangle r = misionManager.getRectCura2();
+                sb.draw(texturaTazaAbuela, r.x, r.y, r.width, r.height);
+            }
+
+            if (!misionManager.isCura3Recolectada()
+                && misionManager.getRectCura3() != null) {
+
+                Rectangle r = misionManager.getRectCura3();
+                sb.draw(texturaTazaAbuela, r.x, r.y, r.width, r.height);
+            }
         }
 
         if (misionManager.isJefeDerrotado() && !misionManager.isFotoFinalRecolectada() && misionManager.getRectFotoFinal() != null) {
