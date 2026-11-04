@@ -11,6 +11,8 @@ import com.fragmentsofyou.entities.Jugador;
 import com.fragmentsofyou.entities.Shadox;
 import com.fragmentsofyou.enumeradores.EstadoMision;
 import com.fragmentsofyou.misiones.DialogosMision;
+import com.fragmentsofyou.misiones.GestorCuras;
+import com.fragmentsofyou.misiones.GestorTeletransporte;
 
 public class MisionManager {
 
@@ -22,12 +24,9 @@ public class MisionManager {
     private ZonaTP puertaSiguienteTP4;
     private ZonaTP puertasalidaCombate3;
 
-    private boolean esperandoTP = false;
     private boolean esperandoDespertar=false;
 
-    private float timerDelayTP = 0f;
-    private final float TIEMPO_DELAY = 0.8f;
-    private Vector2 destinoActualTP;
+    private GestorTeletransporte gestorTP;
 
     private EstadoMision misionActual = EstadoMision.HABLAR_CON_ABUELA;
 
@@ -74,16 +73,7 @@ public class MisionManager {
     private boolean fragmentoShadoxRecolectado = false;
     private boolean dialogoFragmentoIniciado = false;
 
-    private Rectangle rectCura1;
-    private Rectangle rectCura2;
-    private Rectangle rectCura3;
-
-    private boolean cura1Recolectada = false;
-    private boolean cura2Recolectada = false;
-    private boolean cura3Recolectada = false;
-
-    private boolean cura1Disponible = false;
-    private boolean curasFinalesDisponibles = false;
+    private GestorCuras gestorCuras;
 
     public MisionManager(MapCollision mapCollision, Vector2 tp1, Vector2 tp2, Vector2 tp3,Vector2 tp4,Vector2 tpCasaFinal, DialogoManager dialogoManager){
         this.mapCollision=mapCollision;
@@ -93,6 +83,8 @@ public class MisionManager {
         this.tp4 = tp4;
         this.tpCasaFinal = tpCasaFinal;
 
+        this.gestorTP= new GestorTeletransporte();
+        this.gestorCuras = new GestorCuras(mapCollision);
 
         this.dialogoManager = dialogoManager;
 
@@ -105,9 +97,6 @@ public class MisionManager {
         this.rectAbuela=mapCollision.obtenerRectanguloPorNombre("abuela");
         this.rectTazaAbuela = mapCollision.obtenerRectanguloPorNombre("tazaAbuela");
 
-        rectCura1 = mapCollision.obtenerRectanguloPorNombre("cura1");
-        rectCura2 = mapCollision.obtenerRectanguloPorNombre("cura2");
-        rectCura3 = mapCollision.obtenerRectanguloPorNombre("cura3");
 
         this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false, dialogoManager);
 
@@ -193,24 +182,19 @@ public class MisionManager {
             }
 
         if (misionActual == EstadoMision.EXPLORAR && !dialogoManager.isMostrandoDialogo() && puertaCasaTP.verificarYActivar(jugador, fader, objetoEncontrado)) {
-                esperandoTP = true;
-                timerDelayTP = TIEMPO_DELAY;
-                destinoActualTP = puertaCasaTP.getDestino();
-
+                gestorTP.iniciar(puertaCasaTP.getDestino());
                 audio.pausarMusicaAmbiente();
                 audio.iniciarMusicaAngel();
             }
 
         if (!dialogoManager.isMostrandoDialogo() && puertaPasilloTP2.verificarYActivar(jugador, fader, objetoEncontrado)) {
-                esperandoTP = true;
-                timerDelayTP = TIEMPO_DELAY;
                 if (objetoEncontrado) {
-                    destinoActualTP = tp3;
+                    gestorTP.iniciar(tp3);
                     argosSpawned = true;
                     misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
                     jugador.setDestelloHabilitado(true);
                 } else {
-                    destinoActualTP = puertaPasilloTP2.getDestino();
+                    gestorTP.iniciar(puertaPasilloTP2.getDestino());
                     enemigoSpawned = true;
                     misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
                     jugador.setSobrecargaHabilitada(true);
@@ -219,39 +203,22 @@ public class MisionManager {
 
             if (puertaSalidaTP1.verificarYActivar(jugador, fader, objetoEncontrado)) {
                 if (objetoEncontrado) {
-                    esperandoTP = true;
-                    timerDelayTP = TIEMPO_DELAY;
-                    destinoActualTP = puertaSalidaTP1.getDestino();
+                    gestorTP.iniciar(puertaSalidaTP1.getDestino());
                     misionActual=EstadoMision.EXPLORAR_PASILLO;
                 }
             }
 
             if (espejoRecolectado) {
                 if (puertaSalidaCombate2.verificarYActivar(jugador, fader, true)) {
-                    esperandoTP = true;
-                    timerDelayTP = TIEMPO_DELAY;
-                    destinoActualTP = tp1;
+                    gestorTP.iniciar(tp1);
                     misionActual=EstadoMision.EXPLORAR_PASILLO;
                 }
             }
 
-            if (esperandoTP) {
-                timerDelayTP -= dt;
-                if (timerDelayTP <= 0) {
-                    esperandoTP = false;
-                    if (destinoActualTP != null) {
-                        jugador.teletransportar(destinoActualTP.x, destinoActualTP.y);
-                    }
-                    fader.startFlash(Color.BLACK, 2.0f);
-                    jugador.setPuedoMoverme(true);
-
-                }
-            }
+        gestorTP.update(dt, jugador, fader);
 
             if (puertaSiguienteTP3.verificarYActivar(jugador, fader, objetoEncontrado)) {
-                esperandoTP = true;
-                timerDelayTP = TIEMPO_DELAY;
-                destinoActualTP = puertaSiguienteTP3.getDestino();
+                gestorTP.iniciar(puertaSiguienteTP3.getDestino());
                 argosSpawned = true;
 
                 jugador.setDestelloHabilitado(true);
@@ -287,19 +254,14 @@ public class MisionManager {
 
             if (objetoEncontrado && espejoRecolectado) {
                 if (puertaSiguienteTP4.verificarYActivar(jugador, fader, true)) {
-                    esperandoTP = true;
-                    timerDelayTP = TIEMPO_DELAY;
-                    destinoActualTP = tp4;
+                    gestorTP.iniciar(tp4);
                     misionActual = EstadoMision.COMBATE_Y_BUSQUEDA;
                 }
             }
 
             if(jefeDerrotado) {
                 if (puertasalidaCombate3.verificarYActivar(jugador, fader, true)) {
-                    esperandoTP = true;
-                    timerDelayTP = TIEMPO_DELAY;
-                    destinoActualTP = tpCasaFinal;
-
+                    gestorTP.iniciar(tpCasaFinal);
                     misionActual=EstadoMision.CASA;
 
                 }
@@ -323,42 +285,7 @@ public class MisionManager {
             }
         }
 
-        if (shadox != null) {
-            if (shadox.getFaseActual() >= 2) {
-                cura1Disponible = true;
-            }
-
-            if (shadox.getFaseActual() >= 3) {
-                curasFinalesDisponibles = true;
-            }
-        }
-
-        if (cura1Disponible && !cura1Recolectada
-            && rectCura1 != null
-            && rectJugador.overlaps(rectCura1)
-            && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            cura1Recolectada = true;
-            audio.agarrarObjeto.play();
-            jugador.setVidaJugador(30);
-        }
-
-        if (curasFinalesDisponibles && !cura2Recolectada
-            && rectCura2 != null
-            && rectJugador.overlaps(rectCura2)
-            && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            cura2Recolectada = true;
-            audio.agarrarObjeto.play();
-            jugador.setVidaJugador(30);
-        }
-
-        if (curasFinalesDisponibles && !cura3Recolectada
-            && rectCura3 != null
-            && rectJugador.overlaps(rectCura3)
-            && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            cura3Recolectada = true;
-            audio.agarrarObjeto.play();
-            jugador.setVidaJugador(30);
-        }
+        gestorCuras.update(rectJugador, jugador, audio, shadox);
 
         if (dialogoFragmentoIniciado && !dialogoManager.isMostrandoDialogo() && dialogoManager.isDialogoTerminado()) {
             dialogoFragmentoIniciado = false;
@@ -479,37 +406,14 @@ public class MisionManager {
         this.enemigoDerrotado = derrotados;
     }
 
-    public boolean isCurasFinalesDisponibles() {
-        return curasFinalesDisponibles;
-    }
-
-    public Rectangle getRectCura1() {
-        return rectCura1;
-    }
-
-    public Rectangle getRectCura2() {
-        return rectCura2;
-    }
-
-    public Rectangle getRectCura3() {
-        return rectCura3;
-    }
-
-    public boolean isCura1Recolectada() {
-        return cura1Recolectada;
-    }
-
-    public boolean isCura2Recolectada() {
-        return cura2Recolectada;
-    }
-
-    public boolean isCura3Recolectada() {
-        return cura3Recolectada;
-    }
-
-    public boolean isCura1Disponible() {
-        return cura1Disponible;
-    }
+    public boolean isCurasFinalesDisponibles() { return gestorCuras.isCurasFinalesDisponibles(); }
+    public Rectangle getRectCura1() { return gestorCuras.getRectCura1(); }
+    public Rectangle getRectCura2() { return gestorCuras.getRectCura2(); }
+    public Rectangle getRectCura3() { return gestorCuras.getRectCura3(); }
+    public boolean isCura1Recolectada() { return gestorCuras.isCura1Recolectada(); }
+    public boolean isCura2Recolectada() { return gestorCuras.isCura2Recolectada(); }
+    public boolean isCura3Recolectada() { return gestorCuras.isCura3Recolectada(); }
+    public boolean isCura1Disponible() { return gestorCuras.isCura1Disponible(); }
 
     public EstadoMision getMisionActual() { return misionActual; }
     public Rectangle getRectNota() {return rectNota;}
