@@ -44,7 +44,6 @@ public class Play extends GameState {
     private ShapeRenderer shapeRenderer;
 
     private HUD hud;
-    private AudioManager audio;
     private DialogoManager dialogoManager;
 
     private Abuela abuela;
@@ -86,7 +85,6 @@ public class Play extends GameState {
         playView = new FitViewport(320, 180, cam);
 
         hud = new HUD();
-        audio = new AudioManager();
         audio.iniciarMusicaAmbiente();
 
         setupIluminacion();
@@ -97,6 +95,7 @@ public class Play extends GameState {
 
         Vector2 spawnJugador = obtenerSpawnPorNombre("spawn", 160f, 90f);
         jugador = new Jugador(spawnJugador.x, spawnJugador.y, rayHandler);
+        jugador.setAudio(audio);
         vidaAnteriorJugador= jugador.getVidaActual();
 
         shapeRenderer = new ShapeRenderer();
@@ -178,6 +177,10 @@ public class Play extends GameState {
             && !pruebaJefeActivada) {
             iniciarPruebaShadox();
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            gsm.pushState(GameStateManager.SETTINGS);
+        }
     }
 
     @Override
@@ -190,9 +193,6 @@ public class Play extends GameState {
         misionManager.update(dt, jugador, abuela, fader, rayHandler, audio,shadox);
 
         fader.update(dt);
-
-
-        jugador.setAudioPasos(audio.Pasos);
 
         if(misionManager.debeSpawnarEnemigo() && enemigos.isEmpty() && !segundaOleadaSpawned){
             Vector2 spawnEnemigo = obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
@@ -463,7 +463,6 @@ public class Play extends GameState {
         if (world != null) world.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
 
-        if (audio != null) audio.dispose();
         if (hud != null) hud.dispose();
         if (abuela != null) abuela.dispose();
         if (fader != null) fader.dispose();

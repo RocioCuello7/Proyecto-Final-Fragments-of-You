@@ -3,12 +3,14 @@ package com.fragmentsofyou.states;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.fragmentsofyou.Main;
+import com.fragmentsofyou.handlers.AudioManager;
 import com.fragmentsofyou.handlers.GameStateManager;
 
 public abstract class GameState {
 
     protected GameStateManager gsm;
     protected Main game;
+    protected AudioManager audio;
 
     protected SpriteBatch sb;
     protected OrthographicCamera cam;
@@ -20,6 +22,7 @@ public abstract class GameState {
         this.sb = game.getSpriteBatch();
         this.cam = game.getCamera();
         this.hudCam = game.getHUDCamera();
+        this.audio = game.getAudio();
     }
 
     public abstract void handleInput();

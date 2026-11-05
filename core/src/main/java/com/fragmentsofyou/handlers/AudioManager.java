@@ -4,120 +4,129 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 
-public class AudioManager{
+public class AudioManager {
+
+    private static final float PASO_VOLUMEN = 0.1f;
+
+    private static final float BASE_AMBIENTE = 0.06f;
+    private static final float BASE_ANGEL = 0.06f;
+    private static final float BASE_TV = 0.04f;
+    private static final float BASE_DESTELLO = 0.3f;
+    private static final float BASE_DISPARO = 0.3f;
+    private static final float BASE_PASOS = 0.25f;
+
+    private float volumenMaestro = 1.0f;
 
     private Music musicaAmbiente;
+    private Music musicaAngel;
+    private Music tvVieja;
+
     private Sound sonidoDestello;
     private Sound sonidoDisparo;
-    private Music musicaAngel;
-    public Sound agarrarObjeto;
-    public Sound bum;
-    public Sound disparo;
-    public Sound sonidoRaro;
-    private Music tvVieja;
-    public Sound Pasos;
+    private Sound agarrarObjeto;
+    private Sound bum;
+    private Sound sonidoRaro;
+    private Sound pasos;
 
     public AudioManager() {
         musicaAmbiente = Gdx.audio.newMusic(Gdx.files.internal("musica/Twin Peaks Theme (Instrumental).mp3"));
         musicaAmbiente.setLooping(true);
-        musicaAmbiente.setVolume(0.06f);
 
         musicaAngel = Gdx.audio.newMusic(Gdx.files.internal("musica/Massive Attack - Angel Instrumental (1998) - CR055FIRE.mp3"));
         musicaAngel.setLooping(true);
-        musicaAngel.setVolume(0.06f);
 
-        agarrarObjeto = Gdx.audio.newSound(
-            Gdx.files.internal("sonidos/agarrarObjeto.wav")
-        );
-
-        bum = Gdx.audio.newSound(
-            Gdx.files.internal("sonidos/bumm.mp3")
-        );
-
-        disparo = Gdx.audio.newSound(
-            Gdx.files.internal("sonidos/disparo.mp3")
-        );
-
-        sonidoRaro = Gdx.audio.newSound(
-            Gdx.files.internal("sonidos/Drone_1.wav")
-        );
-
-        tvVieja = Gdx.audio.newMusic(
-            Gdx.files.internal("sonidos/Old TV static - CSX2000.mp3")
-        );
+        tvVieja = Gdx.audio.newMusic(Gdx.files.internal("sonidos/Old TV static - CSX2000.mp3"));
         tvVieja.setLooping(true);
-        tvVieja.setVolume(0.04f);
 
-        Pasos = Gdx.audio.newSound(
-            Gdx.files.internal("sonidos/Thick Carpet Step_6.wav")
-        );
-
+        agarrarObjeto = Gdx.audio.newSound(Gdx.files.internal("sonidos/agarrarObjeto.wav"));
+        bum = Gdx.audio.newSound(Gdx.files.internal("sonidos/bumm.mp3"));
+        sonidoRaro = Gdx.audio.newSound(Gdx.files.internal("sonidos/Drone_1.wav"));
+        pasos = Gdx.audio.newSound(Gdx.files.internal("sonidos/Thick Carpet Step_6.wav"));
         sonidoDestello = Gdx.audio.newSound(Gdx.files.internal("sonidos/destello.mp3"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("sonidos/disparo.mp3"));
+
+        aplicarVolumen();
+    }
+
+    public float getVolumenMaestro() {
+        return volumenMaestro;
+    }
+
+    public void setVolumenMaestro(float v) {
+        volumenMaestro = Math.round(Math.max(0f, Math.min(1f, v)) * 10f) / 10f;
+        aplicarVolumen();
+    }
+
+    public void subirVolumen() {
+        setVolumenMaestro(volumenMaestro + PASO_VOLUMEN);
+    }
+
+    public void bajarVolumen() {
+        setVolumenMaestro(volumenMaestro - PASO_VOLUMEN);
+    }
+
+    private float vol(float base) {
+        return base * volumenMaestro;
+    }
+
+    private void aplicarVolumen() {
+        musicaAmbiente.setVolume(vol(BASE_AMBIENTE));
+        musicaAngel.setVolume(vol(BASE_ANGEL));
+        tvVieja.setVolume(vol(BASE_TV));
     }
 
     public void iniciarMusicaAmbiente() {
-        if (musicaAmbiente != null && !musicaAmbiente.isPlaying()) {
-            musicaAmbiente.play();
-        }
+        if (!musicaAmbiente.isPlaying()) musicaAmbiente.play();
     }
-    public void iniciarMusicaAngel() {
-        if (musicaAngel!= null && !musicaAngel.isPlaying()) {
-            musicaAngel.play();
-        }
-    }
-
 
     public void pausarMusicaAmbiente() {
-        if (musicaAmbiente != null && musicaAmbiente.isPlaying()) {
-            musicaAmbiente.pause();
-        }
+        if (musicaAmbiente.isPlaying()) musicaAmbiente.pause();
     }
 
-    public void iniciarTvVieja() {
-        if (tvVieja != null && !tvVieja.isPlaying()) {
-            tvVieja.setLooping(true);
-            tvVieja.play();
-        }
-    }
-
-    public void pausarTvVieja() {
-        if (tvVieja != null && tvVieja.isPlaying()) {
-            tvVieja.pause();
-        }
-    }
-
-    public void detenerTvVieja() {
-        if (tvVieja != null && tvVieja.isPlaying()) {
-            tvVieja.stop();
-        }
+    public void iniciarMusicaAngel() {
+        if (!musicaAngel.isPlaying()) musicaAngel.play();
     }
 
     public void pausarMusicaAngel() {
-        if (musicaAngel != null && musicaAngel.isPlaying()) {
-            musicaAngel.pause();
-        }
+        if (musicaAngel.isPlaying()) musicaAngel.pause();
     }
 
-
-    public void playDestello() {
-        sonidoDestello.play(0.3f);
+    public void iniciarTvVieja() {
+        if (!tvVieja.isPlaying()) tvVieja.play();
     }
 
-    public void playDisparo() {
-        sonidoDisparo.play(0.3f);
+    public void pausarTvVieja() {
+        if (tvVieja.isPlaying()) tvVieja.pause();
     }
+
+    public void detenerTvVieja() {
+        if (tvVieja.isPlaying()) tvVieja.stop();
+    }
+
+    public void detenerMusicas() {
+        musicaAmbiente.stop();
+        musicaAngel.stop();
+        tvVieja.stop();
+    }
+
+    public void playDestello() { sonidoDestello.play(vol(BASE_DESTELLO)); }
+    public void playDisparo() { sonidoDisparo.play(vol(BASE_DISPARO)); }
+    public void playBum() { bum.play(vol(1f)); }
+    public void playAgarrarObjeto() { agarrarObjeto.play(vol(1f)); }
+    public void playSonidoRaro() { sonidoRaro.play(vol(1f)); }
+
+    public long playPasos() { return pasos.play(vol(BASE_PASOS)); }
+    public void detenerPasos(long id) { pasos.stop(id); }
 
     public void dispose() {
-        if (musicaAmbiente != null) {
-            musicaAmbiente.stop();
-            musicaAmbiente.dispose();
-        }
-        if(musicaAngel!=null) {
-            musicaAngel.stop();
-            musicaAngel.dispose();
-        }
-        if (sonidoDestello != null) sonidoDestello.dispose();
-        if (sonidoDisparo != null) sonidoDisparo.dispose();
+        musicaAmbiente.dispose();
+        musicaAngel.dispose();
+        tvVieja.dispose();
+        sonidoDestello.dispose();
+        sonidoDisparo.dispose();
+        agarrarObjeto.dispose();
+        bum.dispose();
+        sonidoRaro.dispose();
+        pasos.dispose();
     }
 }

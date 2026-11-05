@@ -137,7 +137,7 @@ public class MisionManager {
                 esperandoDespertar = false;
 
                 audio.detenerTvVieja();
-                audio.bum.play();
+                audio.playBum();
 
                 fader.startFlash(Color.BLACK, 2.0f);
                 misionActual = EstadoMision.EXPLORAR;
@@ -155,7 +155,7 @@ public class MisionManager {
                         dialogoManager.iniciarDialogo(textoLinterna, jugador);
                         linternaRecolectada = true;
                         jugador.setLinternaHabilitada(true);
-                        audio.agarrarObjeto.play();
+                        audio.playAgarrarObjeto();
                     }
                 }
             }
@@ -163,7 +163,7 @@ public class MisionManager {
             if (misionActual == EstadoMision.EXPLORAR && !notaLeida && rectNota != null && rectJugador.overlaps(rectNota)) {
 
                 if (!droneNotaReproducido) {
-                    audio.sonidoRaro.play();
+                    audio.playSonidoRaro();
                     droneNotaReproducido = true;
                 }
 
@@ -233,7 +233,7 @@ public class MisionManager {
                         puertaPasilloTP2.reset();
                         misionActual = EstadoMision.BUSCAR_SALIDA;
                         jugador.setVidaJugador(80);
-                        audio.agarrarObjeto.play();
+                        audio.playAgarrarObjeto();
                     }
                 }
             }
@@ -247,7 +247,7 @@ public class MisionManager {
                         puertaSiguienteTP3.reset();
                         misionActual = EstadoMision.BUSCAR_SALIDA;
                         jugador.setVidaJugador(80);
-                        audio.agarrarObjeto.play();
+                        audio.playAgarrarObjeto();
                     }
                 }
             }
@@ -280,7 +280,7 @@ public class MisionManager {
                     tazaAbuelaRecolectada = true;
                     dialogoFragmentoIniciado = true;
 
-                    audio.agarrarObjeto.play();
+                    audio.playAgarrarObjeto();
                 }
             }
         }
@@ -301,7 +301,7 @@ public class MisionManager {
                     jugador.setVidaJugador(80);
                     misionActual = EstadoMision.BUSCAR_SALIDA;
 
-                    audio.agarrarObjeto.play();
+                    audio.playAgarrarObjeto();
 
                 }
             }

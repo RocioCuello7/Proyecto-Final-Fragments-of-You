@@ -4,7 +4,7 @@ import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Sound;
+import com.fragmentsofyou.handlers.AudioManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.animadores.Animacion4Direcciones;
 import com.fragmentsofyou.armas.Linterna;
+import com.fragmentsofyou.handlers.AudioManager;
 import com.fragmentsofyou.handlers.MapCollision;
 
 public class Jugador extends Entidad {
@@ -45,7 +46,7 @@ public class Jugador extends Entidad {
     private float intervaloPasos = 0.35f;
     private long idSonidoPasos = -1;
 
-    private Sound audioPasos;
+    private AudioManager audio;
 
 
     public Jugador(float startX, float startY, RayHandler rayHandler) {
@@ -113,18 +114,16 @@ public class Jugador extends Entidad {
             temporizadorPasos -= dt;
 
             if (temporizadorPasos <= 0f) {
-                if (audioPasos != null) {
-                    idSonidoPasos = audioPasos.play();
-                    audioPasos.setVolume(idSonidoPasos, 0.25f);
+                if (audio != null) {
+                    idSonidoPasos = audio.playPasos();
                 }
-
                 temporizadorPasos = intervaloPasos;
             }
         } else {
             temporizadorPasos = 0f;
 
-            if (audioPasos != null && idSonidoPasos != -1) {
-                audioPasos.stop(idSonidoPasos);
+            if (audio != null && idSonidoPasos != -1) {
+                audio.detenerPasos(idSonidoPasos);
                 idSonidoPasos = -1;
             }
         }
@@ -193,8 +192,8 @@ public class Jugador extends Entidad {
         }
     }
 
-    public void setAudioPasos(Sound audioPasos) {
-        this.audioPasos = audioPasos;
+    public void setAudio(AudioManager audio) {
+        this.audio = audio;
     }
 
     public void setPuedoMoverme(boolean puedoMoverme) {

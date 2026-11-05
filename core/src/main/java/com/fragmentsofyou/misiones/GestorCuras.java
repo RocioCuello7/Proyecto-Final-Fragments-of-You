@@ -43,7 +43,7 @@ public class GestorCuras {
             && rectJugador.overlaps(rectCura1)
             && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             cura1Recolectada = true;
-            audio.agarrarObjeto.play();
+            audio.playAgarrarObjeto();
             jugador.setVidaJugador(30);
         }
 
@@ -52,7 +52,7 @@ public class GestorCuras {
             && rectJugador.overlaps(rectCura2)
             && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             cura2Recolectada = true;
-            audio.agarrarObjeto.play();
+            audio.playAgarrarObjeto();
             jugador.setVidaJugador(30);
         }
 
@@ -61,7 +61,7 @@ public class GestorCuras {
             && rectJugador.overlaps(rectCura3)
             && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             cura3Recolectada = true;
-            audio.agarrarObjeto.play();
+            audio.playAgarrarObjeto();
             jugador.setVidaJugador(30);
         }
     }
