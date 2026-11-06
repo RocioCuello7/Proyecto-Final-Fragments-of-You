@@ -2,6 +2,7 @@ package com.fragmentsofyou.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -10,12 +11,14 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fragmentsofyou.handlers.GameStateManager;
+import com.fragmentsofyou.handlers.ScreenFader;
 
 public class Victoria extends GameState{
 
     private TiledMap victoryMap;
     private Viewport victoryView;
     private OrthogonalTiledMapRenderer mapRender;
+    private ScreenFader fader;
     private float tiempoEspera=0f;
     private final float TIEMPO_ESPERA_TOTAL=6f;
 
@@ -23,10 +26,13 @@ public class Victoria extends GameState{
         super(gsm);
 
         cam.setToOrtho(false, 320, 180);
-        victoryView=new FitViewport(320,180,cam);
+        victoryView = new FitViewport(320, 180, cam);
 
-        victoryMap=new TmxMapLoader().load("mapas/VictoriaFOY.tmx");
-        mapRender= new OrthogonalTiledMapRenderer(victoryMap);
+        victoryMap = new TmxMapLoader().load("mapas/VictoriaFOY.tmx");
+        mapRender = new OrthogonalTiledMapRenderer(victoryMap);
+
+        fader = new ScreenFader();
+        fader.startFlash(Color.BLACK, 1.5f); // Arranca en negro y se aclara
 
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
@@ -43,11 +49,12 @@ public class Victoria extends GameState{
     public void update(float dt) {
         handleInput();
 
-        tiempoEspera+=dt;
-        if(tiempoEspera >= TIEMPO_ESPERA_TOTAL){
+        fader.update(dt);
+
+        tiempoEspera += dt;
+        if (tiempoEspera >= TIEMPO_ESPERA_TOTAL) {
             gsm.setState(GameStateManager.MENU);
         }
-
     }
 
     @Override
@@ -56,9 +63,12 @@ public class Victoria extends GameState{
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         victoryView.apply();
+        cam.update();
 
         mapRender.setView(cam);
         mapRender.render();
+
+        fader.renderFade(cam);
 
     }
 
@@ -71,6 +81,7 @@ public class Victoria extends GameState{
     public void dispose() {
         if(victoryMap!=null) victoryMap.dispose();
         if(mapRender!=null) mapRender.dispose();
+        if (fader != null) fader.dispose();
 
 
     }

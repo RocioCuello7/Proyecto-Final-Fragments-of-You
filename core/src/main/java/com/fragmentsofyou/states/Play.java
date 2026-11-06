@@ -76,6 +76,7 @@ public class Play extends GameState {
     private BarraJefe barraJefe;
 
     private boolean pruebaJefeActivada = false;
+    private boolean finalActivado=false;
 
 
     public Play(GameStateManager gsm) {
@@ -305,6 +306,19 @@ public class Play extends GameState {
         if(alphaDanio>0f){
             alphaDanio-=dt*1.5f;
         }
+
+        if (!finalActivado && misionManager.verificarPuertaAbuela(jugador)) {
+            finalActivado = true;
+            fader.startFadeOut(Color.BLACK, 1.5f); // Arranca el fundido a negro UNA sola vez
+        }
+        if (finalActivado) {
+            fader.update(dt);
+            if (fader.isFinished()) {
+                gsm.setState(GameStateManager.VICTORIA);
+                return;
+            }
+        }
+
         cam.update();
     }
 
@@ -320,15 +334,15 @@ public class Play extends GameState {
 
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
-        if(misionManager.getMisionActual() == EstadoMision.EXPLORAR && !misionManager.isAbuelaPresente() && misionManager.getRectNota() != null){
+        if (misionManager.getMisionActual() == EstadoMision.EXPLORAR && !misionManager.isAbuelaPresente() && misionManager.getRectNota() != null) {
             Rectangle rNota = misionManager.getRectNota();
             sb.draw(texturaNota, rNota.x, rNota.y);
         }
-        if(!misionManager.isObjetoEncontrado() && misionManager.getRectObjetoAbuela() != null){
-            Rectangle rCepillo= misionManager.getRectObjetoAbuela();
+        if (!misionManager.isObjetoEncontrado() && misionManager.getRectObjetoAbuela() != null) {
+            Rectangle rCepillo = misionManager.getRectObjetoAbuela();
             sb.draw(texturaObjetoAbuela, rCepillo.x, rCepillo.y);
         }
-        if(!misionManager.isLinternaRecolectada() && misionManager.getRectLinterna() != null){
+        if (!misionManager.isLinternaRecolectada() && misionManager.getRectLinterna() != null) {
             Rectangle rLinterna = misionManager.getRectLinterna();
             sb.draw(texturaLinterna, rLinterna.x, rLinterna.y);
         }
@@ -373,6 +387,11 @@ public class Play extends GameState {
             sb.draw(texturaFotoFinal, rFoto.x, rFoto.y);
         }
 
+        if (misionManager.isJefeDerrotado() && misionManager.getRectNotaCama() != null) {
+            Rectangle rNotaCama = misionManager.getRectNotaCama();
+            sb.draw(texturaNota, rNotaCama.x, rNotaCama.y);
+        }
+
         if (!jugador.isMuerto()) {
             jugador.render(sb);
         }
@@ -383,7 +402,7 @@ public class Play extends GameState {
             }
         }
 
-        for(ProyectilOcular p : listaProyectilesOculares){
+        for (ProyectilOcular p : listaProyectilesOculares) {
             p.render(sb);
         }
 
@@ -416,7 +435,7 @@ public class Play extends GameState {
         );
 
         String textoIndicador = misionManager.getTextoIndicador(jugador);
-        if(textoIndicador!=null){
+        if (textoIndicador != null) {
             hud.renderFuenteObjetivo(
                 sb,
                 textoIndicador,
@@ -425,7 +444,7 @@ public class Play extends GameState {
             );
         }
 
-        if(alpha > 0f){
+        if (alpha > 0f) {
             fader.renderOverlay(cam, Color.WHITE, alpha);
         }
 
@@ -436,6 +455,7 @@ public class Play extends GameState {
 
         sb.end();
         hud.render(sb, jugador);
+        fader.renderFade(cam);
     }
 
     @Override

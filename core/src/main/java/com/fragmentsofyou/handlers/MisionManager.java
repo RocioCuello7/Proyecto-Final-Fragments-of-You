@@ -38,6 +38,8 @@ public class MisionManager {
     private Rectangle rectFotoFinal;
     private Rectangle rectAbuela;
     private Rectangle rectTazaAbuela;
+    private Rectangle rectNotaCama;
+    private Rectangle rectPuertaAbuela;
 
     private MapCollision mapCollision;
 
@@ -56,6 +58,7 @@ public class MisionManager {
     private boolean primerEnemigoDerrotado = false;
     private boolean todosEnemigosDerrotados = false;
     private boolean jefeDerrotado = false;
+    private boolean finalActivado=false;
 
     private Vector2 tp1;
     private Vector2 tp2;
@@ -96,6 +99,8 @@ public class MisionManager {
         this.rectFotoFinal=mapCollision.obtenerRectanguloPorNombre("fotoFinal");
         this.rectAbuela=mapCollision.obtenerRectanguloPorNombre("abuela");
         this.rectTazaAbuela = mapCollision.obtenerRectanguloPorNombre("tazaAbuela");
+        this.rectNotaCama = mapCollision.obtenerRectanguloPorNombre("notaCama");
+        this.rectPuertaAbuela = mapCollision.obtenerRectanguloPorNombre("puertaAbuela");
 
 
         this.puertaCasaTP = new ZonaTP(mapCollision.obtenerRectanguloPorNombre("puertacasa"), tp1, false, dialogoManager);
@@ -307,6 +312,17 @@ public class MisionManager {
             }
     }
 
+    public boolean verificarPuertaAbuela(Jugador jugador) {
+        if (jefeDerrotado && !finalActivado && rectPuertaAbuela != null) {
+            Rectangle rectJugador = new Rectangle(jugador.getX() - 8f, jugador.getY() - 8f, 16f, 16f);
+            if (rectJugador.overlaps(rectPuertaAbuela)) {
+                finalActivado = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String getTextoIndicador(Jugador jugador){
         if(dialogoManager.isMostrandoDialogo()) return null;
 
@@ -354,6 +370,13 @@ public class MisionManager {
 
         if (linternaRecolectada) {
             return "[F] Activar linterna";
+        }
+        return null;
+    }
+
+    public Rectangle getRectNotaCama() {
+        if (jefeDerrotado) {
+            return rectNotaCama;
         }
         return null;
     }
