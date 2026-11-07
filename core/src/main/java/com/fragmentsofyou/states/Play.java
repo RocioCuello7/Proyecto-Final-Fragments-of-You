@@ -78,9 +78,14 @@ public class Play extends GameState {
     private boolean pruebaJefeActivada = false;
     private boolean finalActivado=false;
 
+    private float tiempoPartida = 0f;
+    private boolean cronometroActivo = true;
+
 
     public Play(GameStateManager gsm) {
         super(gsm);
+
+
 
         cam.setToOrtho(false, 320, 180);
         playView = new FitViewport(320, 180, cam);
@@ -187,6 +192,10 @@ public class Play extends GameState {
     @Override
     public void update(float dt) {
         handleInput();
+
+        if (cronometroActivo) {
+            tiempoPartida += dt;
+        }
 
         jugador.update(dt, mapCollision);
 
@@ -314,6 +323,8 @@ public class Play extends GameState {
         if (finalActivado) {
             fader.update(dt);
             if (fader.isFinished()) {
+                cronometroActivo = false;
+                gsm.setTiempoPartida(tiempoPartida);
                 gsm.setState(GameStateManager.VICTORIA);
                 return;
             }

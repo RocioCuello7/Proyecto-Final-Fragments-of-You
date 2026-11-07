@@ -16,6 +16,8 @@ public class GameStateManager {
     public static final int GAMEOVER = 3;
     public static final int VICTORIA = 4;
 
+    private float tiempoPartida = 0f;
+
     public GameStateManager(Main game) {
         this.game = game;
         gameStates = new Stack<GameState>();
@@ -48,7 +50,7 @@ public class GameStateManager {
         if (state == MENU) return new Menu(this);
         if (state == PLAY) return new Play(this);
         if(state == GAMEOVER) return new GameOver(this);
-        if(state == VICTORIA) return new Victoria(this);
+        if (state == VICTORIA) return new Victoria(this, tiempoPartida);
         if (state == SETTINGS) return new Settings(this);
         return null;
     }
@@ -76,5 +78,13 @@ public class GameStateManager {
         while (!gameStates.isEmpty()) {
             gameStates.pop().dispose();
         }
+    }
+
+    public void setTiempoPartida(float tiempo) {
+        this.tiempoPartida = tiempo;
+    }
+
+    public float getTiempoPartida() {
+        return tiempoPartida;
     }
 }

@@ -5,7 +5,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.fragmentsofyou.handlers.AudioManager;
+import com.fragmentsofyou.handlers.ConexionSQLite;
 import com.fragmentsofyou.handlers.GameStateManager;
+
+import java.sql.SQLException;
 
 public class Main extends ApplicationAdapter {
 
@@ -28,12 +31,22 @@ public class Main extends ApplicationAdapter {
         hudCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         audio=new AudioManager();
-        gsm = new GameStateManager(this);//se le pasa la misma clase(main)
+        gsm = new GameStateManager(this);
+        try {
+            ConexionSQLite db = new ConexionSQLite();
+
+            db.conectar();
+            db.consultarJugadores();
+
+            db.cerrarConexion();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void render() {
-        // Corre el ciclo del juego usando el tiempo entre frames (deltaTime)
         gsm.update(Gdx.graphics.getDeltaTime());
         gsm.render();
     }
