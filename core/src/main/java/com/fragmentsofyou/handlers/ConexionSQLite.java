@@ -2,6 +2,7 @@ package com.fragmentsofyou.handlers;
 
 import java.io.File;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class ConexionSQLite {
 
@@ -45,6 +46,33 @@ public class ConexionSQLite {
                 System.out.println("ID: " + id + " | Nombre: " + nombre);
             }
         }
+    }
+
+    public ArrayList<String> consultarRanking() throws SQLException {
+
+        ArrayList<String> ranking = new ArrayList<>();
+
+        String sql = "SELECT nombre, mejor_tiempo FROM vista_ranking";
+
+        try (PreparedStatement consulta = conexion.prepareStatement(sql);
+             ResultSet resultado = consulta.executeQuery()) {
+
+            while (resultado.next()) {
+
+                String nombre = resultado.getString("nombre");
+                int tiempo = resultado.getInt("mejor_tiempo");
+
+                int minutos = tiempo / 60;
+                int segundos = tiempo % 60;
+
+                String registro = nombre + " - " +
+                    String.format("%02d:%02d", minutos, segundos);
+
+                ranking.add(registro);
+            }
+        }
+
+        return ranking;
     }
 
     public void guardarPartida(String nombre, int tiempoSegundos)
