@@ -2,6 +2,7 @@ package com.fragmentsofyou.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.fragmentsofyou.enumeradores.FourDirection;
+import com.fragmentsofyou.handlers.AudioManager;
 import com.fragmentsofyou.handlers.MapCollision;
 
 public abstract class Enemigo extends Entidad {
@@ -24,6 +25,8 @@ public abstract class Enemigo extends Entidad {
 
     protected float cooldownTotal;
     protected float cooldownActual=0f;
+
+    protected AudioManager audio;
 
     public Enemigo(float startX, float startY, float width, float height, float speed, int vidaMax,float danio, float rangoAtaque, float cooldownTotal, Entidad objetivo) {
         super(startX, startY, width, height, speed, vidaMax);
@@ -100,11 +103,14 @@ public abstract class Enemigo extends Entidad {
     }
 
     protected void atacar() {
-        if (objetivo == null) {
-            return;
-        }
+        if (objetivo == null) return;
 
         objetivo.recibirDanio(danio);
+
+        if (audio != null) {
+            audio.playGolpe();
+        }
+
         cooldownActual = cooldownTotal;
     }
 
@@ -120,6 +126,10 @@ public abstract class Enemigo extends Entidad {
 
     public void aturdir(float duracion) {
         this.tiempoAturdido = duracion;
+    }
+
+    public void setAudio(AudioManager audio) {
+        this.audio = audio;
     }
 
     @Override

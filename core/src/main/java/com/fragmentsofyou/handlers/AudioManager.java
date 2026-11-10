@@ -28,6 +28,8 @@ public class AudioManager {
     private Sound sonidoRaro;
     private Sound pasos;
 
+    private Sound sonidoGolpe;
+
     public AudioManager() {
         musicaAmbiente = Gdx.audio.newMusic(Gdx.files.internal("musica/Twin Peaks Theme (Instrumental).mp3"));
         musicaAmbiente.setLooping(true);
@@ -44,6 +46,8 @@ public class AudioManager {
         pasos = Gdx.audio.newSound(Gdx.files.internal("sonidos/Thick Carpet Step_6.wav"));
         sonidoDestello = Gdx.audio.newSound(Gdx.files.internal("sonidos/destello.mp3"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("sonidos/disparo.mp3"));
+
+        sonidoGolpe = Gdx.audio.newSound(Gdx.files.internal("sonidos/golpe.mp3"));
 
         aplicarVolumen();
     }
@@ -109,6 +113,10 @@ public class AudioManager {
         tvVieja.stop();
     }
 
+    public void playGolpe() {
+        sonidoGolpe.play(vol(1f));
+    }
+
     public void playDestello() { sonidoDestello.play(vol(BASE_DESTELLO)); }
     public void playDisparo() { sonidoDisparo.play(vol(BASE_DISPARO)); }
     public void playBum() { bum.play(vol(1f)); }
@@ -128,5 +136,6 @@ public class AudioManager {
         bum.dispose();
         sonidoRaro.dispose();
         pasos.dispose();
+        sonidoGolpe.dispose();
     }
 }

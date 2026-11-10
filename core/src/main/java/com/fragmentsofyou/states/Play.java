@@ -206,8 +206,9 @@ public class Play extends GameState {
 
         if(misionManager.debeSpawnarEnemigo() && enemigos.isEmpty() && !segundaOleadaSpawned){
             Vector2 spawnEnemigo = obtenerSpawnPorNombre("spawnEnemigo1", 200f, 200f);
-            enemigos.add(new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador));
-        }
+            Mecento enemigo = new Mecento(spawnEnemigo.x, spawnEnemigo.y, jugador);
+            enemigo.setAudio(audio);
+            enemigos.add(enemigo);          }
 
         if(misionManager.isPrimerEnemigoDerrotado() && !segundaOleadaSpawned){
             segundaOleadaSpawned = true;
@@ -215,11 +216,21 @@ public class Play extends GameState {
             Vector2 spawn2 = obtenerSpawnPorNombre("spawnEnemigo2", 200f, 200f);
             Vector2 spawn3 = obtenerSpawnPorNombre("spawnEnemigo3", 250f, 250f);
 
-            enemigos.add(new Mecento(spawn2.x, spawn2.y, jugador));
-            enemigos.add(new Mecento(spawn2.x + 15f, spawn2.y, jugador));
+            Mecento enemigo1 = new Mecento(spawn2.x, spawn2.y, jugador);
+            enemigo1.setAudio(audio);
+            enemigos.add(enemigo1);
 
-            enemigos.add(new Mecento(spawn3.x, spawn3.y, jugador));
-            enemigos.add(new Mecento(spawn3.x - 15f, spawn3.y, jugador));
+            Mecento enemigo2 = new Mecento(spawn2.x + 15f, spawn2.y, jugador);
+            enemigo2.setAudio(audio);
+            enemigos.add(enemigo2);
+
+            Mecento enemigo3 = new Mecento(spawn3.x, spawn3.y, jugador);
+            enemigo3.setAudio(audio);
+            enemigos.add(enemigo3);
+
+            Mecento enemigo4 = new Mecento(spawn3.x - 15f, spawn3.y, jugador);
+            enemigo4.setAudio(audio);
+            enemigos.add(enemigo4);
         }
 
         if (misionManager.debeSpawnarArgos() && !argosSpawned) {
@@ -229,12 +240,15 @@ public class Play extends GameState {
                 "spawnArgos", 400f, 200f
             );
 
-            enemigos.add(new Argos(
+            Argos argos = new Argos(
                 spawnArgos.x,
                 spawnArgos.y,
                 jugador,
                 listaProyectilesOculares
-            ));
+            );
+
+            argos.setAudio(audio);
+            enemigos.add(argos);
         }
 
         if (misionManager.debeSpawnarShadox() && !shadoxSpawned) {
@@ -252,6 +266,7 @@ public class Play extends GameState {
                 listaProyectilesOculares
             );
 
+            shadox.setAudio(audio);
             enemigos.add(shadox);
 
             hud.mostrarBarraJefe(shadox);

@@ -48,6 +48,8 @@ public class Jugador extends Entidad {
 
     private AudioManager audio;
 
+    private boolean musicaDetenidaPorMuerte = false;
+
 
     public Jugador(float startX, float startY, RayHandler rayHandler) {
         super(startX, startY, 10f, 10f, 90f, 100);
@@ -102,6 +104,7 @@ public class Jugador extends Entidad {
 
     @Override
     public void update(float dt, MapCollision mapCollision) {
+
         float velocidadActual = speed;
 
         if (tiempoRalentizadoOcular > 0f) {

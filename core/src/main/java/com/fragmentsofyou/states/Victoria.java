@@ -55,6 +55,10 @@ public class Victoria extends GameState{
 
     private Table tablaRanking;
 
+    private float tiempoRanking = 0f;
+    private final float TIEMPO_RANKING = 10f;
+    private boolean rankingVisible = false;
+
 
     public Victoria(GameStateManager gsm,  float tiempoPartida){
         super(gsm);
@@ -175,8 +179,9 @@ public class Victoria extends GameState{
 
     @Override
     public void handleInput() {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+        if (rankingVisible && Gdx.input.justTouched()) {
             gsm.setState(GameStateManager.MENU);
+            return;
         }
 
     }
@@ -190,6 +195,15 @@ public class Victoria extends GameState{
 
         if (tiempoEspera >= TIEMPO_ESPERA_TOTAL && !partidaGuardada) {
             tablaVictoria.setVisible(true);
+        }
+
+        if (rankingVisible) {
+            tiempoRanking += dt;
+
+            if (tiempoRanking >= TIEMPO_RANKING) {
+                gsm.setState(GameStateManager.MENU);
+                return;
+            }
         }
 
         stage.act(dt);
@@ -217,6 +231,9 @@ public class Victoria extends GameState{
         stage.draw();
     }
     private void mostrarRanking(ArrayList<String> ranking) {
+
+        rankingVisible = true;
+        tiempoRanking = 0f;
 
         tablaVictoria.setVisible(false);
         tablaRanking.setVisible(true);

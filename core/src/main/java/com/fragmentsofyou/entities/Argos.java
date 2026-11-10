@@ -180,6 +180,11 @@ public class Argos extends Enemigo{
             && tiempoCuerpoACuerpo >= cooldownCuerpoACuerpo) {
 
             objetivo.recibirDanio(danioCuerpoACuerpo);
+
+            if (audio != null) {
+                audio.playGolpe();
+            }
+
             tiempoCuerpoACuerpo = 0f;
         }
     }

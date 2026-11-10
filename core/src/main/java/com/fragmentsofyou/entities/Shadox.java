@@ -59,6 +59,9 @@ public class Shadox extends Enemigo{
 
                 if (faseActual == 1) {
                     if (distancia <= rangoAtaque) {
+                        if (audio != null) {
+                            audio.playGolpe();
+                        }
                         atacar();
                     }
                 }
@@ -68,6 +71,11 @@ public class Shadox extends Enemigo{
                         dispararCeguera();
                     }
                     else if (distancia <= rangoAtaque) {
+
+                        if (audio != null) {
+                            audio.playGolpe();
+                        }
+
                         atacar();
                     }
                     else {
