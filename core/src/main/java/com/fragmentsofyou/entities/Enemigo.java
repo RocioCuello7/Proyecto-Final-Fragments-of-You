@@ -13,7 +13,7 @@ public abstract class Enemigo extends Entidad {
 
     protected float tiempoAturdido = 0f;
     protected float tiempoRelentizado = 0f;
-    protected float factorVelocidad = 0.35f;
+    protected float factorVelocidad = 0.60f;
 
     protected float tiempoDanio=0f;
     protected float dirX = 0f;

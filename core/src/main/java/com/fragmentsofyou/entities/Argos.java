@@ -13,10 +13,10 @@ public class Argos extends Enemigo{
     private Animacion2Direcciones animador;
     private ArrayList<ProyectilOcular> listaProyectiles;
     private float tiempoDisparo=0f;
-    private final float cooldownsDisparo=0.7f;
+    private final float cooldownsDisparo=0.5f;
 
-    private final float rangoDisparo = 100f;
-    private final float tiempoPreparacion = 3f;
+    private final float rangoDisparo = 130f;
+    private final float tiempoPreparacion = 1.5f;
 
     private float tiempoPreparando = 0f;
     private boolean preparandoDisparo = false;
@@ -33,7 +33,7 @@ public class Argos extends Enemigo{
     private boolean posicionObjetivoInicializada = false;
 
     public Argos(float startX, float startY, Entidad objetivo, ArrayList<ProyectilOcular> proyectiles){
-        super(startX, startY,14f,14f,22f,50,15f,100f,2.0f,objetivo);
+        super(startX, startY,14f,14f,30f,200,15f,100f,2.0f,objetivo);
         this.listaProyectiles=proyectiles;
         this.animador = new Animacion2Direcciones("enemigos/", "enemigo2Left.png", "enemigo2Right.png", 6, 0.14f);
         this.rangoAtaque = 0f;
@@ -122,7 +122,7 @@ public class Argos extends Enemigo{
             return;
         }
 
-        float anticipacion = 0.20f;
+        float anticipacion = 0.30f;
 
         float objetivoX = objetivo.getX()
             + velocidadObjetivoX * anticipacion;

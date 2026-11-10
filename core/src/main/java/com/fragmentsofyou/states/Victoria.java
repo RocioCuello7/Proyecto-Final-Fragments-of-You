@@ -27,9 +27,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -72,7 +69,7 @@ public class Victoria extends GameState{
         mapRender = new OrthogonalTiledMapRenderer(victoryMap);
 
         fader = new ScreenFader();
-        fader.startFlash(Color.BLACK, 1.5f); // Arranca en negro y se aclara
+        fader.startFlash(Color.BLACK, 1.5f);
 
         crearInterfaz();
 

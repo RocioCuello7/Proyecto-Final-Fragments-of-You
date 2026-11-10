@@ -20,21 +20,21 @@ public class Linterna {
     private boolean sobrecargada;
 
     private float tiempoCooldown;
-    private float tiempoCastigo = 1.0f;
+    private float tiempoCastigo = 1.8f;
 
     private float duracionFlash=0.18f;
     private float tiempoFlash = 0f;
 
     private float duracionEfectoSobrecarga = 0.2f;
     private float tiempoEfectoSobrecarga = 0f;
-    private float cooldownTotalDestello = 8.0f;
+    private float cooldownTotalDestello = 10.0f;
     private float cooldownDestello = 0f;
 
     private boolean danioAplicado =false;
 
     private float energiaMax = 100f;
     private float energia = 100f;
-    private float velocidadRecarga = 30f;
+    private float velocidadRecarga = 35f;
 
     public Linterna(RayHandler rayHandler, float x, float y, float rotacion){
         this.encendida = false;
@@ -92,7 +92,7 @@ public class Linterna {
 
     public boolean dispararSobrecarga() {
         if (!encendida || sobrecargada) return false;
-        if (!consumirEnergia(20f)) return false;
+        if (!consumirEnergia(25f)) return false;
 
         tiempoEfectoSobrecarga = duracionEfectoSobrecarga;
         danioAplicado=false;

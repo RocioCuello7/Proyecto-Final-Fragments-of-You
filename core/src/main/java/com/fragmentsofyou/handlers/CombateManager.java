@@ -60,8 +60,8 @@ public class CombateManager {
 
             if (enemigoMasCercano != null) {
                 audio.playDestello();
-                enemigoMasCercano.relentizar(3.0f);
-                enemigoMasCercano.recibirDanio(30f);
+                enemigoMasCercano.relentizar(1.0f);
+                enemigoMasCercano.recibirDanio(25f);
                 jugador.getLinterna().registrarImpacto();
 
                 efectoSobrecarga.reset();
