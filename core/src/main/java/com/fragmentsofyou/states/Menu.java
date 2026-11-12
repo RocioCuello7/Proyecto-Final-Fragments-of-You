@@ -34,7 +34,7 @@ public class Menu extends GameState {
         menuView = new FitViewport(320, 180, cam);
         touchPos = new Vector3();
 
-        menuMap = new TmxMapLoader().load("mapas/menuFOY.tmx");
+        menuMap = new TmxMapLoader().load("mapas/MenuFOY.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(menuMap);
 
         MapLayer capaBotones = menuMap.getLayers().get("botonesObjeto");
